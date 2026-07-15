@@ -7,6 +7,8 @@ control a real battery — simulation/analysis only.
 
 from __future__ import annotations
 
+import logging
+from pathlib import Path
 from typing import Final
 
 from homeassistant.config_entries import ConfigEntry
@@ -19,6 +21,12 @@ from .const import DOMAIN
 from .coordinator import BatteryRoiCoordinator
 
 PLATFORMS: Final = ["sensor"]
+
+_LOGGER = logging.getLogger(__name__)
+
+# Frontend card registration — track whether we have registered the
+# Lovelace card already (only needs to happen once, not per entry).
+_CARD_REGISTERED: Final = f"{DOMAIN}_frontend_registered"
 
 # Force an immediate coordinator refresh, bypassing the daily simulation
 # cache (`coordinator.SIMULATION_UPDATE_INTERVAL`). See `services.yaml`.
@@ -64,6 +72,27 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     return True
 
 
+async def _async_register_frontend(hass: HomeAssistant) -> None:
+    """Register the battery-roi-card.js Lovelace resource.
+
+    Serves the card JS at ``/battery_roi/battery-roi-card.js`` and
+    registers it as a frontend extra JS URL so Lovelace can discover
+    the custom element.
+    """
+    url_path = f"/{DOMAIN}/battery-roi-card.js"
+    file_path = Path(__file__).parent / "frontend" / "battery-roi-card.js"
+
+    if not file_path.exists():
+        _LOGGER.warning("Frontend card not found at %s", file_path)
+        return
+
+    hass.http.register_static_path(url_path, str(file_path), cache_headers=False)
+
+    from homeassistant.components.frontend import add_extra_js_url  # noqa: PLC0415
+
+    await add_extra_js_url(hass, url_path)
+
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Battery ROI Analyzer from a config entry."""
     coordinator = BatteryRoiCoordinator(hass, entry)
@@ -73,6 +102,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     entry.async_on_unload(entry.add_update_listener(_async_update_listener))
+
+    # Register the Lovelace card on first entry only
+    if not hass.data.get(_CARD_REGISTERED):
+        await _async_register_frontend(hass)
+        hass.data[_CARD_REGISTERED] = True
+
     return True
 
 
