@@ -126,14 +126,19 @@ def _build_energy_series(result: StatisticsResult) -> pd.Series:
 
     HA energy statistics track a monotonically increasing cumulative
     `sum`; the simulator needs per-period energy deltas (kWh consumed/
-    produced within each interval), so this takes a first difference
-    (first row's delta defaults to its own `sum` value).
+    produced within each interval), so this takes a first difference.
+
+    The first row's delta is set to 0.0 because we lack the preceding
+    cumulative value needed to compute a proper delta. Setting it to the
+    raw cumulative sum (as we previously did) creates a massive fake
+    surge equal to the meter's lifetime total — corrupting the entire
+    simulation for ``total_increasing`` sensors like P1 counters.
 
     Args:
         result: Fetched statistics for one entity.
 
     Returns:
-        A float `Series` of per-period kWh deltas, empty if no data.
+        A float ``Series`` of per-period kWh deltas, empty if no data.
     """
     dataframe = result.dataframe
     if dataframe.empty or "sum" not in dataframe.columns:
@@ -141,8 +146,8 @@ def _build_energy_series(result: StatisticsResult) -> pd.Series:
 
     sums = dataframe["sum"].astype(float)
     deltas = sums.diff()
-    if not sums.empty:
-        deltas.iloc[0] = sums.iloc[0]
+    if not deltas.empty:
+        deltas.iloc[0] = 0.0
     return deltas.clip(lower=0.0)
 
 

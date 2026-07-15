@@ -124,8 +124,13 @@ async def _async_fetch_period(
     start_time: datetime,
     end_time: datetime | None,
     period: Literal["5minute", "hour", "day"],
+    target_unit: str | None = "kWh",
 ) -> list[dict]:
     """Fetch one resolution of statistics for a single entity via executor.
+
+    Always requests conversion to ``target_unit`` (kWh by default) so
+    sensors using MWh, Wh, or any other energy unit are normalised to
+    the single unit the battery simulator expects.
 
     Args:
         hass: The Home Assistant instance.
@@ -134,10 +139,14 @@ async def _async_fetch_period(
         start_time: UTC inclusive lower bound.
         end_time: UTC exclusive upper bound, or None for "up to now".
         period: Requested granularity.
+        target_unit: Requested output unit. The recorder returns
+            statistics converted to this unit. ``None`` means
+            no conversion (raw stored unit).
 
     Returns:
         Raw list of StatisticsRow dicts for `entity_id` (empty list if none).
     """
+    units: dict[str, str] | None = {entity_id: target_unit} if target_unit else None
     result = await get_instance(hass).async_add_executor_job(
         statistics_during_period,
         hass,
@@ -145,7 +154,7 @@ async def _async_fetch_period(
         end_time,
         {entity_id},
         period,
-        None,
+        units,
         _STAT_TYPES,
     )
     return result.get(entity_id, [])
