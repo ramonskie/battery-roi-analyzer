@@ -34,16 +34,14 @@ from homeassistant.components.recorder.statistics import (
 )
 from homeassistant.core import HomeAssistant
 
-# Resolutions tried in order, best (finest) first, until one yields data.
-# Resolution preference: ``day`` first because:
-#   1. Daily data is average-based (already a daily mean) — ideal for ROI.
-#   2. HA retains daily statistics the longest (months–years).
-#   3. The battery simulator resamples anyway; daily is sufficient.
-#   4. 365 daily points vs 8760 hourly = 24× less data, faster.
-# Falls back to ``hour`` then ``5minute`` for recently-added sensors.
-_RESOLUTION_FALLBACK_CHAIN: Final[tuple[Literal["day", "hour", "5minute"], ...]] = (
-    "day",
+# Resolution preference: ``hour`` first because it preserves the day/night
+# cycle that drives battery charge/discharge behavior.  Daily data smears
+# PV evenly across 24h, making the battery see "sun at midnight" — it never
+# discharges.  Hourly keeps real solar timing (daytime surplus, nighttime
+# deficit).  Falls back to ``day`` then ``5minute``.
+_RESOLUTION_FALLBACK_CHAIN: Final[tuple[Literal["hour", "day", "5minute"], ...]] = (
     "hour",
+    "day",
     "5minute",
 )
 
