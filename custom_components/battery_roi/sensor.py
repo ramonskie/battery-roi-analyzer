@@ -71,9 +71,52 @@ def _best_roi_capacity_kwh(data: BatteryRoiData) -> float | None:
 
 
 def _payback_years(data: BatteryRoiData) -> float | None:
-    """Return payback years for the highest-ROI scenario, if any."""
+    """Return payback years for the highest-ROI scenario.
+
+    Always returns a positive year value — when the battery doesn't pay
+    back within its rated lifetime, extrapolates past the horizon using
+    the average annual saving.  Use the ``within_lifetime`` attribute to
+    distinguish between the two cases.  Returns ``None`` only when no
+    scenario result exists.
+    """
     best = data.scenario_comparison.best_by_roi
-    return best.payback_years if best is not None else None
+    if best is None:
+        return None
+    if best.payback_years is not None:
+        return best.payback_years
+    # Extrapolate payback past lifetime from cashflow
+    cashflow = best.cashflow_eur
+    if not cashflow or len(cashflow) < 2:
+        return None
+    upfront = -cashflow[0]
+    if upfront <= 0:
+        return None
+    annual_avg = sum(cashflow[1:]) / len(cashflow[1:])
+    if annual_avg <= 0:
+        return None
+    return upfront / annual_avg
+
+
+def _payback_attrs(data: BatteryRoiData) -> dict[str, Any]:
+    """Return attributes for the payback sensor.
+
+    Includes ``within_lifetime`` (whether the battery pays back within
+    its rated lifetime) and financial context (upfront cost, net saving,
+    annual saving) so dashboard cards can display the bottom line even
+    when the battery never pays back.
+    """
+    best = data.scenario_comparison.best_by_roi
+    if best is None:
+        return {}
+    attrs: dict[str, Any] = {
+        "within_lifetime": best.payback_years is not None,
+        "annual_saving_eur": best.annual_saving_eur,
+        "net_saving_eur": best.net_saving_eur,
+    }
+    cashflow = best.cashflow_eur
+    if cashflow and len(cashflow) >= 2:
+        attrs["upfront_cost_eur"] = -cashflow[0]
+    return attrs
 
 
 def _annual_saving_eur(data: BatteryRoiData) -> float | None:
@@ -272,16 +315,24 @@ class BatteryRoiSensor(CoordinatorEntity[BatteryRoiCoordinator], SensorEntity):
         ``by_capacity`` (financial + simulation metrics per battery size)
         and ``monthly_data`` (monthly aggregated energy flows for heatmap)
         from the coordinator's cached ``BatteryRoiData``.
+
+        The ``payback`` sensor exposes ``within_lifetime`` (bool),
+        ``upfront_cost_eur``, ``net_saving_eur``, and
+        ``annual_saving_eur`` to help dashboards show the bottom line
+        even when the battery never pays back within its rated life.
         """
         data = self.coordinator.data
-        if data is None or self.entity_description.key not in (
-            _KEY_BEST_SIZE, _KEY_BEST_CAPACITY
-        ):
+        if data is None:
             return {}
 
-        attrs: dict[str, Any] = {}
-        if data.by_capacity:
-            attrs["by_capacity"] = data.by_capacity
-        if data.monthly_data:
-            attrs["monthly_data"] = data.monthly_data
-        return attrs
+        key = self.entity_description.key
+        if key == _KEY_PAYBACK:
+            return _payback_attrs(data)
+        if key in (_KEY_BEST_SIZE, _KEY_BEST_CAPACITY):
+            attrs: dict[str, Any] = {}
+            if data.by_capacity:
+                attrs["by_capacity"] = data.by_capacity
+            if data.monthly_data:
+                attrs["monthly_data"] = data.monthly_data
+            return attrs
+        return {}
