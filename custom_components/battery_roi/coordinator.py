@@ -112,6 +112,10 @@ class BatteryRoiData:
             metrics for dashboard charts. Dict of capacity_kwh ->
             {annual_saving_eur, payback_years, npv_eur, roi_pct,
              self_consumption_pct, cycles_per_year, ...}.
+        annual_factor: Scale factor used to annualise raw N-day simulation
+            totals (≈ 365 / n_days). ``1.0`` when a full year of data
+            was available. Exposed so sensor entities can also annualise
+            their values.
     """
 
     battery_results: dict[float, BatterySimulationResult]
@@ -119,6 +123,7 @@ class BatteryRoiData:
     last_simulation_run: datetime
     monthly_data: dict[str, dict[str, float]] = field(default_factory=dict)
     by_capacity: dict[str, dict[str, float | None]] = field(default_factory=dict)
+    annual_factor: float = 1.0
 
 
 def _build_energy_series(result: StatisticsResult) -> pd.Series:
@@ -299,11 +304,19 @@ def _run_simulation_and_finance(
     chemistry: BatteryChemistry,
     battery_overrides: dict[str, Any],
     finance_inputs: FinanceInputs,
+    annual_factor: float,
 ) -> tuple[dict[float, BatterySimulationResult], ScenarioComparison]:
     """Run the battery sweep + financial comparison (blocking, CPU-bound).
 
     Intended to be called via `hass.async_add_executor_job` — never call
     this directly from the event loop.
+
+    .. important::
+       All energy flow totals are **annualised** (multiplied by
+       ``annual_factor``) before being passed to the finance
+       calculations.  This ensures annual saving / NPV / payback are
+       correct regardless of how many days of historical data the
+       simulation had to work with.
 
     Args:
         energy_data: Resampled pv/verbruik/import/export DataFrame.
@@ -312,6 +325,9 @@ def _run_simulation_and_finance(
             every simulated size (max charge/discharge power, round-trip
             efficiency, depth of discharge).
         finance_inputs: Financial configuration for the comparison.
+        annual_factor: Scale factor to convert N-day totals to a full
+            year (≈ 365 / n_days).  Passed from the coordinator so it
+            stays in a single location.
 
     Returns:
         Tuple of (per-size simulation results, scenario comparison).
@@ -327,14 +343,21 @@ def _run_simulation_and_finance(
         **battery_overrides,
     )
 
-    total_import_kwh = float(sum(energy_data[_COL_IMPORT]))
-    total_export_kwh = float(sum(energy_data[_COL_EXPORT]))
+    # --- Annualisation ------------------------------------------------
+    total_import_kwh = float(sum(energy_data[_COL_IMPORT])) * annual_factor
+    total_export_kwh = float(sum(energy_data[_COL_EXPORT])) * annual_factor
 
     finance_results: list[FinanceResult] = []
     for capacity_kwh, sim_result in battery_results.items():
         annual_flows = AnnualEnergyFlows(
-            imported_kwh=max(0.0, total_import_kwh - sim_result.reduced_grid_import_kwh),
-            exported_kwh=max(0.0, total_export_kwh - sim_result.reduced_export_kwh),
+            imported_kwh=max(
+                0.0,
+                total_import_kwh - sim_result.reduced_grid_import_kwh * annual_factor,
+            ),
+            exported_kwh=max(
+                0.0,
+                total_export_kwh - sim_result.reduced_export_kwh * annual_factor,
+            ),
             baseline_imported_kwh=total_import_kwh,
             baseline_exported_kwh=total_export_kwh,
         )
@@ -484,6 +507,15 @@ class BatteryRoiCoordinator(DataUpdateCoordinator[BatteryRoiData]):
 
         finance_inputs = _build_finance_inputs(merged_config)
 
+        # Compute annualisation factor from the actual data span (may be
+        # much shorter than the configured simulation_period_days if the
+        # sensors have limited history, e.g. recently added).
+        n_days = max(
+            (energy_data.index[-1] - energy_data.index[0]).total_seconds() / 86400.0,
+            1.0,
+        )
+        annual_factor = 365.0 / n_days
+
         try:
             # Heavy numpy/pandas CPU work — never run on the event loop.
             battery_results, scenario_comparison = (
@@ -493,12 +525,16 @@ class BatteryRoiCoordinator(DataUpdateCoordinator[BatteryRoiData]):
                     chemistry,
                     battery_overrides,
                     finance_inputs,
+                    annual_factor,
                 )
             )
         except Exception as err:  # noqa: BLE001 - surface any simulation failure
             raise UpdateFailed(f"Battery ROI simulation failed: {err}") from err
 
-        # Build per-capacity breakdown for dashboard charts
+        # Build per-capacity breakdown for dashboard charts.
+        # Simulation metrics (reduced_grid_import_kwh, etc.) are raw
+        # totals over N days — annualise them so the dashboard shows
+        # per-year values.
         by_capacity_dict: dict[str, dict[str, float | None]] = {}
         for capacity_kwh, sim_result in battery_results.items():
             cap_key = str(capacity_kwh).replace(".", "_")
@@ -509,9 +545,9 @@ class BatteryRoiCoordinator(DataUpdateCoordinator[BatteryRoiData]):
             entry: dict[str, float | None] = {
                 "self_consumption_pct": sim_result.self_consumption_pct,
                 "cycles_per_year": sim_result.cycles_per_year,
-                "extra_self_consumption_kwh": sim_result.extra_self_consumption_kwh,
-                "reduced_grid_import_kwh": sim_result.reduced_grid_import_kwh,
-                "reduced_export_kwh": sim_result.reduced_export_kwh,
+                "extra_self_consumption_kwh": sim_result.extra_self_consumption_kwh * annual_factor,
+                "reduced_grid_import_kwh": sim_result.reduced_grid_import_kwh * annual_factor,
+                "reduced_export_kwh": sim_result.reduced_export_kwh * annual_factor,
                 "avg_daily_utilization_kwh": sim_result.avg_daily_utilization_kwh,
             }
             if finance_result is not None:
@@ -556,4 +592,5 @@ class BatteryRoiCoordinator(DataUpdateCoordinator[BatteryRoiData]):
             last_simulation_run=datetime.now(timezone.utc),
             monthly_data=monthly_dict,
             by_capacity=by_capacity_dict,
+            annual_factor=annual_factor,
         )

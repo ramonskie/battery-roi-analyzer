@@ -109,15 +109,19 @@ def _self_consumption_pct(data: BatteryRoiData) -> float | None:
 
 
 def _import_saved_kwh(data: BatteryRoiData) -> float | None:
-    """Return reduced grid import (kWh) for the highest-ROI capacity."""
+    """Return annualised reduced grid import (kWh/yr) for the highest-ROI capacity."""
     sim = _best_roi_simulation(data)
-    return sim.reduced_grid_import_kwh if sim is not None else None
+    if sim is None:
+        return None
+    return sim.reduced_grid_import_kwh * data.annual_factor
 
 
 def _export_saved_kwh(data: BatteryRoiData) -> float | None:
-    """Return reduced grid export (kWh) for the highest-ROI capacity."""
+    """Return annualised reduced grid export (kWh/yr) for the highest-ROI capacity."""
     sim = _best_roi_simulation(data)
-    return sim.reduced_export_kwh if sim is not None else None
+    if sim is None:
+        return None
+    return sim.reduced_export_kwh * data.annual_factor
 
 
 SENSOR_DESCRIPTIONS: Final[tuple[BatteryRoiSensorDescription, ...]] = (
