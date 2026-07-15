@@ -318,7 +318,10 @@ def _annual_cashflow(
     _LOGGER.warning(
         "DEBUG _annual_cashflow(year=%s): scenario=%s, netting_fraction=%s, "
         "baseline_nf=%s, baseline_cost=%.2f, import_cost=%.2f, "
-        "export_rev=%.2f, fixed_costs=%.2f, saving=%.2f",
+        "export_rev=%.2f, fixed_costs=%.2f, saving=%.2f, "
+        "export_price=%.4f, import_price=%.4f, "
+        "flows_imported=%.1f, flows_exported=%.1f, "
+        "bl_import=%.1f, bl_export=%.1f",
         year,
         inputs.saldering.scenario,
         netting_fraction,
@@ -328,6 +331,12 @@ def _annual_cashflow(
         export_revenue,
         fixed_export_costs,
         saving,
+        export_price,
+        inputs.import_price_eur_per_kwh,
+        flows.imported_kwh,
+        flows.exported_kwh,
+        flows.baseline_imported_kwh,
+        flows.baseline_exported_kwh,
     )
     return saving
 
