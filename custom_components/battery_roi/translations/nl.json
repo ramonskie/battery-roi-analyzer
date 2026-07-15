@@ -16,10 +16,10 @@
       },
       "prices": {
         "title": "Energieprijzen",
-        "description": "Stel inkoop-/verkoopprijzen en het salderingsscenario in.",
+        "description": "Stel inkoop-/verkoopprijzen en het salderingsscenario in. Bij volledig salderen wordt teruglevering effectief gewaardeerd op het inkooptarief. Bij afbouw / geen saldering is de terugleverprijs hieronder uw werkelijke teruglevertarief.",
         "data": {
           "import_price_entity": "Inkoopprijs (input_number entiteit)",
-          "export_price_entity": "Verkoopprijs (input_number entiteit)",
+          "export_price_entity": "Teruglevertarief / feed-in tariff (input_number entiteit) — uw werkelijke verkoopprijs. Bij volledig salderen wordt deze niet gebruikt. Bij afbouw / geen saldering bepaalt dit de opbrengst na saldering.",
           "fixed_export_costs_eur_per_year": "Vaste terugleveringskosten (\u20ac/jaar)",
           "saldering_scenario": "Salderingsscenario",
           "phase_out_years": "Afbouwperiode (jaren)",
@@ -87,10 +87,10 @@
       },
       "prices": {
         "title": "Energieprijzen",
-        "description": "Werk de inkoop-/verkoopprijzen en het salderingsscenario bij.",
+        "description": "Werk de inkoop-/verkoopprijzen en het salderingsscenario bij. Bij volledig salderen wordt teruglevering gewaardeerd op het inkooptarief. Bij afbouw / geen saldering is de terugleverprijs uw werkelijke teruglevertarief.",
         "data": {
           "import_price_entity": "Inkoopprijs (input_number entiteit)",
-          "export_price_entity": "Verkoopprijs (input_number entiteit)",
+          "export_price_entity": "Teruglevertarief / feed-in tariff (input_number entiteit) — uw werkelijke verkoopprijs. Bij volledig salderen wordt deze niet gebruikt. Bij afbouw / geen saldering bepaalt dit de opbrengst na saldering.",
           "fixed_export_costs_eur_per_year": "Vaste terugleveringskosten (\u20ac/jaar)",
           "saldering_scenario": "Salderingsscenario",
           "phase_out_years": "Afbouwperiode (jaren)",

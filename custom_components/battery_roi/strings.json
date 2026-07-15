@@ -16,10 +16,10 @@
       },
       "prices": {
         "title": "Energy prices",
-        "description": "Configure buy/sell prices and net-metering (saldering) scenario.",
+        "description": "Set import/export prices and net-metering (saldering) rules. Under FULL saldering, export is effectively valued at import price. Under PHASE_OUT / NONE, the export price below is your actual feed-in tariff.",
         "data": {
           "import_price_entity": "Import price (input_number entity)",
-          "export_price_entity": "Export price (input_number entity)",
+          "export_price_entity": "Feed-in tariff / teruglevertarief (input_number entity) — your actual sell price. For FULL saldering this is unused, but for PHASE_OUT / NONE it determines post-netting revenue.",
           "fixed_export_costs_eur_per_year": "Fixed export costs (\u20ac/year)",
           "saldering_scenario": "Net-metering (saldering) scenario",
           "phase_out_years": "Phase-out duration (years)",
@@ -87,10 +87,10 @@
       },
       "prices": {
         "title": "Energy prices",
-        "description": "Update buy/sell prices and net-metering (saldering) scenario.",
+        "description": "Update buy/sell prices and net-metering (saldering) scenario. Under FULL saldering, export is valued at import price. Under PHASE_OUT / NONE, the export price is your actual feed-in tariff.",
         "data": {
           "import_price_entity": "Import price (input_number entity)",
-          "export_price_entity": "Export price (input_number entity)",
+          "export_price_entity": "Feed-in tariff / teruglevertarief (input_number entity) — your actual sell price. For FULL saldering this is unused, but for PHASE_OUT / NONE it determines post-netting revenue.",
           "fixed_export_costs_eur_per_year": "Fixed export costs (\u20ac/year)",
           "saldering_scenario": "Net-metering (saldering) scenario",
           "phase_out_years": "Phase-out duration (years)",
