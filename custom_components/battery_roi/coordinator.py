@@ -269,9 +269,16 @@ def _build_finance_inputs(options: dict[str, Any]) -> FinanceInputs:
     Returns:
         A populated `FinanceInputs` instance.
     """
-    saldering_scenario = SalderingScenario(
-        options.get(CONF_SALDERING_SCENARIO, SalderingScenario.NONE)
+    saldering_scenario_raw = options.get(CONF_SALDERING_SCENARIO, SalderingScenario.NONE)
+    _LOGGER.warning(
+        "DEBUG _build_finance_inputs: saldering_scenario_raw=%r (type=%s), "
+        "phase_out_years=%r, options_keys=%s",
+        saldering_scenario_raw,
+        type(saldering_scenario_raw).__name__,
+        options.get(CONF_PHASE_OUT_YEARS),
+        sorted(options.keys()),
     )
+    saldering_scenario = SalderingScenario(saldering_scenario_raw)
     phase_out_schedule = {
         int(year): float(fraction)
         for year, fraction in options.get(
