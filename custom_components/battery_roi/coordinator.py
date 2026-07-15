@@ -327,19 +327,16 @@ def _run_simulation_and_finance(
         **battery_overrides,
     )
 
+    total_import_kwh = float(sum(energy_data[_COL_IMPORT]))
+    total_export_kwh = float(sum(energy_data[_COL_EXPORT]))
+
     finance_results: list[FinanceResult] = []
     for capacity_kwh, sim_result in battery_results.items():
         annual_flows = AnnualEnergyFlows(
-            imported_kwh=max(
-                0.0,
-                sum(energy_data[_COL_IMPORT])
-                - sim_result.reduced_grid_import_kwh,
-            ),
-            exported_kwh=max(
-                0.0,
-                sum(energy_data[_COL_EXPORT]) - sim_result.reduced_export_kwh,
-            ),
-            baseline_imported_kwh=float(sum(energy_data[_COL_IMPORT])),
+            imported_kwh=max(0.0, total_import_kwh - sim_result.reduced_grid_import_kwh),
+            exported_kwh=max(0.0, total_export_kwh - sim_result.reduced_export_kwh),
+            baseline_imported_kwh=total_import_kwh,
+            baseline_exported_kwh=total_export_kwh,
         )
         finance_results.append(
             calculate_finance_result(capacity_kwh, finance_inputs, annual_flows)

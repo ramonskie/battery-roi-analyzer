@@ -142,19 +142,26 @@ class FinanceInputs:
 class AnnualEnergyFlows:
     """Simulated annual energy volumes for one battery-size scenario.
 
-    Populated by ``simulator.py``; this module only consumes it.
+    Populated by the coordinator from simulation metrics; consumed by
+    :func:`_annual_cashflow` to compute savings.
 
     Attributes:
         imported_kwh: Grid energy imported over the year, with the
             battery in place.
-        exported_kwh: Energy exported to the grid over the year.
+        exported_kwh: Energy exported to the grid over the year, with
+            the battery in place.
         baseline_imported_kwh: Grid energy that would have been
             imported without a battery (used to compute savings).
+        baseline_exported_kwh: Energy that would have been exported
+            without a battery. Needed to correctly compute baseline
+            export revenue (the no-battery scenario also earns feed-in
+            revenue, which must be subtracted from the saving).
     """
 
     imported_kwh: float
     exported_kwh: float
     baseline_imported_kwh: float
+    baseline_exported_kwh: float = 0.0
 
 
 @dataclass(frozen=True, slots=True)
@@ -244,7 +251,22 @@ def _annual_cashflow(
     Returns:
         Net annual saving in EUR, relative to having no battery.
     """
-    baseline_cost = flows.baseline_imported_kwh * inputs.import_price_eur_per_kwh
+    # --- Baseline (no battery) -------------------------------------------
+    baseline_import_cost = flows.baseline_imported_kwh * inputs.import_price_eur_per_kwh
+
+    # Baseline also earns export revenue — without accounting for it,
+    # the battery scenario's export revenue is incorrectly counted as a
+    # "saving" against an artificially high baseline cost.
+    baseline_netting_fraction = inputs.saldering.netting_fraction_for_year(year)
+    baseline_netted_kwh = flows.baseline_exported_kwh * baseline_netting_fraction
+    baseline_remaining_export = flows.baseline_exported_kwh - baseline_netted_kwh
+    baseline_export_revenue = (
+        baseline_netted_kwh * inputs.import_price_eur_per_kwh
+        + baseline_remaining_export * _export_price_for_year(inputs, year)
+    )
+    baseline_net_cost = baseline_import_cost - baseline_export_revenue
+
+    # --- With battery ---------------------------------------------------
     import_cost = flows.imported_kwh * inputs.import_price_eur_per_kwh
 
     netting_fraction = inputs.saldering.netting_fraction_for_year(year)
@@ -263,8 +285,8 @@ def _annual_cashflow(
         else inputs.fixed_export_costs_eur_per_year
     )
 
-    battery_cost = import_cost - export_revenue + fixed_export_costs
-    return baseline_cost - battery_cost
+    battery_net_cost = import_cost - export_revenue + fixed_export_costs
+    return baseline_net_cost - battery_net_cost
 
 
 def build_cashflow_series(
