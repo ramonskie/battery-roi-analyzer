@@ -13,15 +13,12 @@ consumers (sensors) can report "unknown" instead of a misleading value.
 
 from __future__ import annotations
 
-import logging
 import math
 from dataclasses import dataclass, field
 
 import numpy_financial as npf
 
 from .const import SalderingScenario
-
-_LOGGER = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True, slots=True)
@@ -85,43 +82,18 @@ class SalderingConfig:
             price instead of netting), or the scheduled fraction for
             ``PHASE_OUT``.
         """
-        _LOGGER.warning(
-            "DEBUG netting_fraction_for_year(year=%s): scenario=%r, scenario_type=%s, "
-            "phase_out_years=%s, is_FULL=%s, is_PHASE_OUT=%s, "
-            "FULL_id=%s, PHASE_OUT_id=%s, self_id=%s",
-            year,
-            self.scenario,
-            type(self.scenario).__name__,
-            self.phase_out_years,
-            self.scenario is SalderingScenario.FULL,
-            self.scenario is SalderingScenario.PHASE_OUT,
-            id(SalderingScenario.FULL),
-            id(SalderingScenario.PHASE_OUT),
-            id(self.scenario),
-        )
         if self.scenario is SalderingScenario.FULL:
-            _LOGGER.warning("DEBUG netting_fraction_for_year(year=%s): RETURNING 1.0 (FULL)", year)
             return 1.0
         if self.scenario is not SalderingScenario.PHASE_OUT:
-            _LOGGER.warning("DEBUG netting_fraction_for_year(year=%s): RETURNING 0.0 (NOT PHASE_OUT)", year)
             return 0.0
         schedule = self._resolve_schedule()
-        _LOGGER.warning(
-            "DEBUG netting_fraction_for_year(year=%s): schedule=%s, phase_out_years=%s",
-            year, schedule, self.phase_out_years,
-        )
         if not schedule:
-            _LOGGER.warning("DEBUG netting_fraction_for_year(year=%s): RETURNING 0.0 (empty schedule)", year)
             return 0.0
         applicable_years = [y for y in schedule if y <= year]
         if not applicable_years:
             first_year = min(schedule)
-            result = schedule[first_year]
-            _LOGGER.warning("DEBUG netting_fraction_for_year(year=%s): RETURNING %s (no applicable years, first_year=%s, schedule=%s)", year, result, first_year, schedule)
-            return result
-        result = schedule[max(applicable_years)]
-        _LOGGER.warning("DEBUG netting_fraction_for_year(year=%s): RETURNING %s (max_applicable=%s, schedule=%s)", year, result, max(applicable_years), schedule)
-        return result
+            return schedule[first_year]
+        return schedule[max(applicable_years)]
 
 
 @dataclass(frozen=True, slots=True)
@@ -314,31 +286,7 @@ def _annual_cashflow(
     )
 
     battery_net_cost = import_cost - export_revenue + fixed_export_costs
-    saving = baseline_net_cost - battery_net_cost
-    _LOGGER.warning(
-        "DEBUG _annual_cashflow(year=%s): scenario=%s, netting_fraction=%s, "
-        "baseline_nf=%s, baseline_cost=%.2f, import_cost=%.2f, "
-        "export_rev=%.2f, fixed_costs=%.2f, saving=%.2f, "
-        "export_price=%.4f, import_price=%.4f, "
-        "flows_imported=%.1f, flows_exported=%.1f, "
-        "bl_import=%.1f, bl_export=%.1f",
-        year,
-        inputs.saldering.scenario,
-        netting_fraction,
-        baseline_netting_fraction,
-        baseline_net_cost,
-        import_cost,
-        export_revenue,
-        fixed_export_costs,
-        saving,
-        export_price,
-        inputs.import_price_eur_per_kwh,
-        flows.imported_kwh,
-        flows.exported_kwh,
-        flows.baseline_imported_kwh,
-        flows.baseline_exported_kwh,
-    )
-    return saving
+    return baseline_net_cost - battery_net_cost
 
 
 def build_cashflow_series(
