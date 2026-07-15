@@ -8,6 +8,8 @@ control a real battery — simulation/analysis only.
 from __future__ import annotations
 
 import logging
+import os
+import shutil
 from pathlib import Path
 from typing import Final
 
@@ -75,18 +77,30 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
 async def _async_register_frontend(hass: HomeAssistant) -> None:
     """Register the battery-roi-card.js Lovelace resource.
 
-    Serves the card JS at ``/battery_roi/battery-roi-card.js`` and
-    registers it as a frontend extra JS URL so Lovelace can discover
-    the custom element.
-    """
-    url_path = f"/{DOMAIN}/battery-roi-card.js"
-    file_path = Path(__file__).parent / "frontend" / "battery-roi-card.js"
+    Copies the card JS to ``www/battery_roi/battery-roi-card.js`` (served
+    by HA at ``/local/battery_roi/battery-roi-card.js``) and registers it
+    as a frontend extra JS URL so Lovelace discovers the custom element.
 
-    if not file_path.exists():
-        _LOGGER.warning("Frontend card not found at %s", file_path)
+    The ``/local/`` path is always served by HA from the ``www/``
+    directory, which is more reliable than registering a custom static
+    path via the HTTP component.
+    """
+    src = Path(__file__).parent / "frontend" / "battery-roi-card.js"
+    if not src.exists():
+        _LOGGER.warning("Frontend card not found at %s", src)
         return
 
-    hass.http.register_static_path(url_path, str(file_path), cache_headers=False)
+    # Copy to www/ so HA serves it at /local/...
+    www_dir = hass.config.path("www", "battery_roi")
+    os.makedirs(www_dir, exist_ok=True)
+    dst = os.path.join(www_dir, "battery-roi-card.js")
+    try:
+        shutil.copy2(str(src), dst)
+    except OSError as err:
+        _LOGGER.warning("Could not copy frontend card to %s: %s", dst, err)
+        return
+
+    url_path = f"/local/battery_roi/battery-roi-card.js"
 
     from homeassistant.components.frontend import add_extra_js_url  # noqa: PLC0415
 
