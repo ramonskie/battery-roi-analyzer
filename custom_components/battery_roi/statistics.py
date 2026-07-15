@@ -8,6 +8,15 @@ Provides a best-available-resolution fallback chain (5minute -> hour -> day)
 for a set of energy sensors (import/export/production/consumption) over a
 date range, returned as pandas DataFrames for downstream resampling in
 ``simulator.py``.
+
+Unit handling
+-------------
+HA stores statistics in each sensor's native unit (e.g. kWh, MWh, Wh).
+The ``statistics_during_period`` API has a ``units`` parameter that *may*
+convert on fetch, but relying on it is brittle across HA versions. This
+module therefore performs **explicit post-fetch unit conversion** to kWh
+so that downstream code (coordinator, simulator) always works in kWh
+regardless of the sensor's native unit.
 """
 
 from __future__ import annotations
@@ -44,6 +53,13 @@ _COLUMNS: Final[tuple[str, ...]] = (
     "max",
 )
 
+# Maps known energy units to their multiplier to get to kWh.
+_ENERGY_UNIT_TO_KWH: Final[dict[str, float]] = {
+    "kWh": 1.0,
+    "MWh": 1000.0,
+    "Wh": 0.001,
+}
+
 
 @dataclass(slots=True, frozen=True)
 class StatisticsResult:
@@ -56,11 +72,15 @@ class StatisticsResult:
         dataframe: Time-indexed DataFrame (UTC, column ``start`` as index)
             with columns from ``_COLUMNS`` (minus ``start``). Empty
             DataFrame (with correct columns) if no statistics exist yet.
+        unit_of_measurement: The sensor's native unit as stored in the
+            recorder metadata, or ``None`` if unknown. Used by the
+            coordinator to normalise to kWh.
     """
 
     entity_id: str
     resolution: Literal["5minute", "hour", "day"]
     dataframe: pd.DataFrame
+    unit_of_measurement: str | None = None
 
 
 def _empty_dataframe() -> pd.DataFrame:
@@ -68,6 +88,30 @@ def _empty_dataframe() -> pd.DataFrame:
     frame = pd.DataFrame(columns=[c for c in _COLUMNS if c != "start"])
     frame.index = pd.DatetimeIndex([], tz=timezone.utc, name="start")
     return frame
+
+
+def _convert_sum_to_kwh(
+    dataframe: pd.DataFrame,
+    source_unit: str | None,
+) -> pd.DataFrame:
+    """Convert the ``sum`` column in-place to kWh if *source_unit* differs.
+
+    Handles common energy units (MWh, Wh, kWh). Pass ``None`` to skip
+    conversion (unit unknown → assume already kWh).
+
+    Returns the (possibly mutated) DataFrame for chaining; if the unit is
+    ``None`` or already ``kWh`` this is a no-op.
+    """
+    if source_unit is None:
+        return dataframe
+    factor = _ENERGY_UNIT_TO_KWH.get(source_unit)
+    if factor is None or factor == 1.0:
+        return dataframe
+    if "sum" not in dataframe.columns:
+        return dataframe
+    dataframe = dataframe.copy()
+    dataframe["sum"] = dataframe["sum"].astype(float) * factor
+    return dataframe
 
 
 def _rows_to_dataframe(rows: list[dict]) -> pd.DataFrame:
@@ -124,13 +168,21 @@ async def _async_fetch_period(
     start_time: datetime,
     end_time: datetime | None,
     period: Literal["5minute", "hour", "day"],
-    target_unit: str | None = "kWh",
 ) -> list[dict]:
     """Fetch one resolution of statistics for a single entity via executor.
 
-    Always requests conversion to ``target_unit`` (kWh by default) so
-    sensors using MWh, Wh, or any other energy unit are normalised to
-    the single unit the battery simulator expects.
+    Data is returned in the **sensor's native stored unit** (kWh, MWh,
+    Wh, …). Callers **must** apply ``_convert_sum_to_kwh`` afterwards
+    to normalise to kWh — this is handled automatically by
+    ``_async_fetch_with_unit``.
+
+    We deliberately do **not** pass a ``units`` conversion dict to
+    ``statistics_during_period`` because:
+      * the parameter may be silently ignored on older HA versions;
+      * doing the conversion ourselves in ``_convert_sum_to_kwh`` is
+        simpler and works on every HA version;
+      * it avoids double-conversion if both the API and we were to
+        attempt the conversion.
 
     Args:
         hass: The Home Assistant instance.
@@ -139,14 +191,10 @@ async def _async_fetch_period(
         start_time: UTC inclusive lower bound.
         end_time: UTC exclusive upper bound, or None for "up to now".
         period: Requested granularity.
-        target_unit: Requested output unit. The recorder returns
-            statistics converted to this unit. ``None`` means
-            no conversion (raw stored unit).
 
     Returns:
         Raw list of StatisticsRow dicts for `entity_id` (empty list if none).
     """
-    units: dict[str, str] | None = {entity_id: target_unit} if target_unit else None
     result = await get_instance(hass).async_add_executor_job(
         statistics_during_period,
         hass,
@@ -154,10 +202,69 @@ async def _async_fetch_period(
         end_time,
         {entity_id},
         period,
-        units,
+        None,  # units  -- we do our own conversion in _convert_sum_to_kwh
         _STAT_TYPES,
     )
     return result.get(entity_id, [])
+
+
+async def _async_get_unit_of_measurement(
+    hass: HomeAssistant,
+    entity_id: str,
+) -> str | None:
+    """Return the unit_of_measurement stored in the statistics metadata.
+
+    Uses the cached ``async_list_statistic_ids`` wrapper. Returns ``None``
+    when the entity has no statistics metadata yet (e.g. a newly added
+    sensor that hasn't been compiled).
+    """
+    known = await async_list_statistic_ids(hass, statistic_ids={entity_id})
+    for entry in known:
+        if entry.get("statistic_id") == entity_id:
+            return entry.get("unit_of_measurement") or entry.get("statistics_unit_of_measurement")
+    return None
+
+
+async def _async_fetch_with_unit(
+    hass: HomeAssistant,
+    entity_id: str,
+    start_time: datetime,
+    end_time: datetime | None,
+) -> StatisticsResult:
+    """Fetch statistics at best resolution AND resolve the unit_of_measurement.
+
+    1. Asks the HA API for metadata to learn the sensor's native unit.
+    2. Fetches data via the resolution fallback chain.
+    3. Explicitly converts the ``sum`` column to kWh (if the native unit
+       is MWh, Wh, etc.), so downstream code always works in kWh.
+
+    This explicit conversion is more reliable than relying on the
+    ``statistics_during_period *units*`` parameter, which may be silently
+    ignored on older HA versions or fail for certain unit pairs.
+    """
+    # Resolve native unit FIRST (metadata fetch is async-cached so it's fast).
+    unit = await _async_get_unit_of_measurement(hass, entity_id)
+
+    last_period: Literal["5minute", "hour", "day"] = _RESOLUTION_FALLBACK_CHAIN[-1]
+    for period in _RESOLUTION_FALLBACK_CHAIN:
+        last_period = period
+        rows = await _async_fetch_period(hass, entity_id, start_time, end_time, period)
+        if rows:
+            dataframe = _rows_to_dataframe(rows)
+            dataframe = _convert_sum_to_kwh(dataframe, unit)
+            return StatisticsResult(
+                entity_id=entity_id,
+                resolution=period,
+                dataframe=dataframe,
+                unit_of_measurement=unit,
+            )
+
+    return StatisticsResult(
+        entity_id=entity_id,
+        resolution=last_period,
+        dataframe=_empty_dataframe(),
+        unit_of_measurement=unit,
+    )
 
 
 async def async_get_statistics(
@@ -173,6 +280,9 @@ async def async_get_statistics(
     (e.g. entity has no statistics compiled yet), returns an empty
     DataFrame tagged with the coarsest resolution ("day").
 
+    The returned ``StatisticsResult.dataframe["sum"]`` is always in **kWh**
+    regardless of the sensor's native unit (MWh, Wh, etc.).
+
     Args:
         hass: The Home Assistant instance.
         entity_id: Statistic/entity id to fetch.
@@ -180,24 +290,10 @@ async def async_get_statistics(
         end_time: UTC exclusive upper bound, or None for "up to now".
 
     Returns:
-        A `StatisticsResult` with the resolved resolution and DataFrame.
+        A `StatisticsResult` with the resolved resolution, DataFrame, and
+        the original unit_of_measurement (before conversion).
     """
-    last_period: Literal["5minute", "hour", "day"] = _RESOLUTION_FALLBACK_CHAIN[-1]
-    for period in _RESOLUTION_FALLBACK_CHAIN:
-        last_period = period
-        rows = await _async_fetch_period(hass, entity_id, start_time, end_time, period)
-        if rows:
-            return StatisticsResult(
-                entity_id=entity_id,
-                resolution=period,
-                dataframe=_rows_to_dataframe(rows),
-            )
-
-    return StatisticsResult(
-        entity_id=entity_id,
-        resolution=last_period,
-        dataframe=_empty_dataframe(),
-    )
+    return await _async_fetch_with_unit(hass, entity_id, start_time, end_time)
 
 
 async def async_get_statistics_for_entities(
