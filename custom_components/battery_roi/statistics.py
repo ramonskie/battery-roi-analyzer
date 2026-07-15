@@ -35,9 +35,15 @@ from homeassistant.components.recorder.statistics import (
 from homeassistant.core import HomeAssistant
 
 # Resolutions tried in order, best (finest) first, until one yields data.
-_RESOLUTION_FALLBACK_CHAIN: Final[tuple[Literal["5minute", "hour", "day"], ...]] = (
-    "5minute",
+# Resolution preference: ``hour`` first because HA's recorder retains hourly
+# statistics for months-to-years but 5-minute statistics are only kept for a
+# few days (default ~96 h).  For a yearly ROI simulation, hourly data is the
+# best choice — long enough retention and fine enough granularity.  We fall
+# back to ``day`` if even hourly data doesn't exist (e.g. a sensor added a
+# few hours ago).
+_RESOLUTION_FALLBACK_CHAIN: Final[tuple[Literal["hour", "5minute", "day"], ...]] = (
     "hour",
+    "5minute",
     "day",
 )
 
