@@ -13,12 +13,15 @@ consumers (sensors) can report "unknown" instead of a misleading value.
 
 from __future__ import annotations
 
+import logging
 import math
 from dataclasses import dataclass, field
 
 import numpy_financial as npf
 
 from .const import SalderingScenario
+
+_LOGGER = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True, slots=True)
@@ -82,6 +85,20 @@ class SalderingConfig:
             price instead of netting), or the scheduled fraction for
             ``PHASE_OUT``.
         """
+        _LOGGER.warning(
+            "DEBUG netting_fraction_for_year(year=%s): scenario=%r, scenario_type=%s, "
+            "phase_out_years=%s, is_FULL=%s, is_PHASE_OUT=%s, "
+            "FULL_id=%s, PHASE_OUT_id=%s, self_id=%s",
+            year,
+            self.scenario,
+            type(self.scenario).__name__,
+            self.phase_out_years,
+            self.scenario is SalderingScenario.FULL,
+            self.scenario is SalderingScenario.PHASE_OUT,
+            id(SalderingScenario.FULL),
+            id(SalderingScenario.PHASE_OUT),
+            id(self.scenario),
+        )
         if self.scenario is SalderingScenario.FULL:
             return 1.0
         if self.scenario is not SalderingScenario.PHASE_OUT:
