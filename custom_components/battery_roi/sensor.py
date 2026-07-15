@@ -67,7 +67,7 @@ class BatteryRoiSensorDescription(SensorEntityDescription):
 def _best_roi_capacity_kwh(data: BatteryRoiData) -> float | None:
     """Return the capacity_kwh of the highest-ROI scenario, if any."""
     best = data.scenario_comparison.best_by_roi
-    return best.capacity_kwh if best is not None else None
+    return best.battery_capacity_kwh if best is not None else None
 
 
 def _payback_years(data: BatteryRoiData) -> float | None:
@@ -85,7 +85,7 @@ def _annual_saving_eur(data: BatteryRoiData) -> float | None:
 def _best_npv_capacity_kwh(data: BatteryRoiData) -> float | None:
     """Return the capacity_kwh of the highest-NPV scenario, if any."""
     best = data.scenario_comparison.best_by_npv
-    return best.capacity_kwh if best is not None else None
+    return best.battery_capacity_kwh if best is not None else None
 
 
 def _best_roi_simulation(data: BatteryRoiData):  # noqa: ANN202 - internal helper
