@@ -3,13 +3,13 @@
   "config": {
     "step": {
       "sensors": {
-        "title": "Energiesensoren",
-        "description": "Selecteer de bestaande sensoren met statistiekgegevens om een thuisbatterij te simuleren.",
+        "title": "Energiemeters (kWh)",
+        "description": "Selecteer de sensoren die cumulatief energieverbruik (kWh) bijhouden. Dit zijn uw P1-meterstanden en zonneproductie.",
         "data": {
-          "import_sensor": "Sensor netafname (inkoop)",
-          "export_sensor": "Sensor teruglevering (verkoop)",
-          "consumption_sensor": "Sensor energieverbruik woning",
-          "production_sensor": "Sensor zonneproductie (optioneel)"
+          "import_sensor": "Netafname meter (kWh)",
+          "export_sensor": "Teruglevering meter (kWh)",
+          "consumption_sensor": "Huisverbruik meter (kWh) — leeg om automatisch te berekenen",
+          "production_sensor": "Zonneproductie meter (kWh)"
         }
       },
       "prices": {
@@ -72,13 +72,13 @@
   "options": {
     "step": {
       "sensors": {
-        "title": "Energiesensoren",
-        "description": "Werk de sensoren met statistiekgegevens bij die worden gebruikt om de batterij te simuleren.",
+        "title": "Energiemeters (kWh)",
+        "description": "Werk de sensoren bij die cumulatief energieverbruik (kWh) bijhouden.",
         "data": {
-          "import_sensor": "Sensor netafname (inkoop)",
-          "export_sensor": "Sensor teruglevering (verkoop)",
-          "consumption_sensor": "Sensor energieverbruik woning",
-          "production_sensor": "Sensor zonneproductie (optioneel)"
+          "import_sensor": "Netafname meter (kWh)",
+          "export_sensor": "Teruglevering meter (kWh)",
+          "consumption_sensor": "Huisverbruik meter (kWh) — leeg om automatisch te berekenen",
+          "production_sensor": "Zonneproductie meter (kWh)"
         }
       },
       "prices": {

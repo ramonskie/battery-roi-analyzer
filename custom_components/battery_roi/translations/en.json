@@ -3,13 +3,13 @@
   "config": {
     "step": {
       "sensors": {
-        "title": "Energy sensors",
-        "description": "Select the existing statistics-tracked sensors used to simulate a home battery.",
+        "title": "Energy meters (kWh)",
+        "description": "Select the sensors that track cumulative energy flow (kWh). These are your P1/smart meter counters and solar production meter.",
         "data": {
-          "import_sensor": "Grid import (buy) sensor",
-          "export_sensor": "Grid export (sell) sensor",
-          "consumption_sensor": "Home energy consumption sensor",
-          "production_sensor": "Solar production sensor (optional)"
+          "import_sensor": "Grid import meter (kWh)",
+          "export_sensor": "Grid export meter (kWh)",
+          "consumption_sensor": "Home consumption meter (kWh) — leave empty to auto-calculate",
+          "production_sensor": "Solar production meter (kWh)"
         }
       },
       "prices": {
@@ -72,13 +72,13 @@
   "options": {
     "step": {
       "sensors": {
-        "title": "Energy sensors",
-        "description": "Update the statistics-tracked sensors used to simulate the battery.",
+        "title": "Energy meters (kWh)",
+        "description": "Update the sensors that track cumulative energy flow (kWh).",
         "data": {
-          "import_sensor": "Grid import (buy) sensor",
-          "export_sensor": "Grid export (sell) sensor",
-          "consumption_sensor": "Home energy consumption sensor",
-          "production_sensor": "Solar production sensor (optional)"
+          "import_sensor": "Grid import meter (kWh)",
+          "export_sensor": "Grid export meter (kWh)",
+          "consumption_sensor": "Home consumption meter (kWh) — leave empty to auto-calculate",
+          "production_sensor": "Solar production meter (kWh)"
         }
       },
       "prices": {
