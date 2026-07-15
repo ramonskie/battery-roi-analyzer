@@ -28,6 +28,7 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 
 from .const import (
     CONF_BATTERY_CHEMISTRY,
+    CONF_BATTERY_PRICE,
     CONF_BATTERY_DEGRADATION_PER_YEAR,
     CONF_BATTERY_DEPTH_OF_DISCHARGE,
     CONF_BATTERY_INSTALL_COST,
