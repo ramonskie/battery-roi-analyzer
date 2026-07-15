@@ -6,8 +6,10 @@
         "title": "Energiemeters (kWh)",
         "description": "Selecteer de sensoren die cumulatief energieverbruik (kWh) bijhouden. Dit zijn uw P1-meterstanden en zonneproductie.",
         "data": {
-          "import_sensor": "Netafname meter (kWh)",
-          "export_sensor": "Teruglevering meter (kWh)",
+          "import_sensor": "Netafname meter — tarief 1 (kWh)",
+          "import_sensor_tariff_2": "Netafname meter — tarief 2 (kWh)",
+          "export_sensor": "Teruglevering meter — tarief 1 (kWh)",
+          "export_sensor_tariff_2": "Teruglevering meter — tarief 2 (kWh)",
           "consumption_sensor": "Huisverbruik meter (kWh) — leeg om automatisch te berekenen",
           "production_sensor": "Zonneproductie meter (kWh)"
         }
@@ -75,8 +77,10 @@
         "title": "Energiemeters (kWh)",
         "description": "Werk de sensoren bij die cumulatief energieverbruik (kWh) bijhouden.",
         "data": {
-          "import_sensor": "Netafname meter (kWh)",
-          "export_sensor": "Teruglevering meter (kWh)",
+          "import_sensor": "Netafname meter — tarief 1 (kWh)",
+          "import_sensor_tariff_2": "Netafname meter — tarief 2 (kWh)",
+          "export_sensor": "Teruglevering meter — tarief 1 (kWh)",
+          "export_sensor_tariff_2": "Teruglevering meter — tarief 2 (kWh)",
           "consumption_sensor": "Huisverbruik meter (kWh) — leeg om automatisch te berekenen",
           "production_sensor": "Zonneproductie meter (kWh)"
         }

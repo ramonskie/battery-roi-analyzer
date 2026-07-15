@@ -44,7 +44,9 @@ class BatteryChemistry(StrEnum):
 # Config entry data/option keys
 # ---------------------------------------------------------------------------
 CONF_IMPORT_SENSOR: Final = "import_sensor"
+CONF_IMPORT_SENSOR_TARIFF_2: Final = "import_sensor_tariff_2"
 CONF_EXPORT_SENSOR: Final = "export_sensor"
+CONF_EXPORT_SENSOR_TARIFF_2: Final = "export_sensor_tariff_2"
 CONF_PRODUCTION_SENSOR: Final = "production_sensor"
 CONF_CONSUMPTION_SENSOR: Final = "consumption_sensor"
 

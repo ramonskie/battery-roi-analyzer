@@ -6,8 +6,10 @@
         "title": "Energy meters (kWh)",
         "description": "Select the sensors that track cumulative energy flow (kWh). These are your P1/smart meter counters and solar production meter.",
         "data": {
-          "import_sensor": "Grid import meter (kWh)",
-          "export_sensor": "Grid export meter (kWh)",
+          "import_sensor": "Grid import meter — tariff 1 (kWh)",
+          "import_sensor_tariff_2": "Grid import meter — tariff 2 (kWh)",
+          "export_sensor": "Grid export meter — tariff 1 (kWh)",
+          "export_sensor_tariff_2": "Grid export meter — tariff 2 (kWh)",
           "consumption_sensor": "Home consumption meter (kWh) — leave empty to auto-calculate",
           "production_sensor": "Solar production meter (kWh)"
         }
@@ -75,8 +77,10 @@
         "title": "Energy meters (kWh)",
         "description": "Update the sensors that track cumulative energy flow (kWh).",
         "data": {
-          "import_sensor": "Grid import meter (kWh)",
-          "export_sensor": "Grid export meter (kWh)",
+          "import_sensor": "Grid import meter — tariff 1 (kWh)",
+          "import_sensor_tariff_2": "Grid import meter — tariff 2 (kWh)",
+          "export_sensor": "Grid export meter — tariff 1 (kWh)",
+          "export_sensor_tariff_2": "Grid export meter — tariff 2 (kWh)",
           "consumption_sensor": "Home consumption meter (kWh) — leave empty to auto-calculate",
           "production_sensor": "Solar production meter (kWh)"
         }

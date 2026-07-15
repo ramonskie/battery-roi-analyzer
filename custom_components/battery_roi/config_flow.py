@@ -48,10 +48,12 @@ from .const import (
     CONF_DISCOUNT_RATE,
     CONF_DYNAMIC_PRICE_SENSOR,
     CONF_EXPORT_SENSOR,
+    CONF_EXPORT_SENSOR_TARIFF_2,
     CONF_EXPORT_PRICE_ENTITY,
     CONF_FIXED_EXPORT_COSTS,
     CONF_IMPORT_PRICE_ENTITY,
     CONF_IMPORT_SENSOR,
+    CONF_IMPORT_SENSOR_TARIFF_2,
     CONF_PHASE_OUT_YEARS,
     CONF_PRODUCTION_SENSOR,
     CONF_SALDERING_OWN_TARIFF,
@@ -81,17 +83,16 @@ _VALID_ENERGY_DEVICE_CLASSES: Final = {"energy"}
 _STEP_ORDER: Final = ("sensors", "prices", "battery", "sim_period", "results")
 
 
-def _energy_entity_selector(*, optional_device_class_hint: bool = False) -> EntitySelector:
-    """Build an `EntitySelector` scoped to sensor entities.
+def _energy_entity_selector() -> EntitySelector:
+    """Build an `EntitySelector` scoped to energy (kWh) sensor entities.
 
-    Args:
-        optional_device_class_hint: Unused placeholder for future
-            device-class filtering; kept for readability at call sites.
-
-    Returns:
-        An `EntitySelector` restricted to the `sensor` domain.
+    Only shows sensors with ``device_class="energy"`` — i.e. cumulative
+    energy meters (P1 counters, production meters). This hides power (kW)
+    sensors, temperatures, etc. from the dropdown.
     """
-    return EntitySelector(EntitySelectorConfig(domain="sensor"))
+    return EntitySelector(
+        EntitySelectorConfig(domain="sensor", device_class=["energy"])
+    )
 
 
 def _price_entity_selector() -> EntitySelector:
@@ -231,6 +232,14 @@ class BatteryRoiFlowMixin:
                 ): _energy_entity_selector(),
                 vol.Required(
                     CONF_EXPORT_SENSOR, default=defaults.get(CONF_EXPORT_SENSOR)
+                ): _energy_entity_selector(),
+                vol.Optional(
+                    CONF_IMPORT_SENSOR_TARIFF_2,
+                    default=defaults.get(CONF_IMPORT_SENSOR_TARIFF_2, ""),
+                ): _energy_entity_selector(),
+                vol.Optional(
+                    CONF_EXPORT_SENSOR_TARIFF_2,
+                    default=defaults.get(CONF_EXPORT_SENSOR_TARIFF_2, ""),
                 ): _energy_entity_selector(),
                 vol.Optional(
                     CONF_CONSUMPTION_SENSOR,

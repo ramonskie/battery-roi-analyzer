@@ -40,9 +40,11 @@ from .const import (
     CONF_EXPORT_PRICE,
     CONF_EXPORT_PRICE_ENTITY,
     CONF_EXPORT_SENSOR,
+    CONF_EXPORT_SENSOR_TARIFF_2,
     CONF_IMPORT_PRICE,
     CONF_IMPORT_PRICE_ENTITY,
     CONF_IMPORT_SENSOR,
+    CONF_IMPORT_SENSOR_TARIFF_2,
     CONF_PRODUCTION_SENSOR,
     CONF_SALDERING_PHASE_OUT_SCHEDULE,
     CONF_SALDERING_SCENARIO,
@@ -148,6 +150,8 @@ def _build_energy_dataframe(
     consumption_entity: str | None,
     import_entity: str,
     export_entity: str,
+    import_entity_tariff_2: str | None = None,
+    export_entity_tariff_2: str | None = None,
 ) -> pd.DataFrame:
     """Assemble the combined pv/verbruik/import/export DataFrame.
 
@@ -157,14 +161,20 @@ def _build_energy_dataframe(
     which holds for any grid-tied system (Kirchhoff's current law for
     energy flows).
 
+    Dual-tariff (dal/piek) meters: pass ``import_entity_tariff_2``
+    and/or ``export_entity_tariff_2`` to sum both tariffs into a single
+    import/export series.
+
     Args:
         stats_by_entity: Mapping of entity_id -> `StatisticsResult`, as
             returned by `async_get_statistics_for_entities`.
         production_entity: Entity id configured for PV production.
         consumption_entity: Entity id configured for consumption, or
             ``None`` to derive it via energy balance.
-        import_entity: Entity id configured for grid import.
-        export_entity: Entity id configured for grid export.
+        import_entity: Entity id configured for grid import (tariff 1).
+        export_entity: Entity id configured for grid export (tariff 1).
+        import_entity_tariff_2: Optional second tariff import entity.
+        export_entity_tariff_2: Optional second tariff export entity.
 
     Returns:
         A time-indexed DataFrame with `pv`/`verbruik`/`import`/`export`
@@ -181,6 +191,20 @@ def _build_energy_dataframe(
     pv_series = _build_energy_series(stats_by_entity[production_entity])
     import_series = _build_energy_series(stats_by_entity[import_entity])
     export_series = _build_energy_series(stats_by_entity[export_entity])
+
+    # Sum tariff 2 into import/export when configured (dual-tariff meter)
+    if import_entity_tariff_2:
+        _require_entity(stats_by_entity, import_entity_tariff_2)
+        import_series = import_series.add(
+            _build_energy_series(stats_by_entity[import_entity_tariff_2]),
+            fill_value=0.0,
+        )
+    if export_entity_tariff_2:
+        _require_entity(stats_by_entity, export_entity_tariff_2)
+        export_series = export_series.add(
+            _build_energy_series(stats_by_entity[export_entity_tariff_2]),
+            fill_value=0.0,
+        )
 
     if consumption_entity:
         _require_entity(stats_by_entity, consumption_entity)
@@ -375,10 +399,16 @@ class BatteryRoiCoordinator(DataUpdateCoordinator[BatteryRoiData]):
             raise UpdateFailed(f"Missing required sensor configuration: {err}") from err
 
         consumption_entity: str | None = merged_config.get(CONF_CONSUMPTION_SENSOR) or None
+        import_entity_tariff_2: str | None = merged_config.get(CONF_IMPORT_SENSOR_TARIFF_2) or None
+        export_entity_tariff_2: str | None = merged_config.get(CONF_EXPORT_SENSOR_TARIFF_2) or None
 
         entity_ids = {production_entity, import_entity, export_entity}
         if consumption_entity:
             entity_ids.add(consumption_entity)
+        if import_entity_tariff_2:
+            entity_ids.add(import_entity_tariff_2)
+        if export_entity_tariff_2:
+            entity_ids.add(export_entity_tariff_2)
 
         period_days = int(
             merged_config.get(CONF_SIMULATION_PERIOD_DAYS, DEFAULT_SIMULATION_PERIOD_DAYS)
@@ -401,6 +431,8 @@ class BatteryRoiCoordinator(DataUpdateCoordinator[BatteryRoiData]):
                 consumption_entity=consumption_entity,
                 import_entity=import_entity,
                 export_entity=export_entity,
+                import_entity_tariff_2=import_entity_tariff_2,
+                export_entity_tariff_2=export_entity_tariff_2,
             )
         except ValueError as err:
             raise UpdateFailed(str(err)) from err
