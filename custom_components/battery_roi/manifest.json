@@ -3,6 +3,7 @@
   "name": "Battery ROI Analyzer",
   "codeowners": ["@ramonskie"],
   "config_flow": true,
+  "dependencies": ["frontend", "http"],
   "documentation": "https://github.com/ramonskie/battery-roi-analyzer",
   "issue_tracker": "https://github.com/ramonskie/battery-roi-analyzer/issues",
   "iot_class": "calculated",

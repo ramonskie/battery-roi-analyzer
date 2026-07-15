@@ -2,10 +2,33 @@
 
 from __future__ import annotations
 
+import json
 from enum import StrEnum
+from pathlib import Path
 from typing import Final
 
 DOMAIN: Final = "battery_roi"
+
+# ---------------------------------------------------------------------------
+# Frontend card registration
+# ---------------------------------------------------------------------------
+
+_MANIFEST_PATH: Final = Path(__file__).parent / "manifest.json"
+try:
+    _manifest = json.loads(_MANIFEST_PATH.read_text(encoding="utf-8"))
+    INTEGRATION_VERSION: Final[str] = _manifest.get("version", "0.0.0")
+except (OSError, json.JSONDecodeError):
+    INTEGRATION_VERSION: Final[str] = "0.0.0"
+
+URL_BASE: Final = f"/{DOMAIN}"
+
+JSMODULES: Final[list[dict[str, str]]] = [
+    {
+        "name": "Battery ROI Card",
+        "filename": "battery-roi-card.js",
+        "version": INTEGRATION_VERSION,
+    },
+]
 
 # ---------------------------------------------------------------------------
 # Default battery size options (kWh) offered during config flow / comparison
