@@ -233,22 +233,10 @@ class BatteryRoiFlowMixin:
                 vol.Required(
                     CONF_EXPORT_SENSOR, default=defaults.get(CONF_EXPORT_SENSOR)
                 ): _energy_entity_selector(),
-                vol.Optional(
-                    CONF_IMPORT_SENSOR_TARIFF_2,
-                    default=defaults.get(CONF_IMPORT_SENSOR_TARIFF_2, ""),
-                ): _energy_entity_selector(),
-                vol.Optional(
-                    CONF_EXPORT_SENSOR_TARIFF_2,
-                    default=defaults.get(CONF_EXPORT_SENSOR_TARIFF_2, ""),
-                ): _energy_entity_selector(),
-                vol.Optional(
-                    CONF_CONSUMPTION_SENSOR,
-                    default=defaults.get(CONF_CONSUMPTION_SENSOR, ""),
-                ): _energy_entity_selector(),
-                vol.Optional(
-                    CONF_PRODUCTION_SENSOR,
-                    default=defaults.get(CONF_PRODUCTION_SENSOR, ""),
-                ): _energy_entity_selector(),
+                vol.Optional(CONF_IMPORT_SENSOR_TARIFF_2): _energy_entity_selector(),
+                vol.Optional(CONF_EXPORT_SENSOR_TARIFF_2): _energy_entity_selector(),
+                vol.Optional(CONF_CONSUMPTION_SENSOR): _energy_entity_selector(),
+                vol.Optional(CONF_PRODUCTION_SENSOR): _energy_entity_selector(),
             }
         )
 
@@ -288,14 +276,8 @@ class BatteryRoiFlowMixin:
                         mode=NumberSelectorMode.BOX, unit_of_measurement="years", min=1, max=30, step=1
                     )
                 ),
-                vol.Optional(
-                    CONF_SALDERING_OWN_TARIFF,
-                    default=defaults.get(CONF_SALDERING_OWN_TARIFF),
-                ): _price_number_selector(),
-                vol.Optional(
-                    CONF_DYNAMIC_PRICE_SENSOR,
-                    default=defaults.get(CONF_DYNAMIC_PRICE_SENSOR),
-                ): _energy_entity_selector(),
+                vol.Optional(CONF_SALDERING_OWN_TARIFF): _price_number_selector(),
+                vol.Optional(CONF_DYNAMIC_PRICE_SENSOR): _energy_entity_selector(),
             }
         )
 
