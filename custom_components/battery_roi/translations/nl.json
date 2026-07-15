@@ -36,7 +36,7 @@
           "battery_round_trip_efficiency": "Round-trip rendement (%)",
           "battery_max_charge_kw": "Max. laadvermogen (kW)",
           "battery_max_discharge_kw": "Max. ontlaadvermogen (kW)",
-          "battery_price_eur": "Batterijprijs (\u20ac)",
+          "battery_price_eur": "Batterijprijs (\u20ac/kWh)",
           "battery_install_cost": "Installatiekosten (\u20ac)"
         }
       },
@@ -107,7 +107,7 @@
           "battery_round_trip_efficiency": "Round-trip rendement (%)",
           "battery_max_charge_kw": "Max. laadvermogen (kW)",
           "battery_max_discharge_kw": "Max. ontlaadvermogen (kW)",
-          "battery_price_eur": "Batterijprijs (\u20ac)",
+          "battery_price_eur": "Batterijprijs (\u20ac/kWh)",
           "battery_install_cost": "Installatiekosten (\u20ac)"
         }
       },

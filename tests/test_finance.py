@@ -28,7 +28,7 @@ def _make_inputs(saldering: SalderingConfig) -> FinanceInputs:
         import_price_eur_per_kwh=0.3,
         export_price_eur_per_kwh=0.1,
         fixed_export_costs_eur_per_year=50.0,
-        battery_price_eur=1000.0,
+        battery_price_per_kwh=1000.0,
         installation_costs_eur=0.0,
         lifetime_years=1,
         discount_rate=0.05,
@@ -53,7 +53,7 @@ class TestFinanceInputsValidation:
                 import_price_eur_per_kwh=0.3,
                 export_price_eur_per_kwh=0.1,
                 fixed_export_costs_eur_per_year=0.0,
-                battery_price_eur=1000.0,
+                battery_price_per_kwh=1000.0,
                 installation_costs_eur=0.0,
                 lifetime_years=0,
                 discount_rate=0.05,
@@ -65,19 +65,19 @@ class TestFinanceInputsValidation:
                 import_price_eur_per_kwh=0.3,
                 export_price_eur_per_kwh=0.1,
                 fixed_export_costs_eur_per_year=0.0,
-                battery_price_eur=1000.0,
+                battery_price_per_kwh=1000.0,
                 installation_costs_eur=0.0,
                 lifetime_years=5,
                 discount_rate=-1.0,
             )
 
     def test_negative_battery_price_raises(self) -> None:
-        with pytest.raises(ValueError, match="battery_price_eur"):
+        with pytest.raises(ValueError, match="battery_price_per_kwh"):
             FinanceInputs(
                 import_price_eur_per_kwh=0.3,
                 export_price_eur_per_kwh=0.1,
                 fixed_export_costs_eur_per_year=0.0,
-                battery_price_eur=-1.0,
+                battery_price_per_kwh=-1.0,
                 installation_costs_eur=0.0,
                 lifetime_years=5,
                 discount_rate=0.05,

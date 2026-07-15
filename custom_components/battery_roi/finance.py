@@ -108,8 +108,10 @@ class FinanceInputs:
         fixed_export_costs_eur_per_year: Recurring fixed costs charged
             for exporting energy (e.g. grid operator surcharges).
             Ignored under ``FULL`` netting per acceptance criteria.
-        battery_price_eur: Purchase price of the battery hardware.
-        installation_costs_eur: One-off installation costs.
+        battery_price_per_kwh: Purchase price per kWh of battery capacity
+            (multiplied by capacity to get total hardware cost).
+        installation_costs_eur: One-off installation costs (fixed,
+            independent of battery size).
         lifetime_years: Expected battery lifetime in years, used as
             the cashflow horizon for NPV/IRR/payback.
         discount_rate: Annual discount rate (interest) used for NPV,
@@ -120,7 +122,7 @@ class FinanceInputs:
     import_price_eur_per_kwh: float
     export_price_eur_per_kwh: float
     fixed_export_costs_eur_per_year: float
-    battery_price_eur: float
+    battery_price_per_kwh: float
     installation_costs_eur: float
     lifetime_years: int
     discount_rate: float
@@ -132,8 +134,8 @@ class FinanceInputs:
             raise ValueError("lifetime_years must be positive")
         if not -1 < self.discount_rate:
             raise ValueError("discount_rate must be greater than -1")
-        if self.battery_price_eur < 0 or self.installation_costs_eur < 0:
-            raise ValueError("battery_price_eur/installation_costs_eur must be >= 0")
+        if self.battery_price_per_kwh < 0 or self.installation_costs_eur < 0:
+            raise ValueError("battery_price_per_kwh/installation_costs_eur must be >= 0")
 
 
 @dataclass(frozen=True, slots=True)
@@ -268,24 +270,31 @@ def _annual_cashflow(
 def build_cashflow_series(
     inputs: FinanceInputs,
     annual_flows: AnnualEnergyFlows,
+    capacity_kwh: float = 0.0,
 ) -> tuple[float, ...]:
     """Build the full ``lifetime_years`` cashflow series for NPV/IRR/payback.
 
-    Assumes constant annual energy flows across the battery lifetime
-    (degradation, if modelled, should already be baked into
-    ``annual_flows`` by the caller/simulator per-scenario, or this
-    function may be called once per degraded year by an orchestrator).
+    The upfront cost is computed from the per-kWh battery price times the
+    battery capacity, plus the fixed installation cost:
+        upfront = -(price_per_kwh * capacity_kwh + installation_costs_eur)
+
+    This makes the comparison between different battery sizes fair — a
+    larger battery costs proportionally more.
 
     Args:
         inputs: Financial configuration.
-        annual_flows: Simulated annual energy volumes.
+        annual_flows: Simulated annual energy volumes for one
+            battery-size scenario.
+        capacity_kwh: Battery capacity used to compute total hardware cost.
 
     Returns:
         A tuple of length ``lifetime_years + 1`` where index 0 is the
         negative upfront cost and indices 1..N are each year's net
         saving.
     """
-    upfront_cost = -(inputs.battery_price_eur + inputs.installation_costs_eur)
+    upfront_cost = -(
+        inputs.battery_price_per_kwh * capacity_kwh + inputs.installation_costs_eur
+    )
     yearly_savings = tuple(
         _annual_cashflow(inputs, annual_flows, year)
         for year in range(1, inputs.lifetime_years + 1)
@@ -366,7 +375,7 @@ def calculate_finance_result(
     Returns:
         A populated :class:`FinanceResult`.
     """
-    cashflow = build_cashflow_series(inputs, annual_flows)
+    cashflow = build_cashflow_series(inputs, annual_flows, capacity_kwh=battery_capacity_kwh)
     upfront_cost = -cashflow[0]
     total_savings = sum(cashflow[1:])
     net_saving = total_savings + cashflow[0]  # cashflow[0] already negative

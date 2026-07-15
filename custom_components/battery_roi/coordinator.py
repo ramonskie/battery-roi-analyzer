@@ -272,7 +272,7 @@ def _build_finance_inputs(options: dict[str, Any]) -> FinanceInputs:
         fixed_export_costs_eur_per_year=float(
             options.get("fixed_export_costs_eur_per_year", 0.0)
         ),
-        battery_price_eur=float(options.get("battery_price_eur", 0.0)),
+        battery_price_per_kwh=float(options.get(CONF_BATTERY_PRICE, 0.0)),
         installation_costs_eur=float(options.get(CONF_BATTERY_INSTALL_COST, 0.0)),
         lifetime_years=int(
             options.get(CONF_BATTERY_LIFETIME_YEARS, DEFAULT_BATTERY_LIFETIME_YEARS)
@@ -450,10 +450,10 @@ class BatteryRoiCoordinator(DataUpdateCoordinator[BatteryRoiData]):
                 merged_config[CONF_BATTERY_MAX_DISCHARGE_KW]
             )
         if CONF_BATTERY_ROUND_TRIP_EFFICIENCY in merged_config:
-            battery_overrides["roundtrip_efficiency"] = float(
-                merged_config.get(
-                    CONF_BATTERY_ROUND_TRIP_EFFICIENCY, DEFAULT_ROUND_TRIP_EFFICIENCY
-                )
+            # Config stores efficiency as percentage (e.g. 90 = 90%).
+            # BatteryModel expects decimal (0.9).
+            battery_overrides["roundtrip_efficiency"] = (
+                float(merged_config[CONF_BATTERY_ROUND_TRIP_EFFICIENCY]) / 100.0
             )
         if CONF_BATTERY_DEPTH_OF_DISCHARGE in merged_config:
             depth_of_discharge = float(

@@ -61,6 +61,7 @@ from .const import (
     CONF_SIMULATION_PERIOD_DAYS,
     DEFAULT_BATTERY_LIFETIME_YEARS,
     DEFAULT_BATTERY_PRICE,
+    DEFAULT_BATTERY_SIZES_KWH,
     DEFAULT_DISCOUNT_RATE,
     DEFAULT_FIXED_EXPORT_COSTS,
     DEFAULT_PHASE_OUT_YEARS,
@@ -295,9 +296,9 @@ class BatteryRoiFlowMixin:
                         translation_key=CONF_BATTERY_CHEMISTRY,
                     )
                 ),
-                vol.Optional(
+                vol.Required(
                     CONF_BATTERY_CAPACITY_KWH,
-                    default=defaults.get(CONF_BATTERY_CAPACITY_KWH),
+                    default=defaults.get(CONF_BATTERY_CAPACITY_KWH, DEFAULT_BATTERY_SIZES_KWH[0]),
                 ): NumberSelector(
                     NumberSelectorConfig(
                         mode=NumberSelectorMode.BOX,
@@ -306,7 +307,7 @@ class BatteryRoiFlowMixin:
                         min=0,
                     )
                 ),
-                vol.Optional(
+                vol.Required(
                     CONF_BATTERY_ROUND_TRIP_EFFICIENCY,
                     default=defaults.get(
                         CONF_BATTERY_ROUND_TRIP_EFFICIENCY,
@@ -321,27 +322,21 @@ class BatteryRoiFlowMixin:
                         step=1,
                     )
                 ),
-                vol.Optional(
-                    CONF_BATTERY_MAX_CHARGE_KW,
-                    default=defaults.get(CONF_BATTERY_MAX_CHARGE_KW),
-                ): NumberSelector(
+                vol.Optional(CONF_BATTERY_MAX_CHARGE_KW): NumberSelector(
                     NumberSelectorConfig(
                         mode=NumberSelectorMode.BOX, unit_of_measurement="kW", step="any", min=0
                     )
                 ),
-                vol.Optional(
-                    CONF_BATTERY_MAX_DISCHARGE_KW,
-                    default=defaults.get(CONF_BATTERY_MAX_DISCHARGE_KW),
-                ): NumberSelector(
+                vol.Optional(CONF_BATTERY_MAX_DISCHARGE_KW): NumberSelector(
                     NumberSelectorConfig(
                         mode=NumberSelectorMode.BOX, unit_of_measurement="kW", step="any", min=0
                     )
                 ),
-                vol.Optional(
+                vol.Required(
                     CONF_BATTERY_PRICE,
                     default=defaults.get(CONF_BATTERY_PRICE, DEFAULT_BATTERY_PRICE),
                 ): _price_number_selector(unit_of_measurement="EUR"),
-                vol.Optional(
+                vol.Required(
                     CONF_BATTERY_INSTALL_COST,
                     default=defaults.get(CONF_BATTERY_INSTALL_COST, 0.0),
                 ): _price_number_selector(unit_of_measurement="EUR"),
