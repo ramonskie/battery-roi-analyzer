@@ -3,5 +3,7 @@
   "content_in_root": false,
   "homeassistant": "2024.4.0",
   "iot_class": "calculated",
-  "render_readme": true
+  "render_readme": true,
+  "categories": ["integration", "plugin"],
+  "filename": "custom_components/battery_roi/frontend/battery-roi-card.js"
 }

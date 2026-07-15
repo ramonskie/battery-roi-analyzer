@@ -8,8 +8,6 @@ control a real battery — simulation/analysis only.
 from __future__ import annotations
 
 import logging
-import os
-import shutil
 from pathlib import Path
 from typing import Final
 
@@ -25,10 +23,6 @@ from .coordinator import BatteryRoiCoordinator
 PLATFORMS: Final = ["sensor"]
 
 _LOGGER = logging.getLogger(__name__)
-
-# Frontend card registration — track whether we have registered the
-# Lovelace card already (only needs to happen once, not per entry).
-_CARD_REGISTERED: Final = f"{DOMAIN}_frontend_registered"
 
 # Force an immediate coordinator refresh, bypassing the daily simulation
 # cache (`coordinator.SIMULATION_UPDATE_INTERVAL`). See `services.yaml`.
@@ -74,39 +68,6 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     return True
 
 
-async def _async_register_frontend(hass: HomeAssistant) -> None:
-    """Register the battery-roi-card.js Lovelace resource.
-
-    Copies the card JS to ``www/battery_roi/battery-roi-card.js`` (served
-    by HA at ``/local/battery_roi/battery-roi-card.js``) and registers it
-    as a frontend extra JS URL so Lovelace discovers the custom element.
-
-    The ``/local/`` path is always served by HA from the ``www/``
-    directory, which is more reliable than registering a custom static
-    path via the HTTP component.
-    """
-    src = Path(__file__).parent / "frontend" / "battery-roi-card.js"
-    if not src.exists():
-        _LOGGER.warning("Frontend card not found at %s", src)
-        return
-
-    # Copy to www/ so HA serves it at /local/...
-    www_dir = hass.config.path("www", "battery_roi")
-    os.makedirs(www_dir, exist_ok=True)
-    dst = os.path.join(www_dir, "battery-roi-card.js")
-    try:
-        shutil.copy2(str(src), dst)
-    except OSError as err:
-        _LOGGER.warning("Could not copy frontend card to %s: %s", dst, err)
-        return
-
-    url_path = f"/local/battery_roi/battery-roi-card.js"
-
-    from homeassistant.components.frontend import add_extra_js_url  # noqa: PLC0415
-
-    await add_extra_js_url(hass, url_path)
-
-
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Battery ROI Analyzer from a config entry."""
     coordinator = BatteryRoiCoordinator(hass, entry)
@@ -116,11 +77,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     entry.async_on_unload(entry.add_update_listener(_async_update_listener))
-
-    # Register the Lovelace card on first entry only
-    if not hass.data.get(_CARD_REGISTERED):
-        await _async_register_frontend(hass)
-        hass.data[_CARD_REGISTERED] = True
 
     return True
 
@@ -138,4 +94,16 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         coordinator: BatteryRoiCoordinator = entry.runtime_data
         await coordinator.async_shutdown()
         entry.runtime_data = None  # type: ignore[attr-defined]
+
+    # Clean up www/battery_roi/ from the previous runtime-copy approach.
+    www_dir = hass.config.path("www", "battery_roi")
+    try:
+        import shutil as _shutil
+
+        if Path(www_dir).is_dir():
+            _shutil.rmtree(www_dir)
+            _LOGGER.debug("Removed leftover www/battery_roi/ frontend directory")
+    except OSError:
+        _LOGGER.warning("Could not remove www/battery_roi/")
+
     return unload_ok
