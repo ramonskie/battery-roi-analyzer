@@ -3,17 +3,19 @@
 Registers ``battery-roi-card.js`` so users can add it as a custom card
 in any Lovelace dashboard.
 
-Strategy — three registration paths for maximum compatibility:
+Strategy — four registration paths for maximum compatibility:
   1. ``async_register_static_paths`` — serves the JS file under URL_BASE
-  2. ``lovelace.resources.async_create_item`` — registers as Lovelace
+  2. Copy to ``www/battery_roi/`` — served by HA's built-in ``/local/``
+  3. ``lovelace.resources.async_create_item`` — registers as Lovelace
      resource (works in storage mode)
-  3. ``frontend.add_extra_js_url`` — sync fallback that loads the JS on
+  4. ``frontend.add_extra_js_url`` — sync fallback that loads the JS on
      every HA frontend page (guaranteed to work in all HA versions)
 """
 
 from __future__ import annotations
 
 import logging
+import shutil
 from pathlib import Path
 
 from homeassistant.components import frontend as frontend_component
@@ -36,24 +38,28 @@ class JSModuleRegistration:
         self.hass = hass
 
     async def async_register(self) -> None:
-        """Run all three registration strategies."""
-        # 1. Serve the frontend/ directory so the JS is fetchable
+        """Run all four registration strategies."""
+        # 1. Serve from frontend/ directory via async_register_static_paths
         await self._async_register_static_paths()
 
-        # 2. Register as a Lovelace resource (storage mode only)
+        # 2. Copy to www/ and serve via /local/
+        await self._async_copy_to_www()
+
+        # 3. Register as a Lovelace resource (storage mode only)
         await self._async_register_lovelace_resource()
 
-        # 3. Sync fallback: add to every frontend page
+        # 4. Sync fallback: add to every frontend page
         self._register_extra_js_url()
 
     # ------------------------------------------------------------------
-    #  Static path
+    #  Static path — serve from integration frontend/ directory
     # ------------------------------------------------------------------
 
     async def _async_register_static_paths(self) -> None:
         """Serve the frontend/ directory at URL_BASE.
 
         Idempotent — HA silently ignores duplicate registrations.
+        May not be available on all HA versions.
         """
         frontend_dir = Path(__file__).parent
         try:
@@ -61,8 +67,37 @@ class JSModuleRegistration:
                 StaticPathConfig(URL_BASE, str(frontend_dir), cache_headers=False),
             ])
             _LOGGER.debug("Static path: %s -> %s", URL_BASE, frontend_dir)
-        except RuntimeError:
-            _LOGGER.debug("Static path already registered: %s", URL_BASE)
+        except Exception:  # noqa: BLE001
+            _LOGGER.debug("Static path skipped (non-critical): %s", URL_BASE)
+
+    # ------------------------------------------------------------------
+    #  www/ copy — serve via HA's built-in /local/ (ALWAYS works)
+    # ------------------------------------------------------------------
+
+    async def _async_copy_to_www(self) -> None:
+        """Copy JS files to ``www/battery_roi/``.
+
+        HA always serves the ``www/`` directory at ``/local/``.  This is
+        the most reliable way to serve custom card files — it works on
+        every HA version without depending on ``async_register_static_paths``.
+        """
+        www_dir = Path(self.hass.config.path("www", URL_BASE.strip("/")))
+
+        try:
+            www_dir.mkdir(parents=True, exist_ok=True)
+        except Exception as exc:  # noqa: BLE001
+            _LOGGER.warning("Cannot create www dir %s: %s", www_dir, exc)
+            return
+
+        src_dir = Path(__file__).parent
+        for module in JSMODULES:
+            src = src_dir / module["filename"]
+            dst = www_dir / module["filename"]
+            try:
+                await self.hass.async_add_executor_job(shutil.copy2, str(src), str(dst))
+                _LOGGER.debug("Copied %s -> %s", src, dst)
+            except Exception as exc:  # noqa: BLE001
+                _LOGGER.warning("Failed to copy %s to www: %s", src, exc)
 
     # ------------------------------------------------------------------
     #  Lovelace resource (storage mode only)
@@ -92,7 +127,7 @@ class JSModuleRegistration:
             return
 
         for module in JSMODULES:
-            url = f"{URL_BASE}/{module['filename']}"
+            url = self._serve_url(module["filename"])
             try:
                 existing = next(
                     (r for r in resources.async_items() if r["url"] == url),
@@ -114,16 +149,38 @@ class JSModuleRegistration:
     # ------------------------------------------------------------------
 
     def _register_extra_js_url(self) -> None:
-        """Register the card JS as a global frontend extra JS URL.
+        """Register ALL possible URLs as extra JS URLs on every frontend page.
 
-        ``add_extra_js_url`` is **synchronous** (no ``await``) and loads
-        the script on every HA frontend page.  This is a reliable fallback
-        that works regardless of Lovelace mode or storage/YAML config.
+        ``add_extra_js_url`` is **synchronous** (no ``await``) — it adds
+        the URL to the frontend's ``UrlManager``, which injects it as a
+        ``<script type="module">`` into the index.html template on every
+        request.
+
+        We register both the URL_BASE path (via static path, may not work)
+        AND the /local/ path (via www copy, guaranteed to work).
         """
         for module in JSMODULES:
-            url = f"{URL_BASE}/{module['filename']}"
-            try:
-                frontend_component.add_extra_js_url(self.hass, url)
-                _LOGGER.debug("Registered extra JS URL: %s", url)
-            except Exception as exc:  # noqa: BLE001
-                _LOGGER.warning("Could not register extra JS URL %s: %s", url, exc)
+            for url in self._all_urls(module["filename"]):
+                try:
+                    frontend_component.add_extra_js_url(self.hass, url)
+                    _LOGGER.debug("Registered extra JS URL: %s", url)
+                except Exception as exc:  # noqa: BLE001
+                    _LOGGER.warning("Could not register extra JS URL %s: %s", url, exc)
+
+    # ------------------------------------------------------------------
+    #  URL helpers
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _serve_url(filename: str) -> str:
+        """Return the primary URL that serves the JS file."""
+        return f"{URL_BASE}/{filename}"
+
+    @staticmethod
+    def _local_url(filename: str) -> str:
+        """Return the /local/ URL for the JS file (from www/ copy)."""
+        return f"/local/{URL_BASE.strip('/')}/{filename}"
+
+    def _all_urls(self, filename: str) -> list[str]:
+        """Return all possible URLs for a JS module (both static and /local/)."""
+        return [self._serve_url(filename), self._local_url(filename)]
