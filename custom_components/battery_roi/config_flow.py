@@ -234,11 +234,11 @@ class BatteryRoiFlowMixin:
                 ): _energy_entity_selector(),
                 vol.Optional(
                     CONF_CONSUMPTION_SENSOR,
-                    default=defaults.get(CONF_CONSUMPTION_SENSOR),
+                    default=defaults.get(CONF_CONSUMPTION_SENSOR, ""),
                 ): _energy_entity_selector(),
                 vol.Optional(
                     CONF_PRODUCTION_SENSOR,
-                    default=defaults.get(CONF_PRODUCTION_SENSOR),
+                    default=defaults.get(CONF_PRODUCTION_SENSOR, ""),
                 ): _energy_entity_selector(),
             }
         )

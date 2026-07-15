@@ -182,7 +182,7 @@ def _build_energy_dataframe(
     import_series = _build_energy_series(stats_by_entity[import_entity])
     export_series = _build_energy_series(stats_by_entity[export_entity])
 
-    if consumption_entity is not None:
+    if consumption_entity:
         _require_entity(stats_by_entity, consumption_entity)
         verbruik_series = _build_energy_series(stats_by_entity[consumption_entity])
     else:
@@ -374,10 +374,10 @@ class BatteryRoiCoordinator(DataUpdateCoordinator[BatteryRoiData]):
         except KeyError as err:
             raise UpdateFailed(f"Missing required sensor configuration: {err}") from err
 
-        consumption_entity: str | None = merged_config.get(CONF_CONSUMPTION_SENSOR)
+        consumption_entity: str | None = merged_config.get(CONF_CONSUMPTION_SENSOR) or None
 
         entity_ids = {production_entity, import_entity, export_entity}
-        if consumption_entity is not None:
+        if consumption_entity:
             entity_ids.add(consumption_entity)
 
         period_days = int(
