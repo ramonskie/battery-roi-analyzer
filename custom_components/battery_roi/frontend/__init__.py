@@ -1,24 +1,24 @@
-"""Lovelace card resource registration for the Battery ROI Analyzer.
+"""Lovelace card registration for the Battery ROI Analyzer.
 
-Provides :class:`JSModuleRegistration` which registers the
-``battery-roi-card.js`` frontend module as a Lovelace resource so users
-can add the card to their dashboard without manual URL configuration.
+Registers ``battery-roi-card.js`` so users can add it as a custom card
+in any Lovelace dashboard.
 
-Uses the current HA APIs:
-  * ``hass.http.async_register_static_paths`` to serve the JS file
-  * ``lovelace.resources.async_create_item`` to register the Lovelace
-    resource (storage mode only)
+Strategy — three registration paths for maximum compatibility:
+  1. ``async_register_static_paths`` — serves the JS file under URL_BASE
+  2. ``lovelace.resources.async_create_item`` — registers as Lovelace
+     resource (works in storage mode)
+  3. ``frontend.add_extra_js_url`` — sync fallback that loads the JS on
+     every HA frontend page (guaranteed to work in all HA versions)
 """
 
 from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import Any
 
+from homeassistant.components import frontend as frontend_component
 from homeassistant.components.http import StaticPathConfig
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.event import async_call_later
 
 from ..const import JSMODULES, URL_BASE
 
@@ -26,82 +26,104 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class JSModuleRegistration:
-    """Registers JavaScript modules in Home Assistant.
+    """Registers frontend JavaScript modules for this integration.
 
-    Call ``async_register()`` from the integration's ``__init__.py``
-    after ``EVENT_HOMEASSISTANT_STARTED`` fires, to guarantee Lovelace
-    resources are available.
+    Thread-safe after ``async_register()`` completes.
     """
 
     def __init__(self, hass: HomeAssistant) -> None:
         """Store reference to HA instance."""
         self.hass = hass
-        self.lovelace = self.hass.data.get("lovelace")
 
     async def async_register(self) -> None:
-        """Register all frontend resources (static path + Lovelace items)."""
+        """Run all three registration strategies."""
+        # 1. Serve the frontend/ directory so the JS is fetchable
         await self._async_register_static_paths()
 
-        if self._lovelace_is_storage_mode():
-            await self._async_wait_for_lovelace_resources()
+        # 2. Register as a Lovelace resource (storage mode only)
+        await self._async_register_lovelace_resource()
+
+        # 3. Sync fallback: add to every frontend page
+        self._register_extra_js_url()
 
     # ------------------------------------------------------------------
     #  Static path
     # ------------------------------------------------------------------
 
     async def _async_register_static_paths(self) -> None:
-        """Serve the frontend/ directory under URL_BASE.
+        """Serve the frontend/ directory at URL_BASE.
 
-        Idempotent — HA silently ignores duplicate path registrations.
+        Idempotent — HA silently ignores duplicate registrations.
         """
         frontend_dir = Path(__file__).parent
         try:
             await self.hass.http.async_register_static_paths([
                 StaticPathConfig(URL_BASE, str(frontend_dir), cache_headers=False),
             ])
-            _LOGGER.debug("Static path registered: %s -> %s", URL_BASE, frontend_dir)
+            _LOGGER.debug("Static path: %s -> %s", URL_BASE, frontend_dir)
         except RuntimeError:
             _LOGGER.debug("Static path already registered: %s", URL_BASE)
 
     # ------------------------------------------------------------------
-    #  Lovelace resource
+    #  Lovelace resource (storage mode only)
     # ------------------------------------------------------------------
 
-    def _lovelace_is_storage_mode(self) -> bool:
-        """Return True when Lovelace is in storage (not YAML) mode."""
-        if self.lovelace is None:
-            return False
-        # Different HA versions expose mode differently
-        mode = getattr(self.lovelace, "mode",
-                       getattr(self.lovelace, "resource_mode", "yaml"))
-        return mode == "storage"
+    async def _async_register_lovelace_resource(self) -> None:
+        """Register each JS module as a Lovelace resource.
 
-    async def _async_wait_for_lovelace_resources(self) -> None:
-        """Poll until Lovelace resources are loaded, then register."""
+        Only works when the dashboard is in storage mode (the default).
+        In YAML mode the user must add the resource manually.
+        """
+        lovelace = self.hass.data.get("lovelace")
+        if lovelace is None:
+            _LOGGER.debug("Lovelace not available yet, skipping resource registration")
+            return
 
-        async def _check_loaded(_now: Any) -> None:
-            if self.lovelace.resources.loaded:
-                await self._async_register_modules()
-            else:
-                _LOGGER.debug("Lovelace resources not loaded yet, retrying in 5s")
-                async_call_later(self.hass, 5, _check_loaded)
+        # Check mode
+        mode = getattr(lovelace, "mode",
+                       getattr(lovelace, "resource_mode", None))
+        if mode != "storage":
+            _LOGGER.debug("Lovelace mode is '%s', skipping auto-registration", mode)
+            return
 
-        await _check_loaded(0)
+        resources = getattr(lovelace, "resources", None)
+        if resources is None or not getattr(resources, "loaded", False):
+            _LOGGER.debug("Lovelace resources not loaded, skipping")
+            return
 
-    async def _async_register_modules(self) -> None:
-        """Register each JS module as a Lovelace resource (if missing)."""
         for module in JSMODULES:
             url = f"{URL_BASE}/{module['filename']}"
-            existing = next(
-                (r for r in self.lovelace.resources.async_items() if r["url"] == url),
-                None,
-            )
-            if existing is not None:
-                _LOGGER.debug("Resource already exists: %s", url)
-                continue
+            try:
+                existing = next(
+                    (r for r in resources.async_items() if r["url"] == url),
+                    None,
+                )
+                if existing is not None:
+                    _LOGGER.debug("Resource already exists: %s", url)
+                    continue
+                _LOGGER.info("Adding Lovelace resource: %s", url)
+                await resources.async_create_item({
+                    "res_type": "module",
+                    "url": url,
+                })
+            except Exception as exc:  # noqa: BLE001
+                _LOGGER.warning("Could not register Lovelace resource %s: %s", url, exc)
 
-            _LOGGER.info("Adding Lovelace resource: %s", url)
-            await self.lovelace.resources.async_create_item({
-                "res_type": "module",
-                "url": url,
-            })
+    # ------------------------------------------------------------------
+    #  Sync fallback — add_extra_js_url
+    # ------------------------------------------------------------------
+
+    def _register_extra_js_url(self) -> None:
+        """Register the card JS as a global frontend extra JS URL.
+
+        ``add_extra_js_url`` is **synchronous** (no ``await``) and loads
+        the script on every HA frontend page.  This is a reliable fallback
+        that works regardless of Lovelace mode or storage/YAML config.
+        """
+        for module in JSMODULES:
+            url = f"{URL_BASE}/{module['filename']}"
+            try:
+                frontend_component.add_extra_js_url(self.hass, url)
+                _LOGGER.debug("Registered extra JS URL: %s", url)
+            except Exception as exc:  # noqa: BLE001
+                _LOGGER.warning("Could not register extra JS URL %s: %s", url, exc)

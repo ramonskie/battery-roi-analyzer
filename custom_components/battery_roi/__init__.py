@@ -78,14 +78,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     entry.async_on_unload(entry.add_update_listener(_async_update_listener))
 
-    # Register the Lovelace card after HA finishes starting up.
-    # Lovelace resources are not available until the frontend is fully
-    # initialised, so we defer registration to the STARTED event.
+    # Register the Lovelace card when frontend is ready.
+    # If HA is already running (e.g. config flow added post-startup),
+    # register immediately. Otherwise defer to STARTED event.
     async def _register(_event=None) -> None:
         js_reg = JSModuleRegistration(hass)
         await js_reg.async_register()
 
-    hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, _register)
+    if hass.is_running:
+        await _register()
+    else:
+        hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, _register)
 
     return True
 
