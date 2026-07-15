@@ -1,0 +1,18 @@
+{
+  "version": "1.0",
+  "last_updated": "2026-07-15T00:00:00Z",
+  "libraries": {
+    "home-assistant-core": {
+      "files": [
+        {"filename": "config-flow-and-options-flow.md", "topic": "Config Flow + OptionsFlow", "fetched": "2026-07-15T00:00:00Z", "source": "Context7 API"},
+        {"filename": "data-update-coordinator.md", "topic": "DataUpdateCoordinator", "fetched": "2026-07-15T00:00:00Z", "source": "Context7 API"},
+        {"filename": "diagnostics-platform.md", "topic": "Diagnostics platform", "fetched": "2026-07-15T00:00:00Z", "source": "Context7 API"},
+        {"filename": "repairs-platform.md", "topic": "Repairs platform", "fetched": "2026-07-15T00:00:00Z", "source": "Context7 API"},
+        {"filename": "translations.md", "topic": "strings.json/translations", "fetched": "2026-07-15T00:00:00Z", "source": "Context7 API"},
+        {"filename": "recorder-statistics-api.md", "topic": "recorder.statistics API", "fetched": "2026-07-15T00:00:00Z", "source": "Context7 API + data.home-assistant.io"},
+        {"filename": "sensor-entity-basics.md", "topic": "SensorEntity basics", "fetched": "2026-07-15T00:00:00Z", "source": "Context7 API"},
+        {"filename": "hacs-and-manifest-requirements.md", "topic": "HACS + manifest.json", "fetched": "2026-07-15T00:00:00Z", "source": "Context7 API (hacs/documentation + developers.home-assistant)"}
+      ]
+    }
+  }
+}

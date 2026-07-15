@@ -1,0 +1,10 @@
+recalculate:
+  name: Recalculate
+  description: >-
+    Force an immediate re-run of the battery ROI simulation and financial
+    comparison, bypassing the normal once-per-day cache. Useful right after
+    fixing a misconfigured sensor or when you want fresh results without
+    waiting for the daily refresh.
+  target:
+    entity:
+      integration: battery_roi

@@ -1,0 +1,36 @@
+{
+  "id": "battery-roi-analyzer-01",
+  "seq": "01",
+  "title": "HACS repo scaffold: manifest.json, hacs.json, README, LICENSE",
+  "status": "pending",
+  "depends_on": [],
+  "parallel": true,
+  "suggested_agent": "CoderAgent",
+  "context_files": [
+    ".opencode/context/core/standards/code-quality.md",
+    ".opencode/context/core/standards/external-libraries.md",
+    ".opencode/context/core/processes/component-planning.md",
+    ".opencode/context/navigation.md"
+  ],
+  "reference_files": [
+    ".tmp/external-context/home-assistant-core/hacs-and-manifest-requirements.md"
+  ],
+  "acceptance_criteria": [
+    "manifest.json includes domain, name, codeowners, requirements (numpy-financial), iot_class, integration_type, version",
+    "hacs.json present with correct HACS metadata",
+    "README.md documents integration purpose, install, quality scale target (Silver+)",
+    "LICENSE file present",
+    "Directory structure custom_components/battery_roi/ created with __init__.py stub"
+  ],
+  "deliverables": [
+    "custom_components/battery_roi/manifest.json",
+    "hacs.json",
+    "README.md",
+    "LICENSE",
+    "custom_components/battery_roi/__init__.py"
+  ],
+  "agent_id": null,
+  "started_at": null,
+  "completed_at": null,
+  "completion_summary": null
+}

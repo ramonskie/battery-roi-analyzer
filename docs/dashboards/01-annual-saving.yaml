@@ -1,0 +1,34 @@
+# 01 - Annual saving per battery size (bar chart)
+#
+# Uses the `by_capacity` attribute on sensor.battery_roi_best_size,
+# which exposes annual_saving_eur, payback_years, npv_eur, roi_pct,
+# etc. per battery capacity.
+#
+# Requires HACS card: apexcharts-card
+# https://github.com/RomRider/apexcharts-card
+
+type: custom:apexcharts-card
+header:
+  show: true
+  title: Annual Saving per Battery Size
+graph_span: 1d
+apex_config:
+  chart:
+    type: bar
+  xaxis:
+    type: category
+  yaxis:
+    - title:
+        text: "Annual saving (€)"
+series:
+  - entity: sensor.battery_roi_best_size
+    attribute: by_capacity
+    type: column
+    name: Annual saving (€)
+    data_generator: |
+      return Object.entries(entity.attributes.by_capacity || {}).map(
+        ([capacityKey, values]) => {
+          const label = capacityKey.replace(/_/g, '.') + ' kWh';
+          return [label, values.annual_saving_eur];
+        }
+      );

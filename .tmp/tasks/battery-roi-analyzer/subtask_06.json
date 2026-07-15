@@ -1,0 +1,35 @@
+{
+  "id": "battery-roi-analyzer-06",
+  "seq": "06",
+  "title": "simulator.py: numpy/pandas battery charge/discharge simulation loop",
+  "status": "completed",
+  "depends_on": [
+    "04",
+    "05"
+  ],
+  "parallel": true,
+  "suggested_agent": "CoderAgent",
+  "context_files": [
+    ".opencode/context/core/standards/code-quality.md",
+    ".opencode/context/core/standards/external-libraries.md",
+    ".opencode/context/navigation.md"
+  ],
+  "reference_files": [
+    ".tmp/external-context/pandas/resample-asfreq-energy-timeseries.md",
+    ".tmp/external-context/home-assistant-core/recorder-statistics-api.md"
+  ],
+  "acceptance_criteria": [
+    "Resamples raw statistics timeseries to consistent frequency using resample+ffill/interpolate with capped limit",
+    "Simulation loop computes per-timestep charge/discharge state given consumption/production series and BatteryModel",
+    "Supports configurable battery size sweep (best_size determination)",
+    "Uses numpy/pandas vectorized operations where feasible, documented if loop-based",
+    "Pure functions where possible; fully type-hinted; ruff + mypy clean"
+  ],
+  "deliverables": [
+    "custom_components/battery_roi/simulator.py (simulation loop functions)"
+  ],
+  "agent_id": "coder-agent",
+  "started_at": "2026-07-15T00:00:00Z",
+  "completed_at": "2026-07-15T00:00:00Z",
+  "completion_summary": "Added resample_energy_series, simulate_battery (sequential SOC loop, vectorized surrounding math), simulate_battery_sizes sweep, BatterySimulationResult dataclass."
+}

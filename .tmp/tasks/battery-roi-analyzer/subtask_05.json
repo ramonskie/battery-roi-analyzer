@@ -1,0 +1,33 @@
+{
+  "id": "battery-roi-analyzer-05",
+  "seq": "05",
+  "title": "statistics.py: HA Statistics API async wrapper",
+  "status": "completed",
+  "depends_on": [
+    "03"
+  ],
+  "parallel": true,
+  "suggested_agent": "CoderAgent",
+  "context_files": [
+    ".opencode/context/core/standards/code-quality.md",
+    ".opencode/context/core/standards/external-libraries.md",
+    ".opencode/context/navigation.md"
+  ],
+  "reference_files": [
+    ".tmp/external-context/home-assistant-core/recorder-statistics-api.md"
+  ],
+  "acceptance_criteria": [
+    "Uses get_instance(hass).async_add_executor_job(...) pattern exclusively \u2014 no direct Recorder DB/SQL access",
+    "Async function(s) to fetch hourly/daily statistics for a given entity_id and date range",
+    "Returns pandas-friendly structure (list of dicts or DataFrame) for downstream resampling",
+    "Handles missing/None statistics gracefully with documented fallback behavior",
+    "Fully type-hinted and async-first"
+  ],
+  "deliverables": [
+    "custom_components/battery_roi/statistics.py"
+  ],
+  "agent_id": null,
+  "started_at": null,
+  "completed_at": null,
+  "completion_summary": "Async Statistics API wrapper: fallback chain 5min->hour->day, DataFrame results, no direct DB access."
+}

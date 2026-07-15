@@ -1,0 +1,31 @@
+{
+  "id": "battery-roi-analyzer-02",
+  "seq": "02",
+  "title": "Translations skeleton: en.json + nl.json strings",
+  "status": "pending",
+  "depends_on": [],
+  "parallel": true,
+  "suggested_agent": "CoderAgent",
+  "context_files": [
+    ".opencode/context/core/standards/code-quality.md",
+    ".opencode/context/navigation.md"
+  ],
+  "reference_files": [
+    ".tmp/external-context/home-assistant-core/translations.md"
+  ],
+  "acceptance_criteria": [
+    "strings.json defines config_flow steps (sensors, prices, battery params, sim period, results) and options flow",
+    "translations/en.json mirrors strings.json",
+    "translations/nl.json provides Dutch translations for all keys",
+    "Keys cover error messages and abort reasons"
+  ],
+  "deliverables": [
+    "custom_components/battery_roi/strings.json",
+    "custom_components/battery_roi/translations/en.json",
+    "custom_components/battery_roi/translations/nl.json"
+  ],
+  "agent_id": null,
+  "started_at": null,
+  "completed_at": null,
+  "completion_summary": null
+}

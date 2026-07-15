@@ -1,0 +1,28 @@
+{
+  "id": "battery-roi-analyzer",
+  "name": "Home Assistant Battery ROI Analyzer (HACS)",
+  "status": "active",
+  "objective": "Build HACS integration battery_roi: simulates home battery ROI from HA Statistics API data, config flow, financial calc, sensors, dashboards",
+  "context_files": [
+    ".opencode/context/core/standards/code-quality.md",
+    ".opencode/context/core/standards/external-libraries.md",
+    ".opencode/context/core/processes/component-planning.md",
+    ".opencode/context/navigation.md"
+  ],
+  "reference_files": [],
+  "exit_criteria": [
+    "Repo scaffold matches spec structure (custom_components/battery_roi/...)",
+    "Config flow completes all 5 steps and creates a config entry",
+    "Coordinator runs simulation via Statistics API, caches daily",
+    "Sensors expose required entities (best_size, payback, annual_saving, etc.)",
+    "Battery model supports LFP/NMC presets + full configurability",
+    "Financial calc supports saldering scenarios + NPV/IRR via numpy-financial",
+    "Diagnostics + repairs + translations (en/nl) present",
+    "Unit tests pass for simulator.py and finance.py",
+    "Example Lovelace dashboard YAML provided in docs/"
+  ],
+  "subtask_count": 13,
+  "completed_count": 0,
+  "created_at": "2026-07-15T00:00:00Z",
+  "completed_at": null
+}

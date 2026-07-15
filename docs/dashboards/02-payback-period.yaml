@@ -1,0 +1,32 @@
+# 02 - Payback period per battery size (bar chart, years)
+#
+# Uses the `by_capacity` attribute on sensor.battery_roi_best_size.
+#
+# Requires HACS card: apexcharts-card
+# https://github.com/RomRider/apexcharts-card
+
+type: custom:apexcharts-card
+header:
+  show: true
+  title: Payback Period per Battery Size
+graph_span: 1d
+apex_config:
+  chart:
+    type: bar
+  xaxis:
+    type: category
+  yaxis:
+    - title:
+        text: "Payback (years)"
+series:
+  - entity: sensor.battery_roi_best_size
+    attribute: by_capacity
+    type: column
+    name: Payback (years)
+    data_generator: |
+      return Object.entries(entity.attributes.by_capacity || {}).map(
+        ([capacityKey, values]) => {
+          const label = capacityKey.replace(/_/g, '.') + ' kWh';
+          return [label, values.payback_years];
+        }
+      );

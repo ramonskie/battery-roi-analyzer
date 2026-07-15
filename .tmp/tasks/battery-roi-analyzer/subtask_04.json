@@ -1,0 +1,30 @@
+{
+  "id": "battery-roi-analyzer-04",
+  "seq": "04",
+  "title": "Battery model dataclass with LFP/NMC presets (simulator.py module scope)",
+  "status": "completed",
+  "depends_on": [
+    "03"
+  ],
+  "parallel": true,
+  "suggested_agent": "CoderAgent",
+  "context_files": [
+    ".opencode/context/core/standards/code-quality.md",
+    ".opencode/context/core/standards/external-libraries.md",
+    ".opencode/context/navigation.md"
+  ],
+  "reference_files": [],
+  "acceptance_criteria": [
+    "BatteryModel dataclass defined with capacity_kwh, max_charge_kw, max_discharge_kw, round_trip_efficiency, chemistry fields",
+    "LFP and NMC preset factory functions/constants provided with realistic default efficiency and cycle-life values",
+    "Fully configurable: user-supplied values override presets",
+    "Type hints mandatory; frozen/slots dataclass where appropriate"
+  ],
+  "deliverables": [
+    "custom_components/battery_roi/simulator.py (BatteryModel dataclass + presets section only)"
+  ],
+  "agent_id": "coder-agent",
+  "started_at": "2026-07-15T00:00:00Z",
+  "completed_at": "2026-07-15T00:05:00Z",
+  "completion_summary": "BatteryModel frozen dataclass + LFP/NMC preset factories in simulator.py"
+}

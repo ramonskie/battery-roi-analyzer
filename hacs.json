@@ -1,0 +1,7 @@
+{
+  "name": "Battery ROI Analyzer",
+  "content_in_root": false,
+  "homeassistant": "2024.4.0",
+  "iot_class": "calculated",
+  "render_readme": true
+}

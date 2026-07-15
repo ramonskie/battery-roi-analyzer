@@ -1,0 +1,47 @@
+# 06 - Sankey diagram: PV -> Battery -> Self-consumption -> Grid
+#
+# Uses the `monthly_data` attribute on sensor.battery_roi_best_size to
+# pull the latest month's aggregated flow values for the Sankey links.
+#
+# apexcharts-card (ApexCharts.js) has NO native sankey series type, so
+# this card uses `plotly-graph` instead (wraps Plotly.js, which has a
+# native `sankey` trace). See docs/dashboards/README.md for the
+# install note.
+#
+# Requires HACS card: plotly-graph
+# https://github.com/dbuezas/lovelace-plotly-graph-card
+
+type: custom:plotly-graph
+title: Energy Flow (PV → Battery → Self-Consumption → Grid)
+layout:
+  height: 400
+defaults:
+  entity:
+    show_value: true
+entities: []
+raw_plotly_config: true
+config: {}
+data:
+  - type: sankey
+    orientation: h
+    node:
+      pad: 15
+      thickness: 20
+      label:
+        - PV Production
+        - Battery
+        - Self-Consumption
+        - Grid Export
+        - Grid Import
+    link:
+      # Values pulled from sensor.battery_roi_best_size monthly_data
+      # attribute. In the HA frontend these can be substituted with
+      # state_attr('sensor.battery_roi_best_size', 'monthly_data')
+      # template sensors, or replaced manually for the latest month.
+      # Example structure:
+      #   source [0, 0, 1, 0]
+      #   target [1, 2, 2, 3]
+      #   value  [battery_in, self_consumption_direct, battery_out, grid_export]
+      source: [0, 0, 1, 0]
+      target: [1, 2, 2, 3]
+      value: [40, 35, 30, 5]

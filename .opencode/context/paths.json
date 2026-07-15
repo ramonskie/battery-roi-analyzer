@@ -1,0 +1,8 @@
+{
+  "context_root": ".opencode/context",
+  "structure": "function-based",
+  "categories": {
+    "core": ".opencode/context/core"
+  },
+  "session_root": ".tmp/sessions"
+}

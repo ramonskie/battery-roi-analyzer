@@ -1,0 +1,25 @@
+# 04 - Cycles/year (bar chart)
+#
+# Uses sensor.battery_roi_cycles directly — this sensor already
+# exists (sensor.py, _KEY_CYCLES), no gap here.
+#
+# Requires HACS card: apexcharts-card
+
+type: custom:apexcharts-card
+header:
+  show: true
+  title: Battery Cycles per Year
+graph_span: 90d
+apex_config:
+  chart:
+    type: bar
+  yaxis:
+    - title:
+        text: "Cycles/year"
+series:
+  - entity: sensor.battery_roi_cycles
+    type: column
+    name: Cycles/year
+    group_by:
+      func: last
+      duration: 1d

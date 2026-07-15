@@ -1,0 +1,34 @@
+{
+  "id": "battery-roi-analyzer-08",
+  "seq": "08",
+  "title": "coordinator.py: DataUpdateCoordinator with daily cache + recompute on options change",
+  "status": "pending",
+  "depends_on": [
+    "06",
+    "07"
+  ],
+  "parallel": false,
+  "suggested_agent": "CoderAgent",
+  "context_files": [
+    ".opencode/context/core/standards/code-quality.md",
+    ".opencode/context/core/standards/external-libraries.md",
+    ".opencode/context/navigation.md"
+  ],
+  "reference_files": [
+    ".tmp/external-context/home-assistant-core/data-update-coordinator.md"
+  ],
+  "acceptance_criteria": [
+    "DataUpdateCoordinator subclass with update_interval set so full simulation runs max once/day",
+    "_async_update_data calls statistics.py fetch, simulator.py sim, finance.py calc and caches combined result",
+    "Recompute triggered immediately on config entry options update (via config entry update listener), bypassing daily interval",
+    "Async executor-job wrapping for any CPU-bound numpy/pandas work to avoid blocking event loop",
+    "Errors from underlying calls surfaced via UpdateFailed with clear message"
+  ],
+  "deliverables": [
+    "custom_components/battery_roi/coordinator.py"
+  ],
+  "agent_id": null,
+  "started_at": null,
+  "completed_at": null,
+  "completion_summary": null
+}

@@ -1,0 +1,189 @@
+{
+  "title": "Battery ROI Analyzer",
+  "config": {
+    "step": {
+      "sensors": {
+        "title": "Energy sensors",
+        "description": "Select the existing statistics-tracked sensors used to simulate a home battery.",
+        "data": {
+          "import_sensor": "Grid import (buy) sensor",
+          "export_sensor": "Grid export (sell) sensor",
+          "consumption_sensor": "Home energy consumption sensor",
+          "production_sensor": "Solar production sensor (optional)"
+        }
+      },
+      "prices": {
+        "title": "Energy prices",
+        "description": "Configure buy/sell prices and net-metering (saldering) scenario.",
+        "data": {
+          "import_price": "Buy price (\u20ac/kWh)",
+          "export_price": "Sell price (\u20ac/kWh)",
+          "fixed_export_costs_eur_per_year": "Fixed export costs (\u20ac/year)",
+          "saldering_scenario": "Net-metering (saldering) scenario",
+          "phase_out_years": "Phase-out duration (years)",
+          "saldering_own_tariff_eur_per_kwh": "Own export tariff (\u20ac/kWh)",
+          "dynamic_price_sensor": "Dynamic price sensor (optional)"
+        }
+      },
+      "battery": {
+        "title": "Battery parameters",
+        "description": "Define the battery model and capacity to simulate.",
+        "data": {
+          "battery_chemistry": "Battery chemistry",
+          "battery_capacity_kwh": "Capacity (kWh)",
+          "battery_round_trip_efficiency": "Round-trip efficiency (%)",
+          "battery_max_charge_kw": "Max charge power (kW)",
+          "battery_max_discharge_kw": "Max discharge power (kW)",
+          "battery_price_eur": "Battery price (\u20ac)",
+          "battery_install_cost": "Installation cost (\u20ac)"
+        }
+      },
+      "sim_period": {
+        "title": "Simulation period",
+        "description": "Choose the historical period used to run the simulation.",
+        "data": {
+          "simulation_period_days": "Lookback period (days)",
+          "battery_lifetime_years": "Expected battery lifetime (years)",
+          "discount_rate": "Discount rate (%)"
+        }
+      },
+      "results": {
+        "title": "Review results",
+        "description": "Review your settings before creating the entry.",
+        "data": {
+          "confirm": "Confirm and create entry"
+        }
+      }
+    },
+    "error": {
+      "invalid_sensor": "The selected sensor does not exist or has no statistics data.",
+      "no_statistics_data": "No statistics data found for the selected period.",
+      "invalid_capacity": "Capacity must be greater than zero.",
+      "invalid_efficiency": "Round-trip efficiency must be between 1 and 100 percent.",
+      "invalid_date_range": "End date must be after start date.",
+      "simulation_failed": "The simulation could not be completed with the provided settings.",
+      "unknown": "Unexpected error occurred."
+    },
+    "abort": {
+      "already_configured": "This battery ROI configuration already exists.",
+      "no_sensors_available": "No compatible energy sensors were found in this Home Assistant instance."
+    }
+  },
+  "options": {
+    "step": {
+      "sensors": {
+        "title": "Energy sensors",
+        "description": "Update the statistics-tracked sensors used to simulate the battery.",
+        "data": {
+          "import_sensor": "Grid import (buy) sensor",
+          "export_sensor": "Grid export (sell) sensor",
+          "consumption_sensor": "Home energy consumption sensor",
+          "production_sensor": "Solar production sensor (optional)"
+        }
+      },
+      "prices": {
+        "title": "Energy prices",
+        "description": "Update buy/sell prices and net-metering (saldering) scenario.",
+        "data": {
+          "import_price": "Buy price (\u20ac/kWh)",
+          "export_price": "Sell price (\u20ac/kWh)",
+          "fixed_export_costs_eur_per_year": "Fixed export costs (\u20ac/year)",
+          "saldering_scenario": "Net-metering (saldering) scenario",
+          "phase_out_years": "Phase-out duration (years)",
+          "saldering_own_tariff_eur_per_kwh": "Own export tariff (\u20ac/kWh)",
+          "dynamic_price_sensor": "Dynamic price sensor (optional)"
+        }
+      },
+      "battery": {
+        "title": "Battery parameters",
+        "description": "Update the battery model and capacity to simulate.",
+        "data": {
+          "battery_chemistry": "Battery chemistry",
+          "battery_capacity_kwh": "Capacity (kWh)",
+          "battery_round_trip_efficiency": "Round-trip efficiency (%)",
+          "battery_max_charge_kw": "Max charge power (kW)",
+          "battery_max_discharge_kw": "Max discharge power (kW)",
+          "battery_price_eur": "Battery price (\u20ac)",
+          "battery_install_cost": "Installation cost (\u20ac)"
+        }
+      },
+      "sim_period": {
+        "title": "Simulation period",
+        "description": "Update the historical period used to run the simulation.",
+        "data": {
+          "simulation_period_days": "Lookback period (days)",
+          "battery_lifetime_years": "Expected battery lifetime (years)",
+          "discount_rate": "Discount rate (%)"
+        }
+      },
+      "results": {
+        "title": "Review results",
+        "description": "Review the recalculated ROI before saving.",
+        "data": {
+          "confirm": "Confirm and save"
+        }
+      }
+    },
+    "error": {
+      "invalid_sensor": "The selected sensor does not exist or has no statistics data.",
+      "no_statistics_data": "No statistics data found for the selected period.",
+      "invalid_capacity": "Capacity must be greater than zero.",
+      "invalid_efficiency": "Round-trip efficiency must be between 1 and 100 percent.",
+      "invalid_date_range": "End date must be after start date.",
+      "simulation_failed": "The simulation could not be completed with the provided settings.",
+      "unknown": "Unexpected error occurred."
+    },
+    "abort": {
+      "no_sensors_available": "No compatible energy sensors were found in this Home Assistant instance."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "best_size": {
+        "name": "Recommended battery size"
+      },
+      "payback": {
+        "name": "Payback period"
+      },
+      "annual_saving": {
+        "name": "Annual saving"
+      },
+      "best_capacity": {
+        "name": "Best capacity (by NPV)"
+      },
+      "cycles": {
+        "name": "Cycles per year"
+      },
+      "self_consumption": {
+        "name": "Self-consumption ratio"
+      },
+      "import_saved": {
+        "name": "Grid import saved"
+      },
+      "export_saved": {
+        "name": "Grid export saved"
+      },
+      "roi": {
+        "name": "Return on investment"
+      },
+      "npv": {
+        "name": "Net present value"
+      },
+      "irr": {
+        "name": "Internal rate of return"
+      },
+      "lifetime_saving": {
+        "name": "Lifetime saving"
+      },
+      "self_consumption_ratio": {
+        "name": "Self-consumption ratio (legacy)"
+      },
+      "grid_independence": {
+        "name": "Grid independence"
+      },
+      "last_simulation_run": {
+        "name": "Last simulation run"
+      }
+    }
+  }
+}

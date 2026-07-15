@@ -1,0 +1,31 @@
+{
+  "id": "battery-roi-analyzer-13",
+  "seq": "13",
+  "title": "docs/dashboards: example Lovelace YAML (apexcharts-card bar/heatmap/sankey)",
+  "status": "pending",
+  "depends_on": [
+    "11"
+  ],
+  "parallel": true,
+  "suggested_agent": "CoderAgent",
+  "context_files": [
+    ".opencode/context/core/standards/code-quality.md",
+    ".opencode/context/navigation.md"
+  ],
+  "reference_files": [],
+  "acceptance_criteria": [
+    "Example Lovelace YAML uses apexcharts-card for bar chart of annual savings comparison across scenarios",
+    "Example includes heatmap visualization for battery charge/discharge patterns",
+    "Example includes sankey-style visualization for energy flow",
+    "README note clarifies apexcharts-card is a soft dependency (frontend HACS card), not a Python requirement",
+    "YAML is valid and documented with setup instructions"
+  ],
+  "deliverables": [
+    "docs/dashboards/battery_roi_dashboard.yaml",
+    "docs/dashboards/README.md"
+  ],
+  "agent_id": null,
+  "started_at": null,
+  "completed_at": null,
+  "completion_summary": null
+}

@@ -1,0 +1,7 @@
+pytest>=8.0.0
+pytest-asyncio>=0.23.0
+pytest-homeassistant-custom-component
+numpy>=1.26.0
+pandas>=2.1.0
+numpy-financial>=1.0.0
+homeassistant

@@ -1,0 +1,36 @@
+{
+  "id": "battery-roi-analyzer-11",
+  "seq": "11",
+  "title": "diagnostics.py, repairs.py, services.yaml",
+  "status": "pending",
+  "depends_on": [
+    "09",
+    "10"
+  ],
+  "parallel": false,
+  "suggested_agent": "CoderAgent",
+  "context_files": [
+    ".opencode/context/core/standards/code-quality.md",
+    ".opencode/context/core/standards/external-libraries.md",
+    ".opencode/context/navigation.md"
+  ],
+  "reference_files": [
+    ".tmp/external-context/home-assistant-core/diagnostics-platform.md",
+    ".tmp/external-context/home-assistant-core/repairs-platform.md"
+  ],
+  "acceptance_criteria": [
+    "diagnostics.py async_get_config_entry_diagnostics redacts sensitive data and returns coordinator cache + config summary",
+    "repairs.py defines repair flow(s) for common misconfiguration issues (e.g. missing/invalid sensor entity)",
+    "services.yaml documents any exposed services (e.g. force_recompute) with field descriptions",
+    "All entries meet Silver+ quality scale requirements for diagnostics/repairs"
+  ],
+  "deliverables": [
+    "custom_components/battery_roi/diagnostics.py",
+    "custom_components/battery_roi/repairs.py",
+    "custom_components/battery_roi/services.yaml"
+  ],
+  "agent_id": null,
+  "started_at": null,
+  "completed_at": null,
+  "completion_summary": null
+}

@@ -1,0 +1,35 @@
+{
+  "id": "battery-roi-analyzer-07",
+  "seq": "07",
+  "title": "finance.py: ROI/NPV/IRR and saldering scenario calculations",
+  "status": "pending",
+  "depends_on": [
+    "04",
+    "05"
+  ],
+  "parallel": true,
+  "suggested_agent": "CoderAgent",
+  "context_files": [
+    ".opencode/context/core/standards/code-quality.md",
+    ".opencode/context/core/standards/external-libraries.md",
+    ".opencode/context/navigation.md"
+  ],
+  "reference_files": [
+    ".tmp/external-context/numpy-financial/irr-npv.md"
+  ],
+  "acceptance_criteria": [
+    "npf.irr and npf.npv used for IRR/NPV calculations; handles npf.irr returning nan (no real solution) gracefully",
+    "Payback period calculation from cashflow series",
+    "Saldering scenario handling: none/full/phase-out/own-tariff/dynamic-via-sensor",
+    "Dynamic-via-sensor scenario reads price from a user-supplied sensor entity_id (out-of-scope Tibber/EnergyZero integration itself)",
+    "Multi-scenario comparison output structure defined for downstream sensor/coordinator consumption",
+    "Fully type-hinted, pure functions, ruff + mypy clean"
+  ],
+  "deliverables": [
+    "custom_components/battery_roi/finance.py"
+  ],
+  "agent_id": null,
+  "started_at": null,
+  "completed_at": null,
+  "completion_summary": null
+}

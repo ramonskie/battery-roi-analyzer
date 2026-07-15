@@ -1,0 +1,29 @@
+{
+  "id": "battery-roi-analyzer-03",
+  "seq": "03",
+  "title": "const.py: domain constants, default battery sizes, saldering enum",
+  "status": "completed",
+  "depends_on": [],
+  "parallel": true,
+  "suggested_agent": "CoderAgent",
+  "context_files": [
+    ".opencode/context/core/standards/code-quality.md",
+    ".opencode/context/core/processes/component-planning.md",
+    ".opencode/context/navigation.md"
+  ],
+  "reference_files": [],
+  "acceptance_criteria": [
+    "DOMAIN constant defined",
+    "Default battery size options (kWh) defined as list/tuple",
+    "SalderingScenario enum (none/full/phase_out/own_tariff/dynamic_sensor) defined",
+    "Config entry data/option keys defined as constants",
+    "Type hints on all constants; ruff + mypy clean"
+  ],
+  "deliverables": [
+    "custom_components/battery_roi/const.py"
+  ],
+  "agent_id": "coder-agent",
+  "started_at": "2026-07-15T00:00:00Z",
+  "completed_at": "2026-07-15T00:00:00Z",
+  "completion_summary": "const.py implemented: DOMAIN, DEFAULT_BATTERY_SIZES_KWH tuple, SalderingScenario + BatteryChemistry StrEnums, CONF_* keys, defaults, sensor keys."
+}

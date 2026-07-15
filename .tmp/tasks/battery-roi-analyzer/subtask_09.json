@@ -1,0 +1,33 @@
+{
+  "id": "battery-roi-analyzer-09",
+  "seq": "09",
+  "title": "sensor.py: battery_roi_* sensor entities",
+  "status": "completed",
+  "depends_on": [
+    "08"
+  ],
+  "parallel": true,
+  "suggested_agent": "CoderAgent",
+  "context_files": [
+    ".opencode/context/core/standards/code-quality.md",
+    ".opencode/context/core/standards/external-libraries.md",
+    ".opencode/context/navigation.md"
+  ],
+  "reference_files": [
+    ".tmp/external-context/home-assistant-core/sensor-entity-basics.md"
+  ],
+  "acceptance_criteria": [
+    "CoordinatorEntity-based sensors reading from coordinator cached data",
+    "Entities include: best_size, payback_period, annual_saving, roi_percent, npv, irr per active scenario",
+    "Correct device_class/state_class/unit_of_measurement set for each sensor",
+    "Unique_id and device_info set for proper HA device registry entry",
+    "async_setup_entry registers all entities from coordinator data structure"
+  ],
+  "deliverables": [
+    "custom_components/battery_roi/sensor.py"
+  ],
+  "agent_id": "coder-agent",
+  "started_at": "2026-07-15T00:00:00Z",
+  "completed_at": "2026-07-15T00:00:00Z",
+  "completion_summary": "sensor.py: 8 CoordinatorEntity sensors reading BatteryRoiData (best_size, payback, annual_saving, best_capacity, cycles, self_consumption, import_saved, export_saved)"
+}

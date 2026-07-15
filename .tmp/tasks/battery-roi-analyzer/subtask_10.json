@@ -1,0 +1,33 @@
+{
+  "id": "battery-roi-analyzer-10",
+  "seq": "10",
+  "title": "config_flow.py: 5-step config flow + options flow",
+  "status": "pending",
+  "depends_on": [
+    "08"
+  ],
+  "parallel": true,
+  "suggested_agent": "CoderAgent",
+  "context_files": [
+    ".opencode/context/core/standards/code-quality.md",
+    ".opencode/context/core/standards/external-libraries.md",
+    ".opencode/context/navigation.md"
+  ],
+  "reference_files": [
+    ".tmp/external-context/home-assistant-core/config-flow-and-options-flow.md"
+  ],
+  "acceptance_criteria": [
+    "5 config flow steps implemented: sensors selection, prices, battery params, sim period, results/confirm",
+    "Uses entity/number selectors appropriate for each field (entity selector for sensors, number selector for prices/params)",
+    "Options flow allows editing all parameters post-setup and triggers coordinator recompute",
+    "Validates required sensors exist and are numeric/energy sensors",
+    "Errors and abort reasons map to translation keys from strings.json"
+  ],
+  "deliverables": [
+    "custom_components/battery_roi/config_flow.py"
+  ],
+  "agent_id": null,
+  "started_at": null,
+  "completed_at": null,
+  "completion_summary": null
+}

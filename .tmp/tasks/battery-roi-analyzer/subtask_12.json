@@ -1,0 +1,39 @@
+{
+  "id": "battery-roi-analyzer-12",
+  "seq": "12",
+  "title": "tests/: pytest coverage for simulator.py, finance.py, config_flow.py",
+  "status": "pending",
+  "depends_on": [
+    "11"
+  ],
+  "parallel": true,
+  "suggested_agent": "TestEngineer",
+  "context_files": [
+    ".opencode/context/core/standards/code-quality.md",
+    ".opencode/context/core/standards/external-libraries.md",
+    ".opencode/context/navigation.md"
+  ],
+  "reference_files": [
+    ".tmp/external-context/pytest-homeassistant-custom-component/custom-component-test-setup.md",
+    ".tmp/external-context/numpy-financial/irr-npv.md",
+    ".tmp/external-context/pandas/resample-asfreq-energy-timeseries.md"
+  ],
+  "acceptance_criteria": [
+    "Uses enable_custom_integrations fixture and MockConfigEntry per pytest-homeassistant-custom-component conventions",
+    "asyncio_mode=auto configured in pytest config",
+    "simulator.py tests cover battery model presets, resampling behavior, and simulation loop correctness for known inputs",
+    "finance.py tests cover NPV/IRR (including nan-no-real-solution case), payback period, and each saldering scenario",
+    "config_flow.py test covers full 5-step happy path creating a config entry",
+    "All tests pass"
+  ],
+  "deliverables": [
+    "tests/test_simulator.py",
+    "tests/test_finance.py",
+    "tests/test_config_flow.py",
+    "tests/conftest.py"
+  ],
+  "agent_id": null,
+  "started_at": null,
+  "completed_at": null,
+  "completion_summary": null
+}
