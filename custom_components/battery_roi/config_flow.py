@@ -231,32 +231,26 @@ class BatteryRoiFlowMixin:
 
     def _sensors_schema(self, defaults: dict[str, Any]) -> vol.Schema:
         """Build the "sensors" step's data schema."""
-        return vol.Schema(
-            {
-                vol.Required(
-                    CONF_IMPORT_SENSOR, default=defaults.get(CONF_IMPORT_SENSOR)
-                ): _energy_entity_selector(),
-                vol.Required(
-                    CONF_EXPORT_SENSOR, default=defaults.get(CONF_EXPORT_SENSOR)
-                ): _energy_entity_selector(),
-                vol.Optional(
-                    CONF_IMPORT_SENSOR_TARIFF_2,
-                    default=defaults.get(CONF_IMPORT_SENSOR_TARIFF_2, ""),
-                ): _energy_entity_selector(),
-                vol.Optional(
-                    CONF_EXPORT_SENSOR_TARIFF_2,
-                    default=defaults.get(CONF_EXPORT_SENSOR_TARIFF_2, ""),
-                ): _energy_entity_selector(),
-                vol.Optional(
-                    CONF_CONSUMPTION_SENSOR,
-                    default=defaults.get(CONF_CONSUMPTION_SENSOR, ""),
-                ): _energy_entity_selector(),
-                vol.Optional(
-                    CONF_PRODUCTION_SENSOR,
-                    default=defaults.get(CONF_PRODUCTION_SENSOR, ""),
-                ): _energy_entity_selector(),
-            }
-        )
+        schema: dict[vol.Marker, Any] = {
+            vol.Required(
+                CONF_IMPORT_SENSOR, default=defaults.get(CONF_IMPORT_SENSOR)
+            ): _energy_entity_selector(),
+            vol.Required(
+                CONF_EXPORT_SENSOR, default=defaults.get(CONF_EXPORT_SENSOR)
+            ): _energy_entity_selector(),
+        }
+        for key in (
+            CONF_IMPORT_SENSOR_TARIFF_2,
+            CONF_EXPORT_SENSOR_TARIFF_2,
+            CONF_CONSUMPTION_SENSOR,
+            CONF_PRODUCTION_SENSOR,
+        ):
+            val = defaults.get(key)
+            if val:
+                schema[vol.Optional(key, default=val)] = _energy_entity_selector()
+            else:
+                schema[vol.Optional(key)] = _energy_entity_selector()
+        return vol.Schema(schema)
 
     def _prices_schema(self, defaults: dict[str, Any]) -> vol.Schema:
         """Build the "prices" step's data schema."""
