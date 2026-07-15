@@ -47,10 +47,10 @@ from .const import (
     CONF_CONSUMPTION_SENSOR,
     CONF_DISCOUNT_RATE,
     CONF_DYNAMIC_PRICE_SENSOR,
-    CONF_EXPORT_PRICE,
     CONF_EXPORT_SENSOR,
+    CONF_EXPORT_PRICE_ENTITY,
     CONF_FIXED_EXPORT_COSTS,
-    CONF_IMPORT_PRICE,
+    CONF_IMPORT_PRICE_ENTITY,
     CONF_IMPORT_SENSOR,
     CONF_PHASE_OUT_YEARS,
     CONF_PRODUCTION_SENSOR,
@@ -92,6 +92,16 @@ def _energy_entity_selector(*, optional_device_class_hint: bool = False) -> Enti
         An `EntitySelector` restricted to the `sensor` domain.
     """
     return EntitySelector(EntitySelectorConfig(domain="sensor"))
+
+
+def _price_entity_selector() -> EntitySelector:
+    """Build an `EntitySelector` scoped to ``input_number`` entities holding prices."""
+    return EntitySelector(
+        EntitySelectorConfig(
+            domain="input_number",
+            multiple=False,
+        )
+    )
 
 
 def _price_number_selector(*, unit_of_measurement: str = "EUR/kWh") -> NumberSelector:
@@ -238,11 +248,13 @@ class BatteryRoiFlowMixin:
         return vol.Schema(
             {
                 vol.Required(
-                    CONF_IMPORT_PRICE, default=defaults.get(CONF_IMPORT_PRICE)
-                ): _price_number_selector(),
+                    CONF_IMPORT_PRICE_ENTITY,
+                    default=defaults.get(CONF_IMPORT_PRICE_ENTITY),
+                ): _price_entity_selector(),
                 vol.Required(
-                    CONF_EXPORT_PRICE, default=defaults.get(CONF_EXPORT_PRICE)
-                ): _price_number_selector(),
+                    CONF_EXPORT_PRICE_ENTITY,
+                    default=defaults.get(CONF_EXPORT_PRICE_ENTITY),
+                ): _price_entity_selector(),
                 vol.Optional(
                     CONF_FIXED_EXPORT_COSTS,
                     default=defaults.get(

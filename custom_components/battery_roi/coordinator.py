@@ -38,10 +38,11 @@ from .const import (
     CONF_CONSUMPTION_SENSOR,
     CONF_DISCOUNT_RATE,
     CONF_EXPORT_PRICE,
+    CONF_EXPORT_PRICE_ENTITY,
     CONF_EXPORT_SENSOR,
     CONF_IMPORT_PRICE,
+    CONF_IMPORT_PRICE_ENTITY,
     CONF_IMPORT_SENSOR,
-    CONF_PHASE_OUT_YEARS,
     CONF_PRODUCTION_SENSOR,
     CONF_SALDERING_PHASE_OUT_SCHEDULE,
     CONF_SALDERING_SCENARIO,
@@ -50,7 +51,6 @@ from .const import (
     DEFAULT_BATTERY_SIZES_KWH,
     DEFAULT_DEPTH_OF_DISCHARGE,
     DEFAULT_DISCOUNT_RATE,
-    DEFAULT_PHASE_OUT_YEARS,
     DEFAULT_ROUND_TRIP_EFFICIENCY,
     DEFAULT_SIMULATION_PERIOD_DAYS,
     DOMAIN,
@@ -243,8 +243,8 @@ def _build_finance_inputs(options: dict[str, Any]) -> FinanceInputs:
     }
 
     return FinanceInputs(
-        import_price_eur_per_kwh=float(options[CONF_IMPORT_PRICE]),
-        export_price_eur_per_kwh=float(options[CONF_EXPORT_PRICE]),
+        import_price_eur_per_kwh=float(options.get(CONF_IMPORT_PRICE, 0.0)),
+        export_price_eur_per_kwh=float(options.get(CONF_EXPORT_PRICE, 0.0)),
         fixed_export_costs_eur_per_year=float(
             options.get("fixed_export_costs_eur_per_year", 0.0)
         ),
@@ -430,6 +430,20 @@ class BatteryRoiCoordinator(DataUpdateCoordinator[BatteryRoiData]):
                 )
             )
             battery_overrides["min_soc"] = 1 - depth_of_discharge
+
+        # Read import/export prices from configured input_number entities.
+        # Falls back to the static CONF_IMPORT_PRICE / CONF_EXPORT_PRICE values
+        # stored in the config entry when no entity is configured (backward compat).
+        import_price_entity = merged_config.get(CONF_IMPORT_PRICE_ENTITY)
+        export_price_entity = merged_config.get(CONF_EXPORT_PRICE_ENTITY)
+        if import_price_entity:
+            state = self.hass.states.get(import_price_entity)
+            if state is not None:
+                merged_config[CONF_IMPORT_PRICE] = float(state.state)
+        if export_price_entity:
+            state = self.hass.states.get(export_price_entity)
+            if state is not None:
+                merged_config[CONF_EXPORT_PRICE] = float(state.state)
 
         finance_inputs = _build_finance_inputs(merged_config)
 

@@ -16,8 +16,8 @@
         "title": "Energieprijzen",
         "description": "Stel inkoop-/verkoopprijzen en het salderingsscenario in.",
         "data": {
-          "import_price": "Inkoopprijs (\u20ac/kWh)",
-          "export_price": "Verkoopprijs (\u20ac/kWh)",
+          "import_price_entity": "Inkoopprijs (input_number entiteit)",
+          "export_price_entity": "Verkoopprijs (input_number entiteit)",
           "fixed_export_costs_eur_per_year": "Vaste terugleveringskosten (\u20ac/jaar)",
           "saldering_scenario": "Salderingsscenario",
           "phase_out_years": "Afbouwperiode (jaren)",
@@ -85,8 +85,8 @@
         "title": "Energieprijzen",
         "description": "Werk de inkoop-/verkoopprijzen en het salderingsscenario bij.",
         "data": {
-          "import_price": "Inkoopprijs (\u20ac/kWh)",
-          "export_price": "Verkoopprijs (\u20ac/kWh)",
+          "import_price_entity": "Inkoopprijs (input_number entiteit)",
+          "export_price_entity": "Verkoopprijs (input_number entiteit)",
           "fixed_export_costs_eur_per_year": "Vaste terugleveringskosten (\u20ac/jaar)",
           "saldering_scenario": "Salderingsscenario",
           "phase_out_years": "Afbouwperiode (jaren)",

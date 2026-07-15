@@ -16,8 +16,8 @@
         "title": "Energy prices",
         "description": "Configure buy/sell prices and net-metering (saldering) scenario.",
         "data": {
-          "import_price": "Buy price (\u20ac/kWh)",
-          "export_price": "Sell price (\u20ac/kWh)",
+          "import_price_entity": "Import price (input_number entity)",
+          "export_price_entity": "Export price (input_number entity)",
           "fixed_export_costs_eur_per_year": "Fixed export costs (\u20ac/year)",
           "saldering_scenario": "Net-metering (saldering) scenario",
           "phase_out_years": "Phase-out duration (years)",
@@ -85,8 +85,8 @@
         "title": "Energy prices",
         "description": "Update buy/sell prices and net-metering (saldering) scenario.",
         "data": {
-          "import_price": "Buy price (\u20ac/kWh)",
-          "export_price": "Sell price (\u20ac/kWh)",
+          "import_price_entity": "Import price (input_number entity)",
+          "export_price_entity": "Export price (input_number entity)",
           "fixed_export_costs_eur_per_year": "Fixed export costs (\u20ac/year)",
           "saldering_scenario": "Net-metering (saldering) scenario",
           "phase_out_years": "Phase-out duration (years)",

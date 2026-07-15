@@ -50,6 +50,8 @@ CONF_CONSUMPTION_SENSOR: Final = "consumption_sensor"
 
 CONF_IMPORT_PRICE: Final = "import_price"
 CONF_EXPORT_PRICE: Final = "export_price"
+CONF_IMPORT_PRICE_ENTITY: Final = "import_price_entity"
+CONF_EXPORT_PRICE_ENTITY: Final = "export_price_entity"
 CONF_DYNAMIC_PRICE_SENSOR: Final = "dynamic_price_sensor"
 
 CONF_BATTERY_CAPACITY_KWH: Final = "battery_capacity_kwh"
