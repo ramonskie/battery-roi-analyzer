@@ -173,7 +173,12 @@ class BatteryRoiFlowMixin:
             if error:
                 errors[field_name] = error
 
-        for optional_field in (CONF_CONSUMPTION_SENSOR, CONF_PRODUCTION_SENSOR):
+        for optional_field in (
+            CONF_CONSUMPTION_SENSOR,
+            CONF_PRODUCTION_SENSOR,
+            CONF_IMPORT_SENSOR_TARIFF_2,
+            CONF_EXPORT_SENSOR_TARIFF_2,
+        ):
             entity_id = user_input.get(optional_field)
             if entity_id:
                 error = self._validate_energy_sensor(entity_id)
@@ -234,10 +239,22 @@ class BatteryRoiFlowMixin:
                 vol.Required(
                     CONF_EXPORT_SENSOR, default=defaults.get(CONF_EXPORT_SENSOR)
                 ): _energy_entity_selector(),
-                vol.Optional(CONF_IMPORT_SENSOR_TARIFF_2): _energy_entity_selector(),
-                vol.Optional(CONF_EXPORT_SENSOR_TARIFF_2): _energy_entity_selector(),
-                vol.Optional(CONF_CONSUMPTION_SENSOR): _energy_entity_selector(),
-                vol.Optional(CONF_PRODUCTION_SENSOR): _energy_entity_selector(),
+                vol.Optional(
+                    CONF_IMPORT_SENSOR_TARIFF_2,
+                    default=defaults.get(CONF_IMPORT_SENSOR_TARIFF_2, ""),
+                ): _energy_entity_selector(),
+                vol.Optional(
+                    CONF_EXPORT_SENSOR_TARIFF_2,
+                    default=defaults.get(CONF_EXPORT_SENSOR_TARIFF_2, ""),
+                ): _energy_entity_selector(),
+                vol.Optional(
+                    CONF_CONSUMPTION_SENSOR,
+                    default=defaults.get(CONF_CONSUMPTION_SENSOR, ""),
+                ): _energy_entity_selector(),
+                vol.Optional(
+                    CONF_PRODUCTION_SENSOR,
+                    default=defaults.get(CONF_PRODUCTION_SENSOR, ""),
+                ): _energy_entity_selector(),
             }
         )
 
