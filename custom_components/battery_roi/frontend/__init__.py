@@ -16,6 +16,7 @@ can corrupt HA's HTTP routing table when called early):
 
 from __future__ import annotations
 
+import asyncio
 import logging
 import shutil
 from pathlib import Path
@@ -26,6 +27,8 @@ from homeassistant.core import HomeAssistant
 from ..const import JSMODULES, URL_BASE
 
 _LOGGER = logging.getLogger(__name__)
+
+_RETRY_DELAY = 5  # seconds before retrying Lovelace resource registration
 
 
 class JSModuleRegistration:
@@ -52,7 +55,7 @@ class JSModuleRegistration:
         where they may not be ready yet).
         """
         self._register_extra_js_url()
-        await self._async_register_lovelace_resource()
+        await self._async_register_lovelace_resource(retry=True)
 
     # ------------------------------------------------------------------
     #  www/ copy — serve via HA's built-in /local/ (ALWAYS works)
@@ -87,15 +90,20 @@ class JSModuleRegistration:
     #  Lovelace resource (storage mode only)
     # ------------------------------------------------------------------
 
-    async def _async_register_lovelace_resource(self) -> None:
+    async def _async_register_lovelace_resource(self, retry: bool = False) -> None:
         """Register each JS module as a Lovelace resource.
 
-        Only works when the dashboard is in storage mode (the default).
-        In YAML mode the user must add the resource manually.
+        When *retry* is ``True``, waits up to 30 s for Lovelace resources
+        to become loaded (with a small delay between checks).
         """
         lovelace = self.hass.data.get("lovelace")
         if lovelace is None:
-            _LOGGER.debug("Lovelace not available yet, skipping resource registration")
+            if retry:
+                # Lovelace not available at all — schedule a later retry
+                _LOGGER.debug("Lovelace not available yet, will retry in %s s", _RETRY_DELAY)
+                await self._retry_lovelace()
+            else:
+                _LOGGER.debug("Lovelace not available yet, skipping resource registration")
             return
 
         # Check mode
@@ -107,7 +115,12 @@ class JSModuleRegistration:
 
         resources = getattr(lovelace, "resources", None)
         if resources is None or not getattr(resources, "loaded", False):
-            _LOGGER.debug("Lovelace resources not loaded, skipping")
+            if retry:
+                # Resources not loaded yet — wait and retry
+                _LOGGER.debug("Lovelace resources not loaded yet, will retry in %s s", _RETRY_DELAY)
+                await self._retry_lovelace()
+            else:
+                _LOGGER.debug("Lovelace resources not loaded, skipping")
             return
 
         for module in JSMODULES:
@@ -130,6 +143,7 @@ class JSModuleRegistration:
                 if stale is not None:
                     _LOGGER.info("Removing stale resource: %s", old_url)
                     await resources.async_delete_item(stale["id"])
+                    _LOGGER.info("Stale resource removed")
 
                 _LOGGER.info("Adding Lovelace resource: %s", url)
                 await resources.async_create_item({
@@ -138,6 +152,11 @@ class JSModuleRegistration:
                 })
             except Exception as exc:  # noqa: BLE001
                 _LOGGER.warning("Could not register Lovelace resource %s: %s", url, exc)
+
+    async def _retry_lovelace(self) -> None:
+        """Wait a short delay then retry Lovelace resource registration."""
+        await asyncio.sleep(_RETRY_DELAY)
+        await self._async_register_lovelace_resource(retry=True)
 
     # ------------------------------------------------------------------
     #  Sync fallback — add_extra_js_url
