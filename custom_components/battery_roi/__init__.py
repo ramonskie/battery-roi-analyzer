@@ -74,12 +74,10 @@ async def _register_frontend(hass: HomeAssistant) -> None:
 
     # 2 ── Inject into every HA page ───────────────────────────────────
     try:
-        hass.components.frontend.add_extra_js_url(hass, _CARD_JS_URL, es5=False)
-    except AttributeError:
-        # Fallback for older HA where add_extra_js_url is a service
-        await hass.services.async_call(
-            "frontend", "add_extra_js_url", {"url": _CARD_JS_URL}
-        )
+        from homeassistant.components.frontend import add_extra_js_url
+        add_extra_js_url(hass, _CARD_JS_URL, es5=False)
+    except ImportError:
+        _LOGGER.warning("add_extra_js_url not available — card only via resource")
     _LOGGER.info("add_extra_js_url: %s", _CARD_JS_URL)
 
     # 3 ── Auto-register as Lovelace resource ─────────────────────────
