@@ -279,13 +279,24 @@ def _build_finance_inputs(options: dict[str, Any]) -> FinanceInputs:
         ).items()
     }
 
+    # Battery total price → per-kWh: user enters what they paid for their
+    # specific capacity (e.g. €1800 for a 15 kWh DIY battery).  We divide
+    # by the configured capacity to get a per-kWh estimate for all sizes.
+    battery_capacity_kwh = float(options.get(CONF_BATTERY_CAPACITY_KWH, 1.0))
+    battery_total_price = float(options.get(CONF_BATTERY_PRICE, 0.0))
+    battery_price_per_kwh = (
+        battery_total_price / battery_capacity_kwh
+        if battery_capacity_kwh > 0
+        else 0.0
+    )
+
     return FinanceInputs(
         import_price_eur_per_kwh=float(options.get(CONF_IMPORT_PRICE, 0.0)),
         export_price_eur_per_kwh=float(options.get(CONF_EXPORT_PRICE, 0.0)),
         fixed_export_costs_eur_per_year=float(
             options.get("fixed_export_costs_eur_per_year", 0.0)
         ),
-        battery_price_per_kwh=float(options.get(CONF_BATTERY_PRICE, 0.0)),
+        battery_price_per_kwh=battery_price_per_kwh,
         installation_costs_eur=float(options.get(CONF_BATTERY_INSTALL_COST, 0.0)),
         lifetime_years=int(
             options.get(CONF_BATTERY_LIFETIME_YEARS, DEFAULT_BATTERY_LIFETIME_YEARS)

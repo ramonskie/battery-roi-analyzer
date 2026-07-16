@@ -36,7 +36,7 @@
           "battery_round_trip_efficiency": "Round-trip efficiency (%)",
           "battery_max_charge_kw": "Max charge power (kW)",
           "battery_max_discharge_kw": "Max discharge power (kW)",
-          "battery_price_eur": "Battery price (\u20ac/kWh)",
+          "battery_price_eur": "Total battery price (\u20ac) — e.g. 1800 for a 15kWh DIY battery",
           "battery_install_cost": "Installation cost (\u20ac)"
         }
       },
@@ -107,7 +107,7 @@
           "battery_round_trip_efficiency": "Round-trip efficiency (%)",
           "battery_max_charge_kw": "Max charge power (kW)",
           "battery_max_discharge_kw": "Max discharge power (kW)",
-          "battery_price_eur": "Battery price (\u20ac/kWh)",
+          "battery_price_eur": "Total battery price (\u20ac) — e.g. 1800 for a 15kWh DIY battery",
           "battery_install_cost": "Installation cost (\u20ac)"
         }
       },
