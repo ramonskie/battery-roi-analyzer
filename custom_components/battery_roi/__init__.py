@@ -16,7 +16,7 @@ from homeassistant.core import CoreState, HomeAssistant, ServiceCall
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import entity_registry as er
 
-from .const import DOMAIN
+from .const import DOMAIN, JSMODULES, URL_BASE
 from .coordinator import BatteryRoiCoordinator
 from .frontend import JSModuleRegistration
 
@@ -55,7 +55,7 @@ async def _async_handle_recalculate(hass: HomeAssistant, call: ServiceCall) -> N
 
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
-    """Register the `battery_roi.recalculate` service and frontend card."""
+    """Register service, copy www/ files, register card in frontend."""
     # ── recalculate service ─────────────────────────────────────────
     async def _handle_recalculate(call: ServiceCall) -> None:
         await _async_handle_recalculate(hass, call)
@@ -67,25 +67,41 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
         schema=cv.make_entity_service_schema({}),
     )
 
-    # ── Frontend card registration ──────────────────────────────────
-    # Per KipK guide: registration MUST be in async_setup, NOT
-    # async_setup_entry, so it runs once per integration (not per
-    # config entry) and fires at the right time during HA lifecycle.
-    #
-    # Only uses safe strategies (www/ copy + Lovelace resource +
-    # add_extra_js_url).  Does NOT use async_register_static_paths
-    # which can corrupt HA's HTTP routing table when called early.
-    async def _register_frontend(_event=None) -> None:
+    # ── www/ copy (safe file operation) ────────────────────────────
+    js_reg = JSModuleRegistration(hass)
+    await js_reg.async_copy_to_www()
+
+    # ── Card registration via add_extra_js_url ────────────────────
+    # Deferred to EVENT_HOMEASSISTANT_STARTED so the frontend
+    # component's UrlManager is guaranteed initialized (otherwise
+    # the URL registers on a throw-away manager that gets overwritten).
+    # This runs regardless of whether a config entry exists.
+    async def _register_card(_event=None) -> None:
+        js_reg.register_extra_js_url()
+
+        # One-shot cleanup of stale Lovelace resource from old code
+        # that pointed to /battery_roi/battery-roi-card.js (now 404).
         try:
-            js_reg = JSModuleRegistration(hass)
-            await js_reg.async_register()
+            lovelace = hass.data.get("lovelace")
+            if lovelace is not None:
+                resources = getattr(lovelace, "resources", None)
+                if resources is not None and getattr(resources, "loaded", False):
+                    for module in JSMODULES:
+                        old_url = f"{URL_BASE}/{module['filename']}"
+                        stale = next(
+                            (r for r in resources.async_items() if r["url"] == old_url),
+                            None,
+                        )
+                        if stale is not None:
+                            _LOGGER.info("Removing stale Lovelace resource: %s", old_url)
+                            await resources.async_delete_item(stale["id"])
         except Exception:  # noqa: BLE001
-            _LOGGER.exception("Frontend card registration failed")
+            pass  # non-critical
 
     if hass.state == CoreState.running:
-        await _register_frontend()
+        await _register_card()
     else:
-        hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, _register_frontend)
+        hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, _register_card)
 
     return True
 
@@ -100,11 +116,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     entry.async_on_unload(entry.add_update_listener(_async_update_listener))
 
-    # Retry Lovelace resource registration — by now Lovelace resources
-    # are guaranteed loaded (unlike EVENT_HOMEASSISTANT_STARTED where
-    # they may not be ready yet).
+    # Also register from here — covers post-startup config entry
+    # addition and ensures the UrlManager definitely has our URL.
     js_reg = JSModuleRegistration(hass)
-    await js_reg.async_register_lovelace_late()
+    js_reg.register_extra_js_url()
 
     return True
 
