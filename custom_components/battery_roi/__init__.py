@@ -71,9 +71,16 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     # Per KipK guide: registration MUST be in async_setup, NOT
     # async_setup_entry, so it runs once per integration (not per
     # config entry) and fires at the right time during HA lifecycle.
+    #
+    # Only uses safe strategies (www/ copy + Lovelace resource +
+    # add_extra_js_url).  Does NOT use async_register_static_paths
+    # which can corrupt HA's HTTP routing table when called early.
     async def _register_frontend(_event=None) -> None:
-        js_reg = JSModuleRegistration(hass)
-        await js_reg.async_register()
+        try:
+            js_reg = JSModuleRegistration(hass)
+            await js_reg.async_register()
+        except Exception:  # noqa: BLE001
+            _LOGGER.exception("Frontend card registration failed")
 
     if hass.state == CoreState.running:
         await _register_frontend()
