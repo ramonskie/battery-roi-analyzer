@@ -7,7 +7,7 @@
   "documentation": "https://github.com/ramonskie/battery-roi-analyzer",
   "issue_tracker": "https://github.com/ramonskie/battery-roi-analyzer/issues",
   "iot_class": "calculated",
-  "integration_type": "service",
+  "integration_type": "hub",
   "requirements": ["numpy-financial==1.0.0"],
-  "version": "0.1.0"
+  "version": "0.1.1"
 }
