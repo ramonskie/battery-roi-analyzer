@@ -73,32 +73,66 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Register service (idempotent)
     await _register_services(hass)
 
-    # Copy JS to www/ and inject via frontend add_extra_js_url
+    # Copy JS to www/ so it's served at /local/battery_roi/battery-roi-card.js
     js_reg = JSModuleRegistration(hass)
     await js_reg.async_copy_to_www()
 
-    js_url = f"/local/{URL_BASE.strip('/')}/battery-roi-card.js"
-    if "frontend_extra_js_urls" not in hass.data:
-        hass.data["frontend_extra_js_urls"] = []
-    if js_url not in hass.data["frontend_extra_js_urls"]:
-        hass.data["frontend_extra_js_urls"].append(js_url)
-
-    # One-shot cleanup: remove stale Lovelace resource pointing to old URL
-    try:
-        if (lovelace := hass.data.get("lovelace")) is not None:
-            resources = getattr(lovelace, "resources", None)
-            if resources is not None and getattr(resources, "loaded", False):
-                old_url = f"{URL_BASE}/battery-roi-card.js"
-                stale = next(
-                    (r for r in resources.async_items() if r["url"] == old_url), None
-                )
-                if stale is not None:
-                    await resources.async_delete_item(stale["id"])
-                    _LOGGER.info("Cleaned up stale Lovelace resource: %s", old_url)
-    except Exception:  # noqa: BLE001
-        pass  # cosmetic only
+    # Register card as a Lovelace resource (module type) so HA's import
+    # map (esp. for "lit") is available.  frontend_extra_js_urls does NOT
+    # provide the import map, causing bare "lit" imports to fail.
+    await _async_register_lovelace_resource(hass)
 
     return True
+
+
+JS_RESOURCE_URL: Final = f"/local/{URL_BASE.strip('/')}/battery-roi-card.js"
+
+
+async def _async_register_lovelace_resource(hass: HomeAssistant) -> None:
+    """Register the card JS as a Lovelace resource.
+
+    This makes the JS load through HA's module system which includes the
+    import map needed to resolve bare specifiers like ``"lit"``.
+    """
+    # Determine the resource mode
+    lovelace = hass.data.get("lovelace")
+    if lovelace is None:
+        _LOGGER.debug("Lovelace not ready yet — resource registration deferred")
+        return
+
+    resources = getattr(lovelace, "resources", None)
+    if resources is None:
+        return
+
+    # In YAML mode, Lovelace resources are managed by the user
+    mode = getattr(lovelace, "mode", None) or getattr(lovelace, "resource_mode", "storage")
+    if mode != "storage":
+        return
+
+    if not getattr(resources, "loaded", False):
+        _LOGGER.debug("Lovelace resources not loaded yet — deferring")
+        return
+
+    try:
+        existing = list(resources.async_items())
+        # Remove stale entries with different URLs for this card
+        for res in existing:
+            url = res.get("url", "")
+            if "battery-roi-card.js" in url and url != JS_RESOURCE_URL:
+                await resources.async_delete_item(res["id"])
+                _LOGGER.info("Removed stale resource: %s", url)
+
+        # Create resource only if not already present
+        if not any(
+            r.get("url", "") == JS_RESOURCE_URL for r in resources.async_items()
+        ):
+            await resources.async_create_item({
+                "res_type": "module",
+                "url": JS_RESOURCE_URL,
+            })
+            _LOGGER.info("Registered Lovelace resource: %s", JS_RESOURCE_URL)
+    except Exception:  # noqa: BLE001
+        _LOGGER.exception("Failed to register Lovelace resource")
 
 
 async def _register_services(hass: HomeAssistant) -> None:
