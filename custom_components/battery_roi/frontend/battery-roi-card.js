@@ -551,6 +551,7 @@
   (s3.litElementVersions ?? (s3.litElementVersions = [])).push("4.2.2");
 
   // src/battery-roi-card.js
+  console.log("[battery-roi] script loaded, LitElement:", typeof i4);
   var CARD_VERSION = "1.0.0";
   function _num(v2, decimals = 1) {
     const n4 = Number(v2);
@@ -1090,6 +1091,7 @@
     }
   };
   customElements.define("battery-roi-card", BatteryRoiCard);
+  console.log("[battery-roi] custom element defined");
   window.customCards = window.customCards || [];
   window.customCards.push({
     type: "battery-roi-card",
@@ -1098,6 +1100,7 @@
     preview: true,
     documentationURL: "https://github.com/ramonskie/battery-roi-analyzer"
   });
+  console.log("[battery-roi] registered in window.customCards");
 })();
 /*! Bundled license information:
 

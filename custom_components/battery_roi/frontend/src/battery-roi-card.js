@@ -4,6 +4,8 @@
 
 import { LitElement, html, css } from "lit";
 
+console.log("[battery-roi] script loaded, LitElement:", typeof LitElement);
+
 const CARD_VERSION = "1.0.0";
 
 /* ------------------------------------------------------------------ */
@@ -601,6 +603,7 @@ class BatteryRoiCard extends LitElement {
 }
 
 customElements.define("battery-roi-card", BatteryRoiCard);
+console.log("[battery-roi] custom element defined");
 
 window.customCards = window.customCards || [];
 window.customCards.push({
@@ -610,3 +613,4 @@ window.customCards.push({
   preview: true,
   documentationURL: "https://github.com/ramonskie/battery-roi-analyzer",
 });
+console.log("[battery-roi] registered in window.customCards");
