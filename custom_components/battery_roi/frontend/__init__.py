@@ -51,6 +51,7 @@ class JSModuleRegistration:
         have its resources loaded (unlike ``EVENT_HOMEASSISTANT_STARTED``
         where they may not be ready yet).
         """
+        self._register_extra_js_url()
         await self._async_register_lovelace_resource()
 
     # ------------------------------------------------------------------
@@ -111,6 +112,7 @@ class JSModuleRegistration:
 
         for module in JSMODULES:
             url = self._local_url(module["filename"])
+            old_url = f"{URL_BASE}/{module['filename']}"
             try:
                 existing = next(
                     (r for r in resources.async_items() if r["url"] == url),
@@ -119,6 +121,16 @@ class JSModuleRegistration:
                 if existing is not None:
                     _LOGGER.debug("Resource already exists: %s", url)
                     continue
+
+                # Clean up stale resource from old static-path URL
+                stale = next(
+                    (r for r in resources.async_items() if r["url"] == old_url),
+                    None,
+                )
+                if stale is not None:
+                    _LOGGER.info("Removing stale resource: %s", old_url)
+                    await resources.async_delete_item(stale["id"])
+
                 _LOGGER.info("Adding Lovelace resource: %s", url)
                 await resources.async_create_item({
                     "res_type": "module",
