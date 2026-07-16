@@ -59,6 +59,9 @@ async def _async_handle_recalculate(hass: HomeAssistant, call: ServiceCall) -> N
 # Prevents duplicate retry loops when there are multiple config entries.
 _LOVELACE_REGISTRATION_STARTED = False
 
+# Track whether we've injected the card JS via frontend.add_extra_js_url.
+_FRONTEND_EXTRA_JS_REGISTERED = False
+
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     """Set up integration — register services + frontend resources.
@@ -95,6 +98,23 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         _LOVELACE_REGISTRATION_STARTED = True
         _LOGGER.debug("Starting Lovelace resource registration retry loop")
         _schedule_register_lovelace(hass)
+
+    # Also inject card JS into every HA page via frontend.add_extra_js_url.
+    # This is a more reliable fallback — it doesn't depend on Lovelace's
+    # resource storage system (which may have stale/broken entries).
+    global _FRONTEND_EXTRA_JS_REGISTERED  # noqa: PLW0603
+    if not _FRONTEND_EXTRA_JS_REGISTERED:
+        _FRONTEND_EXTRA_JS_REGISTERED = True
+        try:
+            await hass.services.async_call(
+                "frontend",
+                "add_extra_js_url",
+                {"url": f"/local/{URL_BASE.strip('/')}/battery-roi-card.js"},
+                blocking=True,
+            )
+            _LOGGER.info("Registered frontend extra_js_url: battery-roi-card.js")
+        except Exception:  # noqa: BLE001
+            _LOGGER.exception("Failed to register frontend extra_js_url")
 
     return True
 
