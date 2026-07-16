@@ -128,20 +128,12 @@ class BatteryRoiData:
 
 
 def _build_energy_series(result: StatisticsResult) -> pd.Series:
-    """Convert a cumulative statistics `sum` column into per-period deltas.
+    """Extract the per-period energy delta from HA statistics.
 
-    HA energy statistics track a monotonically increasing cumulative
-    `sum`; the simulator needs per-period energy deltas (kWh consumed/
-    produced within each interval), so this takes a first difference.
-
-    The first row's delta is set to 0.0 because we lack the preceding
-    cumulative value needed to compute a proper delta. Setting it to the
-    raw cumulative sum (as we previously did) creates a massive fake
-    surge equal to the meter's lifetime total — corrupting the entire
-    simulation for ``total_increasing`` sensors like P1 counters.
-
-    Args:
-        result: Fetched statistics for one entity.
+    The ``sum`` column returned by ``statistics_during_period`` already
+    contains the **period delta** (kWh produced/consumed within the
+    interval) for ``total_increasing`` sensors — it does NOT contain
+    cumulative totals.  We use it directly without differencing.
 
     Returns:
         A float ``Series`` of per-period kWh deltas, empty if no data.
@@ -151,10 +143,7 @@ def _build_energy_series(result: StatisticsResult) -> pd.Series:
         return pd.Series(dtype=float)
 
     sums = dataframe["sum"].astype(float)
-    deltas = sums.diff()
-    if not deltas.empty:
-        deltas.iloc[0] = 0.0
-    return deltas.clip(lower=0.0)
+    return sums.clip(lower=0.0)
 
 
 def _build_energy_dataframe(
