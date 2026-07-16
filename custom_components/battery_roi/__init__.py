@@ -59,9 +59,6 @@ async def _async_handle_recalculate(hass: HomeAssistant, call: ServiceCall) -> N
 # Prevents duplicate retry loops when there are multiple config entries.
 _LOVELACE_REGISTRATION_STARTED = False
 
-# Track whether we've injected the card JS via frontend.add_extra_js_url.
-_FRONTEND_EXTRA_JS_REGISTERED = False
-
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     """Set up integration — register services + frontend resources.
@@ -77,6 +74,16 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     # Done once at setup, not per entry.
     js_reg = JSModuleRegistration(hass)
     await js_reg.async_copy_to_www()
+
+    # Inject card JS into every HA page via frontend.add_extra_js_url.
+    # Must happen here in async_setup — async_setup_entry may not re-run
+    # if the module is cached and the guard flag is already set.
+    js_url = f"/local/{URL_BASE.strip('/')}/battery-roi-card.js"
+    try:
+        hass.components.frontend.add_extra_js_url(hass, js_url, es5=False)
+    except AttributeError:
+        pass  # fallback handled below in async_setup_entry
+    _LOGGER.info("add_extra_js_url called for: %s", js_url)
 
     return True
 
@@ -98,26 +105,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         _LOVELACE_REGISTRATION_STARTED = True
         _LOGGER.debug("Starting Lovelace resource registration retry loop")
         _schedule_register_lovelace(hass)
-
-    # Also inject card JS into every HA page via frontend.add_extra_js_url.
-    # This is a more reliable fallback — it doesn't depend on Lovelace's
-    # resource storage system (which may have stale/broken entries).
-    global _FRONTEND_EXTRA_JS_REGISTERED  # noqa: PLW0603
-    if not _FRONTEND_EXTRA_JS_REGISTERED:
-        _FRONTEND_EXTRA_JS_REGISTERED = True
-        js_url = f"/local/{URL_BASE.strip('/')}/battery-roi-card.js"
-        try:
-            # Try direct function call first (most reliable)
-            try:
-                hass.components.frontend.add_extra_js_url(hass, js_url, es5=False)
-            except AttributeError:
-                # Fallback: service call
-                await hass.services.async_call(
-                    "frontend", "add_extra_js_url", {"url": js_url}
-                )
-            _LOGGER.info("Registered frontend extra_js_url: battery-roi-card.js")
-        except Exception:  # noqa: BLE001
-            _LOGGER.exception("Failed to register frontend extra_js_url")
 
     return True
 
