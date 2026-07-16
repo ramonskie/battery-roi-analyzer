@@ -1,0 +1,19 @@
+{
+  "name": "battery-roi-card",
+  "version": "1.0.0",
+  "description": "Lovelace card for Battery ROI Analyzer",
+  "type": "module",
+  "scripts": {
+    "build": "node build.js",
+    "build:prod": "NODE_ENV=production node build.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "esbuild": "^0.28.1"
+  },
+  "dependencies": {
+    "lit": "^3.3.3"
+  }
+}
