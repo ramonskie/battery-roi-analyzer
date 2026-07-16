@@ -10,7 +10,6 @@ from __future__ import annotations
 import logging
 from typing import Final
 
-from homeassistant.components.frontend import add_extra_js_url
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import ATTR_ENTITY_ID
 from homeassistant.core import HomeAssistant, ServiceCall
@@ -79,7 +78,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await js_reg.async_copy_to_www()
 
     js_url = f"/local/{URL_BASE.strip('/')}/battery-roi-card.js"
-    await add_extra_js_url(hass, js_url)
+    if "frontend_extra_js_urls" not in hass.data:
+        hass.data["frontend_extra_js_urls"] = []
+    if js_url not in hass.data["frontend_extra_js_urls"]:
+        hass.data["frontend_extra_js_urls"].append(js_url)
 
     # One-shot cleanup: remove stale Lovelace resource pointing to old URL
     try:

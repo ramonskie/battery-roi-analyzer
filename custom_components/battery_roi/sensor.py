@@ -189,7 +189,6 @@ SENSOR_DESCRIPTIONS: Final[tuple[BatteryRoiSensorDescription, ...]] = (
         translation_key=_KEY_ANNUAL_SAVING,
         device_class=SensorDeviceClass.MONETARY,
         native_unit_of_measurement=_CURRENCY_EUR,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=2,
         value_fn=_annual_saving_eur,
     ),

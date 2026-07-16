@@ -30,6 +30,7 @@ from __future__ import annotations
 from typing import Any, Final
 
 import voluptuous as vol
+from homeassistant.components.repairs import RepairsFlow
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResult
@@ -111,7 +112,7 @@ def async_delete_missing_sensor_issue(
     ir.async_delete_issue(hass, DOMAIN, _issue_id(entry.entry_id, sensor_key))
 
 
-class MissingSensorRepairFlow(ir.RepairsFlow):
+class MissingSensorRepairFlow(RepairsFlow):
     """Guided fix flow: let the user re-select the affected sensor.
 
     On confirmation, updates the config entry's `options` with the newly
