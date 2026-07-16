@@ -6,8 +6,9 @@
   "dependencies": ["frontend", "http"],
   "documentation": "https://github.com/ramonskie/battery-roi-analyzer",
   "issue_tracker": "https://github.com/ramonskie/battery-roi-analyzer/issues",
+  "homeassistant": "2025.1.0",
   "iot_class": "calculated",
   "integration_type": "hub",
   "requirements": ["numpy-financial==1.0.0"],
-  "version": "0.1.1"
+  "version": "0.1.2"
 }

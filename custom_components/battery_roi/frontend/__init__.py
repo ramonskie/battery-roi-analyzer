@@ -1,12 +1,9 @@
 """Frontend support for the Battery ROI Analyzer.
 
 Copies ``battery-roi-card.js`` to ``www/battery_roi/`` so it is
-served at ``/local/battery_roi/battery-roi-card.js``.
-
-Lovelace resource management (delete stale, add new) is handled
-in ``__init__.py`` via a background task with retry, because
-``hass.data["lovelace"].resources`` may not be loaded yet when
-``EVENT_HOMEASSISTANT_STARTED`` fires.
+served at ``/local/battery_roi/battery-roi-card.js``. The card JS
+is injected into every HA page via ``add_extra_js_url`` from the
+``frontend`` component (called in ``__init__.py``).
 """
 
 from __future__ import annotations
