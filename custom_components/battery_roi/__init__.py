@@ -145,14 +145,19 @@ async def _do_register_lovelace(hass: HomeAssistant) -> None:
 
     try:
         existing = resources.async_items()
-        # Remove stale entries with different URLs
+        # Remove stale entries: wrong URL, or right URL but broken type
         for res in list(existing):
             url = res.get("url", "")
-            if "battery-roi-card.js" in url and url != JS_RESOURCE_URL:
+            if "battery-roi-card.js" not in url:
+                continue
+            res_type = res.get("type") or res.get("res_type", "")
+            if url != JS_RESOURCE_URL or res_type != "module":
+                _LOGGER.info(
+                    "Removing broken/stale resource: %s (type=%r)", url, res_type
+                )
                 await resources.async_delete_item(res["id"])
-                _LOGGER.info("Removed stale resource: %s", url)
 
-        # Create only if not already present
+        # Create only if not already present (with correct URL + correct type)
         current_urls = {r.get("url", "") for r in resources.async_items()}
         if JS_RESOURCE_URL not in current_urls:
             await resources.async_create_item({
