@@ -9,7 +9,7 @@ await build({
   minify: production,
   sourcemap: !production,
   target: "es2020",
-  outfile: "battery-roi-card.js",
+  outfile: "../www/battery-roi-card.js",
   // Lit uses some node-specific APIs that need to be shimmed
   define: {
     "process.env.NODE_ENV": JSON.stringify(
