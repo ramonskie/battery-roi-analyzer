@@ -36,7 +36,7 @@
           "battery_round_trip_efficiency": "Round-trip efficiency (%)",
           "battery_max_charge_kw": "Max charge power (kW)",
           "battery_max_discharge_kw": "Max discharge power (kW)",
-          "battery_price_eur": "Battery price (\u20ac/kWh)",
+          "battery_price_eur": "Battery price (\u20ac/kWh of capacity — e.g. 360 for \u20ac1800/5kWh)",
           "battery_install_cost": "Installation cost (\u20ac)"
         }
       },
@@ -107,7 +107,7 @@
           "battery_round_trip_efficiency": "Round-trip efficiency (%)",
           "battery_max_charge_kw": "Max charge power (kW)",
           "battery_max_discharge_kw": "Max discharge power (kW)",
-          "battery_price_eur": "Battery price (\u20ac/kWh)",
+          "battery_price_eur": "Battery price (\u20ac/kWh of capacity — e.g. 360 for \u20ac1800/5kWh)",
           "battery_install_cost": "Installation cost (\u20ac)"
         }
       },

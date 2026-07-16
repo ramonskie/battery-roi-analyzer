@@ -202,6 +202,19 @@ class BatteryRoiCard extends LitElement {
         margin-top: 4px;
       }
 
+      /* ---- import/export breakdown ---- */
+      .breakdown {
+        display: flex;
+        gap: 12px;
+        padding: 8px 12px;
+        margin-bottom: 8px;
+        background: var(--br-border);
+        border-radius: 8px;
+        font-size: 12px;
+        color: var(--br-text-secondary);
+        justify-content: center;
+      }
+
       /* ---- section ---- */
       .section-title {
         font-size: 14px;
@@ -407,15 +420,24 @@ class BatteryRoiCard extends LitElement {
     const pbClass = withinLifetime ? "green" : "red";
 
     const annual = annualSt?.state ?? "—";
+    const upfront = paybackAttrs.upfront_cost_eur;
 
-    const netClass =
-      Number(paybackAttrs.net_saving_eur) >= 0 ? "green" : "red";
+    const netSaving = Number(paybackAttrs.net_saving_eur);
+    const netClass = netSaving >= 0 ? "green" : "red";
+
+    // Import vs export breakdown
+    const bestSizeSt = this._st(this._s.best_size);
+    const byCap = bestSizeSt?.attributes?.by_capacity || {};
+    const bestKey = String(bestSizeSt?.state || "5").replace(".", "_");
+    const cap = byCap[bestKey] || {};
+    const importSaved = cap.reduced_grid_import_kwh;
+    const exportChanged = cap.reduced_export_kwh;
 
     return html`
       <div class="grid">
         <div class="stat">
           <div class="value accent">
-            ${_num(this._st(this._s.best_size)?.state, 1)}
+            ${_num(bestSizeSt?.state, 1)}
           </div>
           <div class="label">Best Size (kWh)</div>
         </div>
@@ -429,11 +451,17 @@ class BatteryRoiCard extends LitElement {
         </div>
         <div class="stat">
           <div class="value ${netClass}">
-            ${_euro(paybackAttrs.net_saving_eur)}
+            ${_euro(netSaving)}
           </div>
-          <div class="label">Net Result (life)</div>
+          <div class="label">Net Result (${upfront ? "invest €" + _num(upfront, 0) + " " : ""}life)</div>
         </div>
       </div>
+      ${importSaved != null ? html`
+        <div class="breakdown">
+          <span>📥 Import saved: ${_num(importSaved, 0)} kWh/yr</span>
+          <span>📤 Export changed: ${_num(exportChanged, 0)} kWh/yr</span>
+        </div>
+      ` : ""}
     `;
   }
 
