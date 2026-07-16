@@ -53,23 +53,54 @@ class BatteryRoiCard extends LitElement {
 
   setConfig(config) {
     this.config = config;
+    this._entityCache = null;
   }
 
-  /* ----- convenience entity getters with configurable overrides ---- */
+  /* ----- auto-discover entities by scanning hass.states ------------ */
+
+  _discoverEntities() {
+    // Allow explicit overrides via card config
+    const explicit = {};
+    for (const key of ["best_size", "payback", "annual_saving", "best_capacity",
+                       "cycles", "self_consumption", "import_saved", "export_saved"]) {
+      if (this.config[`${key}_entity`]) {
+        explicit[key] = this.config[`${key}_entity`];
+      }
+    }
+
+    // Scan all states for battery_roi sensor entities
+    const states = this.hass?.states || {};
+    const prefix = this.config.entity_prefix || "sensor.battery_roi";
+    const candidates = Object.entries(states)
+      .filter(([eid]) => eid.startsWith(prefix))
+      .map(([eid, st]) => ({ eid, ...st.attributes }));
+
+    // Match by friendly_name (translation-based, language-independent within a setup)
+    const byName = (name) => candidates.find(
+      (c) => c.friendly_name === name || c.friendly_name?.toLowerCase().includes(name.toLowerCase())
+    );
+
+    return {
+      best_size:      explicit.best_size      || byName("Recommended battery size")?.eid || `${prefix}_best_size`,
+      payback:        explicit.payback        || byName("Payback period")?.eid            || `${prefix}_payback`,
+      annual_saving:  explicit.annual_saving  || byName("Annual saving")?.eid             || `${prefix}_annual_saving`,
+      best_capacity:  explicit.best_capacity  || byName("Best capacity")?.eid             || `${prefix}_best_capacity`,
+      cycles:         explicit.cycles         || byName("Cycles per year")?.eid           || `${prefix}_cycles`,
+      self_consumption: explicit.self_consumption || byName("Self-consumption")?.eid      || `${prefix}_self_consumption`,
+      import_saved:   explicit.import_saved   || byName("Grid import saved")?.eid         || `${prefix}_import_saved`,
+      export_saved:   explicit.export_saved   || byName("Grid export saved")?.eid         || `${prefix}_export_saved`,
+    };
+  }
 
   get _s() {
-    const prefix = this.config.entity_prefix || "sensor.battery_roi";
-    const e = (key, def) => this.config[`${key}_entity`] || `${prefix}_${def}`;
-    return {
-      best_size: e("best_size", "best_size"),
-      payback: e("payback", "payback"),
-      annual_saving: e("annual_saving", "annual_saving"),
-      best_capacity: e("best_capacity", "best_capacity"),
-      cycles: e("cycles", "cycles"),
-      self_consumption: e("self_consumption", "self_consumption"),
-      import_saved: e("import_saved", "import_saved"),
-      export_saved: e("export_saved", "export_saved"),
-    };
+    // Invalidate cache if entity list changed (cheap hash check)
+    const states = this.hass?.states || {};
+    const key = Object.keys(states).filter(k => k.startsWith("sensor.battery_roi")).join(",");
+    if (!this._entityCache || this._entityKey !== key) {
+      this._entityKey = key;
+      this._entityCache = this._discoverEntities();
+    }
+    return this._entityCache;
   }
 
   _st(id) {

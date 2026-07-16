@@ -584,21 +584,50 @@
     }
     setConfig(config) {
       this.config = config;
+      this._entityCache = null;
     }
-    /* ----- convenience entity getters with configurable overrides ---- */
-    get _s() {
+    /* ----- auto-discover entities by scanning hass.states ------------ */
+    _discoverEntities() {
+      const explicit = {};
+      for (const key of [
+        "best_size",
+        "payback",
+        "annual_saving",
+        "best_capacity",
+        "cycles",
+        "self_consumption",
+        "import_saved",
+        "export_saved"
+      ]) {
+        if (this.config[`${key}_entity`]) {
+          explicit[key] = this.config[`${key}_entity`];
+        }
+      }
+      const states = this.hass?.states || {};
       const prefix = this.config.entity_prefix || "sensor.battery_roi";
-      const e4 = (key, def) => this.config[`${key}_entity`] || `${prefix}_${def}`;
+      const candidates = Object.entries(states).filter(([eid]) => eid.startsWith(prefix)).map(([eid, st]) => ({ eid, ...st.attributes }));
+      const byName = (name) => candidates.find(
+        (c4) => c4.friendly_name === name || c4.friendly_name?.toLowerCase().includes(name.toLowerCase())
+      );
       return {
-        best_size: e4("best_size", "best_size"),
-        payback: e4("payback", "payback"),
-        annual_saving: e4("annual_saving", "annual_saving"),
-        best_capacity: e4("best_capacity", "best_capacity"),
-        cycles: e4("cycles", "cycles"),
-        self_consumption: e4("self_consumption", "self_consumption"),
-        import_saved: e4("import_saved", "import_saved"),
-        export_saved: e4("export_saved", "export_saved")
+        best_size: explicit.best_size || byName("Recommended battery size")?.eid || `${prefix}_best_size`,
+        payback: explicit.payback || byName("Payback period")?.eid || `${prefix}_payback`,
+        annual_saving: explicit.annual_saving || byName("Annual saving")?.eid || `${prefix}_annual_saving`,
+        best_capacity: explicit.best_capacity || byName("Best capacity")?.eid || `${prefix}_best_capacity`,
+        cycles: explicit.cycles || byName("Cycles per year")?.eid || `${prefix}_cycles`,
+        self_consumption: explicit.self_consumption || byName("Self-consumption")?.eid || `${prefix}_self_consumption`,
+        import_saved: explicit.import_saved || byName("Grid import saved")?.eid || `${prefix}_import_saved`,
+        export_saved: explicit.export_saved || byName("Grid export saved")?.eid || `${prefix}_export_saved`
       };
+    }
+    get _s() {
+      const states = this.hass?.states || {};
+      const key = Object.keys(states).filter((k2) => k2.startsWith("sensor.battery_roi")).join(",");
+      if (!this._entityCache || this._entityKey !== key) {
+        this._entityKey = key;
+        this._entityCache = this._discoverEntities();
+      }
+      return this._entityCache;
     }
     _st(id) {
       return this.hass?.states?.[id];

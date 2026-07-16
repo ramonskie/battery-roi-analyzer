@@ -171,6 +171,7 @@ SENSOR_DESCRIPTIONS: Final[tuple[BatteryRoiSensorDescription, ...]] = (
     BatteryRoiSensorDescription(
         key=_KEY_BEST_SIZE,
         translation_key=_KEY_BEST_SIZE,
+        name="Best size",
         native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
         state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=1,
@@ -179,6 +180,7 @@ SENSOR_DESCRIPTIONS: Final[tuple[BatteryRoiSensorDescription, ...]] = (
     BatteryRoiSensorDescription(
         key=_KEY_PAYBACK,
         translation_key=_KEY_PAYBACK,
+        name="Payback",
         native_unit_of_measurement=UnitOfTime.YEARS,
         state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=1,
@@ -187,6 +189,7 @@ SENSOR_DESCRIPTIONS: Final[tuple[BatteryRoiSensorDescription, ...]] = (
     BatteryRoiSensorDescription(
         key=_KEY_ANNUAL_SAVING,
         translation_key=_KEY_ANNUAL_SAVING,
+        name="Annual saving",
         device_class=SensorDeviceClass.MONETARY,
         native_unit_of_measurement=_CURRENCY_EUR,
         suggested_display_precision=2,
@@ -195,6 +198,7 @@ SENSOR_DESCRIPTIONS: Final[tuple[BatteryRoiSensorDescription, ...]] = (
     BatteryRoiSensorDescription(
         key=_KEY_BEST_CAPACITY,
         translation_key=_KEY_BEST_CAPACITY,
+        name="Best capacity",
         native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
         state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=1,
@@ -203,6 +207,7 @@ SENSOR_DESCRIPTIONS: Final[tuple[BatteryRoiSensorDescription, ...]] = (
     BatteryRoiSensorDescription(
         key=_KEY_CYCLES,
         translation_key=_KEY_CYCLES,
+        name="Cycles",
         state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=1,
         value_fn=_cycles_per_year,
@@ -210,6 +215,7 @@ SENSOR_DESCRIPTIONS: Final[tuple[BatteryRoiSensorDescription, ...]] = (
     BatteryRoiSensorDescription(
         key=_KEY_SELF_CONSUMPTION,
         translation_key=_KEY_SELF_CONSUMPTION,
+        name="Self-consumption",
         native_unit_of_measurement=PERCENTAGE,
         state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=1,
@@ -218,6 +224,7 @@ SENSOR_DESCRIPTIONS: Final[tuple[BatteryRoiSensorDescription, ...]] = (
     BatteryRoiSensorDescription(
         key=_KEY_IMPORT_SAVED,
         translation_key=_KEY_IMPORT_SAVED,
+        name="Import saved",
         device_class=SensorDeviceClass.ENERGY,
         native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
         state_class=SensorStateClass.TOTAL_INCREASING,
@@ -227,6 +234,7 @@ SENSOR_DESCRIPTIONS: Final[tuple[BatteryRoiSensorDescription, ...]] = (
     BatteryRoiSensorDescription(
         key=_KEY_EXPORT_SAVED,
         translation_key=_KEY_EXPORT_SAVED,
+        name="Export saved",
         device_class=SensorDeviceClass.ENERGY,
         native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
         state_class=SensorStateClass.TOTAL_INCREASING,
