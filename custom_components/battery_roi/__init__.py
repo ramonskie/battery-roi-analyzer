@@ -12,7 +12,7 @@ from typing import Final
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import ATTR_ENTITY_ID, EVENT_HOMEASSISTANT_STARTED
-from homeassistant.core import HomeAssistant, ServiceCall
+from homeassistant.core import CoreState, HomeAssistant, ServiceCall
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import entity_registry as er
 
@@ -55,7 +55,8 @@ async def _async_handle_recalculate(hass: HomeAssistant, call: ServiceCall) -> N
 
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
-    """Register the `battery_roi.recalculate` service."""
+    """Register the `battery_roi.recalculate` service and frontend card."""
+    # ── recalculate service ─────────────────────────────────────────
     async def _handle_recalculate(call: ServiceCall) -> None:
         await _async_handle_recalculate(hass, call)
 
@@ -65,6 +66,20 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
         _handle_recalculate,
         schema=cv.make_entity_service_schema({}),
     )
+
+    # ── Frontend card registration ──────────────────────────────────
+    # Per KipK guide: registration MUST be in async_setup, NOT
+    # async_setup_entry, so it runs once per integration (not per
+    # config entry) and fires at the right time during HA lifecycle.
+    async def _register_frontend(_event=None) -> None:
+        js_reg = JSModuleRegistration(hass)
+        await js_reg.async_register()
+
+    if hass.state == CoreState.running:
+        await _register_frontend()
+    else:
+        hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, _register_frontend)
+
     return True
 
 
@@ -77,18 +92,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     entry.async_on_unload(entry.add_update_listener(_async_update_listener))
-
-    # Register the Lovelace card when frontend is ready.
-    # If HA is already running (e.g. config flow added post-startup),
-    # register immediately. Otherwise defer to STARTED event.
-    async def _register(_event=None) -> None:
-        js_reg = JSModuleRegistration(hass)
-        await js_reg.async_register()
-
-    if hass.is_running:
-        await _register()
-    else:
-        hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, _register)
 
     return True
 
