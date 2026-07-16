@@ -7,6 +7,7 @@ control a real battery — simulation/analysis only.
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from typing import Final
 
@@ -71,37 +72,57 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     js_reg = JSModuleRegistration(hass)
     await js_reg.async_copy_to_www()
 
-    # ── Card registration via add_extra_js_url ────────────────────
-    # Deferred to EVENT_HOMEASSISTANT_STARTED so the frontend
-    # component's UrlManager is guaranteed initialized (otherwise
-    # the URL registers on a throw-away manager that gets overwritten).
-    # This runs regardless of whether a config entry exists.
-    async def _register_card(_event=None) -> None:
-        js_reg.register_extra_js_url()
+    # ── Manage Lovelace resource ──────────────────────────────────
+    # Replace stale /battery_roi/battery-roi-card.js resource with
+    # correct /local/battery_roi/battery-roi-card.js.
+    # A background task retries until Lovelace resources are loaded.
+    async def _manage_resources() -> None:
+        for attempt in range(12):  # up to ~60 s
+            await asyncio.sleep(5)
+            try:
+                lovelace = hass.data.get("lovelace")
+                if lovelace is None:
+                    continue
+                res = getattr(lovelace, "resources", None)
+                if res is None or not getattr(res, "loaded", False):
+                    continue
 
-        # One-shot cleanup of stale Lovelace resource from old code
-        # that pointed to /battery_roi/battery-roi-card.js (now 404).
-        try:
-            lovelace = hass.data.get("lovelace")
-            if lovelace is not None:
-                resources = getattr(lovelace, "resources", None)
-                if resources is not None and getattr(resources, "loaded", False):
-                    for module in JSMODULES:
-                        old_url = f"{URL_BASE}/{module['filename']}"
-                        stale = next(
-                            (r for r in resources.async_items() if r["url"] == old_url),
-                            None,
-                        )
-                        if stale is not None:
-                            _LOGGER.info("Removing stale Lovelace resource: %s", old_url)
-                            await resources.async_delete_item(stale["id"])
-        except Exception:  # noqa: BLE001
-            pass  # non-critical
+                for module in JSMODULES:
+                    old_url = f"{URL_BASE}/{module['filename']}"
+                    new_url = f"/local/{URL_BASE.strip('/')}/{module['filename']}"
+
+                    # Delete stale resource
+                    stale = next(
+                        (r for r in res.async_items() if r["url"] == old_url),
+                        None,
+                    )
+                    if stale is not None:
+                        _LOGGER.info("Removing stale Lovelace resource: %s", old_url)
+                        await res.async_delete_item(stale["id"])
+
+                    # Add new resource if not already present
+                    existing = next(
+                        (r for r in res.async_items() if r["url"] == new_url),
+                        None,
+                    )
+                    if existing is None:
+                        _LOGGER.info("Adding Lovelace resource: %s", new_url)
+                        await res.async_create_item({
+                            "res_type": "module",
+                            "url": new_url,
+                        })
+                return  # success
+            except Exception:  # noqa: BLE001
+                pass
+        _LOGGER.warning("Could not manage Lovelace resources after 60 s")
+
+    async def _on_started(_event=None) -> None:
+        asyncio.create_task(_manage_resources())
 
     if hass.state == CoreState.running:
-        await _register_card()
+        asyncio.create_task(_manage_resources())
     else:
-        hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, _register_card)
+        hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, _on_started)
 
     return True
 
@@ -116,12 +137,42 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     entry.async_on_unload(entry.add_update_listener(_async_update_listener))
 
-    # Also register from here — covers post-startup config entry
-    # addition and ensures the UrlManager definitely has our URL.
+    # Also trigger resource management from here (post-startup addition)
     js_reg = JSModuleRegistration(hass)
-    js_reg.register_extra_js_url()
+    asyncio.create_task(_manage_lovelace_resources_once(hass))
 
     return True
+
+
+async def _manage_lovelace_resources_once(hass: HomeAssistant) -> None:
+    """One-shot Lovelace resource management (for async_setup_entry)."""
+    try:
+        lovelace = hass.data.get("lovelace")
+        if lovelace is None:
+            return
+        res = getattr(lovelace, "resources", None)
+        if res is None or not getattr(res, "loaded", False):
+            return
+        for module in JSMODULES:
+            old_url = f"{URL_BASE}/{module['filename']}"
+            new_url = f"/local/{URL_BASE.strip('/')}/{module['filename']}"
+            stale = next(
+                (r for r in res.async_items() if r["url"] == old_url), None
+            )
+            if stale is not None:
+                _LOGGER.info("Removing stale Lovelace resource: %s", old_url)
+                await res.async_delete_item(stale["id"])
+            existing = next(
+                (r for r in res.async_items() if r["url"] == new_url), None
+            )
+            if existing is None:
+                _LOGGER.info("Adding Lovelace resource: %s", new_url)
+                await res.async_create_item({
+                    "res_type": "module",
+                    "url": new_url,
+                })
+    except Exception:  # noqa: BLE001
+        pass
 
 
 async def _async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
