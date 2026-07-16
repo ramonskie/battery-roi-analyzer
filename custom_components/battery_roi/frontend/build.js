@@ -5,7 +5,7 @@ const production = process.env.NODE_ENV === "production";
 await build({
   entryPoints: ["src/battery-roi-card.js"],
   bundle: true,
-  format: "esm",
+  format: "iife",
   minify: production,
   sourcemap: !production,
   target: "es2020",
