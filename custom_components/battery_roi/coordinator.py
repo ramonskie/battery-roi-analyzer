@@ -27,6 +27,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .const import (
+    CONF_BATTERY_CAPACITY_KWH,
     CONF_BATTERY_CHEMISTRY,
     CONF_BATTERY_PRICE,
     CONF_BATTERY_DEGRADATION_PER_YEAR,
