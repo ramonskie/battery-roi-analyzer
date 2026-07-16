@@ -156,7 +156,7 @@ async def _do_register_lovelace(hass: HomeAssistant) -> None:
         current_urls = {r.get("url", "") for r in resources.async_items()}
         if JS_RESOURCE_URL not in current_urls:
             await resources.async_create_item({
-                "res_type": "module",
+                "type": "module",
                 "url": JS_RESOURCE_URL,
             })
             _LOGGER.info("Registered Lovelace resource: %s", JS_RESOURCE_URL)

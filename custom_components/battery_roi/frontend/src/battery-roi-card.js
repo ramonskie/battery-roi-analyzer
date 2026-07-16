@@ -49,6 +49,10 @@ class BatteryRoiCard extends LitElement {
     return {};
   }
 
+  setConfig(config) {
+    this.config = config;
+  }
+
   /* ----- convenience entity getters with configurable overrides ---- */
 
   get _s() {

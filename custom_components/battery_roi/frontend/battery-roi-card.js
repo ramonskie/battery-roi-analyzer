@@ -1,6 +1,609 @@
-var T=globalThis,L=T.ShadowRoot&&(T.ShadyCSS===void 0||T.ShadyCSS.nativeShadow)&&"adoptedStyleSheets"in Document.prototype&&"replace"in CSSStyleSheet.prototype,j=Symbol(),Q=new WeakMap,C=class{constructor(t,e,s){if(this._$cssResult$=!0,s!==j)throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");this.cssText=t,this.t=e}get styleSheet(){let t=this.o,e=this.t;if(L&&t===void 0){let s=e!==void 0&&e.length===1;s&&(t=Q.get(e)),t===void 0&&((this.o=t=new CSSStyleSheet).replaceSync(this.cssText),s&&Q.set(e,t))}return t}toString(){return this.cssText}},tt=a=>new C(typeof a=="string"?a:a+"",void 0,j),I=(a,...t)=>{let e=a.length===1?a[0]:t.reduce((s,i,r)=>s+(n=>{if(n._$cssResult$===!0)return n.cssText;if(typeof n=="number")return n;throw Error("Value passed to 'css' function must be a 'css' function result: "+n+". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.")})(i)+a[r+1],a[0]);return new C(e,a,j)},et=(a,t)=>{if(L)a.adoptedStyleSheets=t.map(e=>e instanceof CSSStyleSheet?e:e.styleSheet);else for(let e of t){let s=document.createElement("style"),i=T.litNonce;i!==void 0&&s.setAttribute("nonce",i),s.textContent=e.cssText,a.appendChild(s)}},B=L?a=>a:a=>a instanceof CSSStyleSheet?(t=>{let e="";for(let s of t.cssRules)e+=s.cssText;return tt(e)})(a):a;var{is:ft,defineProperty:gt,getOwnPropertyDescriptor:yt,getOwnPropertyNames:$t,getOwnPropertySymbols:xt,getPrototypeOf:At}=Object,f=globalThis,st=f.trustedTypes,wt=st?st.emptyScript:"",St=f.reactiveElementPolyfillSupport,k=(a,t)=>a,W={toAttribute(a,t){switch(t){case Boolean:a=a?wt:null;break;case Object:case Array:a=a==null?a:JSON.stringify(a)}return a},fromAttribute(a,t){let e=a;switch(t){case Boolean:e=a!==null;break;case Number:e=a===null?null:Number(a);break;case Object:case Array:try{e=JSON.parse(a)}catch{e=null}}return e}},rt=(a,t)=>!ft(a,t),it={attribute:!0,type:String,converter:W,reflect:!1,useDefault:!1,hasChanged:rt};Symbol.metadata??(Symbol.metadata=Symbol("metadata")),f.litPropertyMetadata??(f.litPropertyMetadata=new WeakMap);var v=class extends HTMLElement{static addInitializer(t){this._$Ei(),(this.l??(this.l=[])).push(t)}static get observedAttributes(){return this.finalize(),this._$Eh&&[...this._$Eh.keys()]}static createProperty(t,e=it){if(e.state&&(e.attribute=!1),this._$Ei(),this.prototype.hasOwnProperty(t)&&((e=Object.create(e)).wrapped=!0),this.elementProperties.set(t,e),!e.noAccessor){let s=Symbol(),i=this.getPropertyDescriptor(t,s,e);i!==void 0&&gt(this.prototype,t,i)}}static getPropertyDescriptor(t,e,s){let{get:i,set:r}=yt(this.prototype,t)??{get(){return this[e]},set(n){this[e]=n}};return{get:i,set(n){let l=i?.call(this);r?.call(this,n),this.requestUpdate(t,l,s)},configurable:!0,enumerable:!0}}static getPropertyOptions(t){return this.elementProperties.get(t)??it}static _$Ei(){if(this.hasOwnProperty(k("elementProperties")))return;let t=At(this);t.finalize(),t.l!==void 0&&(this.l=[...t.l]),this.elementProperties=new Map(t.elementProperties)}static finalize(){if(this.hasOwnProperty(k("finalized")))return;if(this.finalized=!0,this._$Ei(),this.hasOwnProperty(k("properties"))){let e=this.properties,s=[...$t(e),...xt(e)];for(let i of s)this.createProperty(i,e[i])}let t=this[Symbol.metadata];if(t!==null){let e=litPropertyMetadata.get(t);if(e!==void 0)for(let[s,i]of e)this.elementProperties.set(s,i)}this._$Eh=new Map;for(let[e,s]of this.elementProperties){let i=this._$Eu(e,s);i!==void 0&&this._$Eh.set(i,e)}this.elementStyles=this.finalizeStyles(this.styles)}static finalizeStyles(t){let e=[];if(Array.isArray(t)){let s=new Set(t.flat(1/0).reverse());for(let i of s)e.unshift(B(i))}else t!==void 0&&e.push(B(t));return e}static _$Eu(t,e){let s=e.attribute;return s===!1?void 0:typeof s=="string"?s:typeof t=="string"?t.toLowerCase():void 0}constructor(){super(),this._$Ep=void 0,this.isUpdatePending=!1,this.hasUpdated=!1,this._$Em=null,this._$Ev()}_$Ev(){this._$ES=new Promise(t=>this.enableUpdating=t),this._$AL=new Map,this._$E_(),this.requestUpdate(),this.constructor.l?.forEach(t=>t(this))}addController(t){(this._$EO??(this._$EO=new Set)).add(t),this.renderRoot!==void 0&&this.isConnected&&t.hostConnected?.()}removeController(t){this._$EO?.delete(t)}_$E_(){let t=new Map,e=this.constructor.elementProperties;for(let s of e.keys())this.hasOwnProperty(s)&&(t.set(s,this[s]),delete this[s]);t.size>0&&(this._$Ep=t)}createRenderRoot(){let t=this.shadowRoot??this.attachShadow(this.constructor.shadowRootOptions);return et(t,this.constructor.elementStyles),t}connectedCallback(){this.renderRoot??(this.renderRoot=this.createRenderRoot()),this.enableUpdating(!0),this._$EO?.forEach(t=>t.hostConnected?.())}enableUpdating(t){}disconnectedCallback(){this._$EO?.forEach(t=>t.hostDisconnected?.())}attributeChangedCallback(t,e,s){this._$AK(t,s)}_$ET(t,e){let s=this.constructor.elementProperties.get(t),i=this.constructor._$Eu(t,s);if(i!==void 0&&s.reflect===!0){let r=(s.converter?.toAttribute!==void 0?s.converter:W).toAttribute(e,s.type);this._$Em=t,r==null?this.removeAttribute(i):this.setAttribute(i,r),this._$Em=null}}_$AK(t,e){let s=this.constructor,i=s._$Eh.get(t);if(i!==void 0&&this._$Em!==i){let r=s.getPropertyOptions(i),n=typeof r.converter=="function"?{fromAttribute:r.converter}:r.converter?.fromAttribute!==void 0?r.converter:W;this._$Em=i;let l=n.fromAttribute(e,r.type);this[i]=l??this._$Ej?.get(i)??l,this._$Em=null}}requestUpdate(t,e,s,i=!1,r){if(t!==void 0){let n=this.constructor;if(i===!1&&(r=this[t]),s??(s=n.getPropertyOptions(t)),!((s.hasChanged??rt)(r,e)||s.useDefault&&s.reflect&&r===this._$Ej?.get(t)&&!this.hasAttribute(n._$Eu(t,s))))return;this.C(t,e,s)}this.isUpdatePending===!1&&(this._$ES=this._$EP())}C(t,e,{useDefault:s,reflect:i,wrapped:r},n){s&&!(this._$Ej??(this._$Ej=new Map)).has(t)&&(this._$Ej.set(t,n??e??this[t]),r!==!0||n!==void 0)||(this._$AL.has(t)||(this.hasUpdated||s||(e=void 0),this._$AL.set(t,e)),i===!0&&this._$Em!==t&&(this._$Eq??(this._$Eq=new Set)).add(t))}async _$EP(){this.isUpdatePending=!0;try{await this._$ES}catch(e){Promise.reject(e)}let t=this.scheduleUpdate();return t!=null&&await t,!this.isUpdatePending}scheduleUpdate(){return this.performUpdate()}performUpdate(){if(!this.isUpdatePending)return;if(!this.hasUpdated){if(this.renderRoot??(this.renderRoot=this.createRenderRoot()),this._$Ep){for(let[i,r]of this._$Ep)this[i]=r;this._$Ep=void 0}let s=this.constructor.elementProperties;if(s.size>0)for(let[i,r]of s){let{wrapped:n}=r,l=this[i];n!==!0||this._$AL.has(i)||l===void 0||this.C(i,void 0,r,l)}}let t=!1,e=this._$AL;try{t=this.shouldUpdate(e),t?(this.willUpdate(e),this._$EO?.forEach(s=>s.hostUpdate?.()),this.update(e)):this._$EM()}catch(s){throw t=!1,this._$EM(),s}t&&this._$AE(e)}willUpdate(t){}_$AE(t){this._$EO?.forEach(e=>e.hostUpdated?.()),this.hasUpdated||(this.hasUpdated=!0,this.firstUpdated(t)),this.updated(t)}_$EM(){this._$AL=new Map,this.isUpdatePending=!1}get updateComplete(){return this.getUpdateComplete()}getUpdateComplete(){return this._$ES}shouldUpdate(t){return!0}update(t){this._$Eq&&(this._$Eq=this._$Eq.forEach(e=>this._$ET(e,this[e]))),this._$EM()}updated(t){}firstUpdated(t){}};v.elementStyles=[],v.shadowRootOptions={mode:"open"},v[k("elementProperties")]=new Map,v[k("finalized")]=new Map,St?.({ReactiveElement:v}),(f.reactiveElementVersions??(f.reactiveElementVersions=[])).push("2.1.2");var N=globalThis,at=a=>a,D=N.trustedTypes,nt=D?D.createPolicy("lit-html",{createHTML:a=>a}):void 0,pt="$lit$",g=`lit$${Math.random().toFixed(9).slice(2)}$`,ut="?"+g,Et=`<${ut}>`,A=document,O=()=>A.createComment(""),U=a=>a===null||typeof a!="object"&&typeof a!="function",X=Array.isArray,Ct=a=>X(a)||typeof a?.[Symbol.iterator]=="function",q=`[ 	
-\f\r]`,P=/<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g,ot=/-->/g,lt=/>/g,$=RegExp(`>|${q}(?:([^\\s"'>=/]+)(${q}*=${q}*(?:[^ 	
-\f\r"'\`<>=]|("|')|))|$)`,"g"),ct=/'/g,dt=/"/g,_t=/^(?:script|style|textarea|title)$/i,Z=a=>(t,...e)=>({_$litType$:a,strings:t,values:e}),_=Z(1),Lt=Z(2),Dt=Z(3),w=Symbol.for("lit-noChange"),h=Symbol.for("lit-nothing"),ht=new WeakMap,x=A.createTreeWalker(A,129);function bt(a,t){if(!X(a)||!a.hasOwnProperty("raw"))throw Error("invalid template strings array");return nt!==void 0?nt.createHTML(t):t}var kt=(a,t)=>{let e=a.length-1,s=[],i,r=t===2?"<svg>":t===3?"<math>":"",n=P;for(let l=0;l<e;l++){let o=a[l],d,p,c=-1,b=0;for(;b<o.length&&(n.lastIndex=b,p=n.exec(o),p!==null);)b=n.lastIndex,n===P?p[1]==="!--"?n=ot:p[1]!==void 0?n=lt:p[2]!==void 0?(_t.test(p[2])&&(i=RegExp("</"+p[2],"g")),n=$):p[3]!==void 0&&(n=$):n===$?p[0]===">"?(n=i??P,c=-1):p[1]===void 0?c=-2:(c=n.lastIndex-p[2].length,d=p[1],n=p[3]===void 0?$:p[3]==='"'?dt:ct):n===dt||n===ct?n=$:n===ot||n===lt?n=P:(n=$,i=void 0);let m=n===$&&a[l+1].startsWith("/>")?" ":"";r+=n===P?o+Et:c>=0?(s.push(d),o.slice(0,c)+pt+o.slice(c)+g+m):o+g+(c===-2?l:m)}return[bt(a,r+(a[e]||"<?>")+(t===2?"</svg>":t===3?"</math>":"")),s]},M=class a{constructor({strings:t,_$litType$:e},s){let i;this.parts=[];let r=0,n=0,l=t.length-1,o=this.parts,[d,p]=kt(t,e);if(this.el=a.createElement(d,s),x.currentNode=this.el.content,e===2||e===3){let c=this.el.content.firstChild;c.replaceWith(...c.childNodes)}for(;(i=x.nextNode())!==null&&o.length<l;){if(i.nodeType===1){if(i.hasAttributes())for(let c of i.getAttributeNames())if(c.endsWith(pt)){let b=p[n++],m=i.getAttribute(c).split(g),H=/([.?@])?(.*)/.exec(b);o.push({type:1,index:r,name:H[2],strings:m,ctor:H[1]==="."?F:H[1]==="?"?K:H[1]==="@"?Y:E}),i.removeAttribute(c)}else c.startsWith(g)&&(o.push({type:6,index:r}),i.removeAttribute(c));if(_t.test(i.tagName)){let c=i.textContent.split(g),b=c.length-1;if(b>0){i.textContent=D?D.emptyScript:"";for(let m=0;m<b;m++)i.append(c[m],O()),x.nextNode(),o.push({type:2,index:++r});i.append(c[b],O())}}}else if(i.nodeType===8)if(i.data===ut)o.push({type:2,index:r});else{let c=-1;for(;(c=i.data.indexOf(g,c+1))!==-1;)o.push({type:7,index:r}),c+=g.length-1}r++}}static createElement(t,e){let s=A.createElement("template");return s.innerHTML=t,s}};function S(a,t,e=a,s){if(t===w)return t;let i=s!==void 0?e._$Co?.[s]:e._$Cl,r=U(t)?void 0:t._$litDirective$;return i?.constructor!==r&&(i?._$AO?.(!1),r===void 0?i=void 0:(i=new r(a),i._$AT(a,e,s)),s!==void 0?(e._$Co??(e._$Co=[]))[s]=i:e._$Cl=i),i!==void 0&&(t=S(a,i._$AS(a,t.values),i,s)),t}var V=class{constructor(t,e){this._$AV=[],this._$AN=void 0,this._$AD=t,this._$AM=e}get parentNode(){return this._$AM.parentNode}get _$AU(){return this._$AM._$AU}u(t){let{el:{content:e},parts:s}=this._$AD,i=(t?.creationScope??A).importNode(e,!0);x.currentNode=i;let r=x.nextNode(),n=0,l=0,o=s[0];for(;o!==void 0;){if(n===o.index){let d;o.type===2?d=new R(r,r.nextSibling,this,t):o.type===1?d=new o.ctor(r,o.name,o.strings,this,t):o.type===6&&(d=new J(r,this,t)),this._$AV.push(d),o=s[++l]}n!==o?.index&&(r=x.nextNode(),n++)}return x.currentNode=A,i}p(t){let e=0;for(let s of this._$AV)s!==void 0&&(s.strings!==void 0?(s._$AI(t,s,e),e+=s.strings.length-2):s._$AI(t[e])),e++}},R=class a{get _$AU(){return this._$AM?._$AU??this._$Cv}constructor(t,e,s,i){this.type=2,this._$AH=h,this._$AN=void 0,this._$AA=t,this._$AB=e,this._$AM=s,this.options=i,this._$Cv=i?.isConnected??!0}get parentNode(){let t=this._$AA.parentNode,e=this._$AM;return e!==void 0&&t?.nodeType===11&&(t=e.parentNode),t}get startNode(){return this._$AA}get endNode(){return this._$AB}_$AI(t,e=this){t=S(this,t,e),U(t)?t===h||t==null||t===""?(this._$AH!==h&&this._$AR(),this._$AH=h):t!==this._$AH&&t!==w&&this._(t):t._$litType$!==void 0?this.$(t):t.nodeType!==void 0?this.T(t):Ct(t)?this.k(t):this._(t)}O(t){return this._$AA.parentNode.insertBefore(t,this._$AB)}T(t){this._$AH!==t&&(this._$AR(),this._$AH=this.O(t))}_(t){this._$AH!==h&&U(this._$AH)?this._$AA.nextSibling.data=t:this.T(A.createTextNode(t)),this._$AH=t}$(t){let{values:e,_$litType$:s}=t,i=typeof s=="number"?this._$AC(t):(s.el===void 0&&(s.el=M.createElement(bt(s.h,s.h[0]),this.options)),s);if(this._$AH?._$AD===i)this._$AH.p(e);else{let r=new V(i,this),n=r.u(this.options);r.p(e),this.T(n),this._$AH=r}}_$AC(t){let e=ht.get(t.strings);return e===void 0&&ht.set(t.strings,e=new M(t)),e}k(t){X(this._$AH)||(this._$AH=[],this._$AR());let e=this._$AH,s,i=0;for(let r of t)i===e.length?e.push(s=new a(this.O(O()),this.O(O()),this,this.options)):s=e[i],s._$AI(r),i++;i<e.length&&(this._$AR(s&&s._$AB.nextSibling,i),e.length=i)}_$AR(t=this._$AA.nextSibling,e){for(this._$AP?.(!1,!0,e);t!==this._$AB;){let s=at(t).nextSibling;at(t).remove(),t=s}}setConnected(t){this._$AM===void 0&&(this._$Cv=t,this._$AP?.(t))}},E=class{get tagName(){return this.element.tagName}get _$AU(){return this._$AM._$AU}constructor(t,e,s,i,r){this.type=1,this._$AH=h,this._$AN=void 0,this.element=t,this.name=e,this._$AM=i,this.options=r,s.length>2||s[0]!==""||s[1]!==""?(this._$AH=Array(s.length-1).fill(new String),this.strings=s):this._$AH=h}_$AI(t,e=this,s,i){let r=this.strings,n=!1;if(r===void 0)t=S(this,t,e,0),n=!U(t)||t!==this._$AH&&t!==w,n&&(this._$AH=t);else{let l=t,o,d;for(t=r[0],o=0;o<r.length-1;o++)d=S(this,l[s+o],e,o),d===w&&(d=this._$AH[o]),n||(n=!U(d)||d!==this._$AH[o]),d===h?t=h:t!==h&&(t+=(d??"")+r[o+1]),this._$AH[o]=d}n&&!i&&this.j(t)}j(t){t===h?this.element.removeAttribute(this.name):this.element.setAttribute(this.name,t??"")}},F=class extends E{constructor(){super(...arguments),this.type=3}j(t){this.element[this.name]=t===h?void 0:t}},K=class extends E{constructor(){super(...arguments),this.type=4}j(t){this.element.toggleAttribute(this.name,!!t&&t!==h)}},Y=class extends E{constructor(t,e,s,i,r){super(t,e,s,i,r),this.type=5}_$AI(t,e=this){if((t=S(this,t,e,0)??h)===w)return;let s=this._$AH,i=t===h&&s!==h||t.capture!==s.capture||t.once!==s.once||t.passive!==s.passive,r=t!==h&&(s===h||i);i&&this.element.removeEventListener(this.name,this,s),r&&this.element.addEventListener(this.name,this,t),this._$AH=t}handleEvent(t){typeof this._$AH=="function"?this._$AH.call(this.options?.host??this.element,t):this._$AH.handleEvent(t)}},J=class{constructor(t,e,s){this.element=t,this.type=6,this._$AN=void 0,this._$AM=e,this.options=s}get _$AU(){return this._$AM._$AU}_$AI(t){S(this,t)}};var Pt=N.litHtmlPolyfillSupport;Pt?.(M,R),(N.litHtmlVersions??(N.litHtmlVersions=[])).push("3.3.3");var vt=(a,t,e)=>{let s=e?.renderBefore??t,i=s._$litPart$;if(i===void 0){let r=e?.renderBefore??null;s._$litPart$=i=new R(t.insertBefore(O(),r),r,void 0,e??{})}return i._$AI(a),i};var z=globalThis,y=class extends v{constructor(){super(...arguments),this.renderOptions={host:this},this._$Do=void 0}createRenderRoot(){var e;let t=super.createRenderRoot();return(e=this.renderOptions).renderBefore??(e.renderBefore=t.firstChild),t}update(t){let e=this.render();this.hasUpdated||(this.renderOptions.isConnected=this.isConnected),super.update(t),this._$Do=vt(e,this.renderRoot,this.renderOptions)}connectedCallback(){super.connectedCallback(),this._$Do?.setConnected(!0)}disconnectedCallback(){super.disconnectedCallback(),this._$Do?.setConnected(!1)}render(){return w}};y._$litElement$=!0,y.finalized=!0,z.litElementHydrateSupport?.({LitElement:y});var Nt=z.litElementPolyfillSupport;Nt?.({LitElement:y});(z.litElementVersions??(z.litElementVersions=[])).push("4.2.2");var Ot="1.0.0";function u(a,t=1){let e=Number(a);return Number.isFinite(e)?e.toFixed(t):"\u2014"}function mt(a){let t=Number(a);return Number.isFinite(t)?(t<0?"\u2212\u20AC":"\u20AC")+Math.abs(t).toLocaleString("nl-NL",{minimumFractionDigits:0,maximumFractionDigits:0}):"\u2014"}function Ut(a){let t=Number(a);return Number.isFinite(t)?`${u(t,1)}%`:"\u2014"}function Mt(a){return a===!0||a==="true"?"\u2713 Yes":a===!1||a==="false"?"\u2717 No":"\u2014"}var G=class extends y{static get properties(){return{hass:{},config:{}}}static getStubConfig(){return{}}get _s(){let t=this.config.entity_prefix||"sensor.battery_roi",e=(s,i)=>this.config[`${s}_entity`]||`${t}_${i}`;return{best_size:e("best_size","best_size"),payback:e("payback","payback"),annual_saving:e("annual_saving","annual_saving"),best_capacity:e("best_capacity","best_capacity"),cycles:e("cycles","cycles"),self_consumption:e("self_consumption","self_consumption"),import_saved:e("import_saved","import_saved"),export_saved:e("export_saved","export_saved")}}_st(t){return this.hass?.states?.[t]}static get styles(){return I`
+// node_modules/@lit/reactive-element/css-tag.js
+var t = globalThis;
+var e = t.ShadowRoot && (void 0 === t.ShadyCSS || t.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype;
+var s = /* @__PURE__ */ Symbol();
+var o = /* @__PURE__ */ new WeakMap();
+var n = class {
+  constructor(t3, e4, o5) {
+    if (this._$cssResult$ = true, o5 !== s) throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");
+    this.cssText = t3, this.t = e4;
+  }
+  get styleSheet() {
+    let t3 = this.o;
+    const s4 = this.t;
+    if (e && void 0 === t3) {
+      const e4 = void 0 !== s4 && 1 === s4.length;
+      e4 && (t3 = o.get(s4)), void 0 === t3 && ((this.o = t3 = new CSSStyleSheet()).replaceSync(this.cssText), e4 && o.set(s4, t3));
+    }
+    return t3;
+  }
+  toString() {
+    return this.cssText;
+  }
+};
+var r = (t3) => new n("string" == typeof t3 ? t3 : t3 + "", void 0, s);
+var i = (t3, ...e4) => {
+  const o5 = 1 === t3.length ? t3[0] : e4.reduce((e5, s4, o6) => e5 + ((t4) => {
+    if (true === t4._$cssResult$) return t4.cssText;
+    if ("number" == typeof t4) return t4;
+    throw Error("Value passed to 'css' function must be a 'css' function result: " + t4 + ". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.");
+  })(s4) + t3[o6 + 1], t3[0]);
+  return new n(o5, t3, s);
+};
+var S = (s4, o5) => {
+  if (e) s4.adoptedStyleSheets = o5.map((t3) => t3 instanceof CSSStyleSheet ? t3 : t3.styleSheet);
+  else for (const e4 of o5) {
+    const o6 = document.createElement("style"), n4 = t.litNonce;
+    void 0 !== n4 && o6.setAttribute("nonce", n4), o6.textContent = e4.cssText, s4.appendChild(o6);
+  }
+};
+var c = e ? (t3) => t3 : (t3) => t3 instanceof CSSStyleSheet ? ((t4) => {
+  let e4 = "";
+  for (const s4 of t4.cssRules) e4 += s4.cssText;
+  return r(e4);
+})(t3) : t3;
+
+// node_modules/@lit/reactive-element/reactive-element.js
+var { is: i2, defineProperty: e2, getOwnPropertyDescriptor: h, getOwnPropertyNames: r2, getOwnPropertySymbols: o2, getPrototypeOf: n2 } = Object;
+var a = globalThis;
+var c2 = a.trustedTypes;
+var l = c2 ? c2.emptyScript : "";
+var p = a.reactiveElementPolyfillSupport;
+var d = (t3, s4) => t3;
+var u = { toAttribute(t3, s4) {
+  switch (s4) {
+    case Boolean:
+      t3 = t3 ? l : null;
+      break;
+    case Object:
+    case Array:
+      t3 = null == t3 ? t3 : JSON.stringify(t3);
+  }
+  return t3;
+}, fromAttribute(t3, s4) {
+  let i5 = t3;
+  switch (s4) {
+    case Boolean:
+      i5 = null !== t3;
+      break;
+    case Number:
+      i5 = null === t3 ? null : Number(t3);
+      break;
+    case Object:
+    case Array:
+      try {
+        i5 = JSON.parse(t3);
+      } catch (t4) {
+        i5 = null;
+      }
+  }
+  return i5;
+} };
+var f = (t3, s4) => !i2(t3, s4);
+var b = { attribute: true, type: String, converter: u, reflect: false, useDefault: false, hasChanged: f };
+Symbol.metadata ?? (Symbol.metadata = /* @__PURE__ */ Symbol("metadata")), a.litPropertyMetadata ?? (a.litPropertyMetadata = /* @__PURE__ */ new WeakMap());
+var y = class extends HTMLElement {
+  static addInitializer(t3) {
+    this._$Ei(), (this.l ?? (this.l = [])).push(t3);
+  }
+  static get observedAttributes() {
+    return this.finalize(), this._$Eh && [...this._$Eh.keys()];
+  }
+  static createProperty(t3, s4 = b) {
+    if (s4.state && (s4.attribute = false), this._$Ei(), this.prototype.hasOwnProperty(t3) && ((s4 = Object.create(s4)).wrapped = true), this.elementProperties.set(t3, s4), !s4.noAccessor) {
+      const i5 = /* @__PURE__ */ Symbol(), h3 = this.getPropertyDescriptor(t3, i5, s4);
+      void 0 !== h3 && e2(this.prototype, t3, h3);
+    }
+  }
+  static getPropertyDescriptor(t3, s4, i5) {
+    const { get: e4, set: r4 } = h(this.prototype, t3) ?? { get() {
+      return this[s4];
+    }, set(t4) {
+      this[s4] = t4;
+    } };
+    return { get: e4, set(s5) {
+      const h3 = e4?.call(this);
+      r4?.call(this, s5), this.requestUpdate(t3, h3, i5);
+    }, configurable: true, enumerable: true };
+  }
+  static getPropertyOptions(t3) {
+    return this.elementProperties.get(t3) ?? b;
+  }
+  static _$Ei() {
+    if (this.hasOwnProperty(d("elementProperties"))) return;
+    const t3 = n2(this);
+    t3.finalize(), void 0 !== t3.l && (this.l = [...t3.l]), this.elementProperties = new Map(t3.elementProperties);
+  }
+  static finalize() {
+    if (this.hasOwnProperty(d("finalized"))) return;
+    if (this.finalized = true, this._$Ei(), this.hasOwnProperty(d("properties"))) {
+      const t4 = this.properties, s4 = [...r2(t4), ...o2(t4)];
+      for (const i5 of s4) this.createProperty(i5, t4[i5]);
+    }
+    const t3 = this[Symbol.metadata];
+    if (null !== t3) {
+      const s4 = litPropertyMetadata.get(t3);
+      if (void 0 !== s4) for (const [t4, i5] of s4) this.elementProperties.set(t4, i5);
+    }
+    this._$Eh = /* @__PURE__ */ new Map();
+    for (const [t4, s4] of this.elementProperties) {
+      const i5 = this._$Eu(t4, s4);
+      void 0 !== i5 && this._$Eh.set(i5, t4);
+    }
+    this.elementStyles = this.finalizeStyles(this.styles);
+  }
+  static finalizeStyles(s4) {
+    const i5 = [];
+    if (Array.isArray(s4)) {
+      const e4 = new Set(s4.flat(1 / 0).reverse());
+      for (const s5 of e4) i5.unshift(c(s5));
+    } else void 0 !== s4 && i5.push(c(s4));
+    return i5;
+  }
+  static _$Eu(t3, s4) {
+    const i5 = s4.attribute;
+    return false === i5 ? void 0 : "string" == typeof i5 ? i5 : "string" == typeof t3 ? t3.toLowerCase() : void 0;
+  }
+  constructor() {
+    super(), this._$Ep = void 0, this.isUpdatePending = false, this.hasUpdated = false, this._$Em = null, this._$Ev();
+  }
+  _$Ev() {
+    this._$ES = new Promise((t3) => this.enableUpdating = t3), this._$AL = /* @__PURE__ */ new Map(), this._$E_(), this.requestUpdate(), this.constructor.l?.forEach((t3) => t3(this));
+  }
+  addController(t3) {
+    (this._$EO ?? (this._$EO = /* @__PURE__ */ new Set())).add(t3), void 0 !== this.renderRoot && this.isConnected && t3.hostConnected?.();
+  }
+  removeController(t3) {
+    this._$EO?.delete(t3);
+  }
+  _$E_() {
+    const t3 = /* @__PURE__ */ new Map(), s4 = this.constructor.elementProperties;
+    for (const i5 of s4.keys()) this.hasOwnProperty(i5) && (t3.set(i5, this[i5]), delete this[i5]);
+    t3.size > 0 && (this._$Ep = t3);
+  }
+  createRenderRoot() {
+    const t3 = this.shadowRoot ?? this.attachShadow(this.constructor.shadowRootOptions);
+    return S(t3, this.constructor.elementStyles), t3;
+  }
+  connectedCallback() {
+    this.renderRoot ?? (this.renderRoot = this.createRenderRoot()), this.enableUpdating(true), this._$EO?.forEach((t3) => t3.hostConnected?.());
+  }
+  enableUpdating(t3) {
+  }
+  disconnectedCallback() {
+    this._$EO?.forEach((t3) => t3.hostDisconnected?.());
+  }
+  attributeChangedCallback(t3, s4, i5) {
+    this._$AK(t3, i5);
+  }
+  _$ET(t3, s4) {
+    const i5 = this.constructor.elementProperties.get(t3), e4 = this.constructor._$Eu(t3, i5);
+    if (void 0 !== e4 && true === i5.reflect) {
+      const h3 = (void 0 !== i5.converter?.toAttribute ? i5.converter : u).toAttribute(s4, i5.type);
+      this._$Em = t3, null == h3 ? this.removeAttribute(e4) : this.setAttribute(e4, h3), this._$Em = null;
+    }
+  }
+  _$AK(t3, s4) {
+    const i5 = this.constructor, e4 = i5._$Eh.get(t3);
+    if (void 0 !== e4 && this._$Em !== e4) {
+      const t4 = i5.getPropertyOptions(e4), h3 = "function" == typeof t4.converter ? { fromAttribute: t4.converter } : void 0 !== t4.converter?.fromAttribute ? t4.converter : u;
+      this._$Em = e4;
+      const r4 = h3.fromAttribute(s4, t4.type);
+      this[e4] = r4 ?? this._$Ej?.get(e4) ?? r4, this._$Em = null;
+    }
+  }
+  requestUpdate(t3, s4, i5, e4 = false, h3) {
+    if (void 0 !== t3) {
+      const r4 = this.constructor;
+      if (false === e4 && (h3 = this[t3]), i5 ?? (i5 = r4.getPropertyOptions(t3)), !((i5.hasChanged ?? f)(h3, s4) || i5.useDefault && i5.reflect && h3 === this._$Ej?.get(t3) && !this.hasAttribute(r4._$Eu(t3, i5)))) return;
+      this.C(t3, s4, i5);
+    }
+    false === this.isUpdatePending && (this._$ES = this._$EP());
+  }
+  C(t3, s4, { useDefault: i5, reflect: e4, wrapped: h3 }, r4) {
+    i5 && !(this._$Ej ?? (this._$Ej = /* @__PURE__ */ new Map())).has(t3) && (this._$Ej.set(t3, r4 ?? s4 ?? this[t3]), true !== h3 || void 0 !== r4) || (this._$AL.has(t3) || (this.hasUpdated || i5 || (s4 = void 0), this._$AL.set(t3, s4)), true === e4 && this._$Em !== t3 && (this._$Eq ?? (this._$Eq = /* @__PURE__ */ new Set())).add(t3));
+  }
+  async _$EP() {
+    this.isUpdatePending = true;
+    try {
+      await this._$ES;
+    } catch (t4) {
+      Promise.reject(t4);
+    }
+    const t3 = this.scheduleUpdate();
+    return null != t3 && await t3, !this.isUpdatePending;
+  }
+  scheduleUpdate() {
+    return this.performUpdate();
+  }
+  performUpdate() {
+    if (!this.isUpdatePending) return;
+    if (!this.hasUpdated) {
+      if (this.renderRoot ?? (this.renderRoot = this.createRenderRoot()), this._$Ep) {
+        for (const [t5, s5] of this._$Ep) this[t5] = s5;
+        this._$Ep = void 0;
+      }
+      const t4 = this.constructor.elementProperties;
+      if (t4.size > 0) for (const [s5, i5] of t4) {
+        const { wrapped: t5 } = i5, e4 = this[s5];
+        true !== t5 || this._$AL.has(s5) || void 0 === e4 || this.C(s5, void 0, i5, e4);
+      }
+    }
+    let t3 = false;
+    const s4 = this._$AL;
+    try {
+      t3 = this.shouldUpdate(s4), t3 ? (this.willUpdate(s4), this._$EO?.forEach((t4) => t4.hostUpdate?.()), this.update(s4)) : this._$EM();
+    } catch (s5) {
+      throw t3 = false, this._$EM(), s5;
+    }
+    t3 && this._$AE(s4);
+  }
+  willUpdate(t3) {
+  }
+  _$AE(t3) {
+    this._$EO?.forEach((t4) => t4.hostUpdated?.()), this.hasUpdated || (this.hasUpdated = true, this.firstUpdated(t3)), this.updated(t3);
+  }
+  _$EM() {
+    this._$AL = /* @__PURE__ */ new Map(), this.isUpdatePending = false;
+  }
+  get updateComplete() {
+    return this.getUpdateComplete();
+  }
+  getUpdateComplete() {
+    return this._$ES;
+  }
+  shouldUpdate(t3) {
+    return true;
+  }
+  update(t3) {
+    this._$Eq && (this._$Eq = this._$Eq.forEach((t4) => this._$ET(t4, this[t4]))), this._$EM();
+  }
+  updated(t3) {
+  }
+  firstUpdated(t3) {
+  }
+};
+y.elementStyles = [], y.shadowRootOptions = { mode: "open" }, y[d("elementProperties")] = /* @__PURE__ */ new Map(), y[d("finalized")] = /* @__PURE__ */ new Map(), p?.({ ReactiveElement: y }), (a.reactiveElementVersions ?? (a.reactiveElementVersions = [])).push("2.1.2");
+
+// node_modules/lit-html/lit-html.js
+var t2 = globalThis;
+var i3 = (t3) => t3;
+var s2 = t2.trustedTypes;
+var e3 = s2 ? s2.createPolicy("lit-html", { createHTML: (t3) => t3 }) : void 0;
+var h2 = "$lit$";
+var o3 = `lit$${Math.random().toFixed(9).slice(2)}$`;
+var n3 = "?" + o3;
+var r3 = `<${n3}>`;
+var l2 = document;
+var c3 = () => l2.createComment("");
+var a2 = (t3) => null === t3 || "object" != typeof t3 && "function" != typeof t3;
+var u2 = Array.isArray;
+var d2 = (t3) => u2(t3) || "function" == typeof t3?.[Symbol.iterator];
+var f2 = "[ 	\n\f\r]";
+var v = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g;
+var _ = /-->/g;
+var m = />/g;
+var p2 = RegExp(`>|${f2}(?:([^\\s"'>=/]+)(${f2}*=${f2}*(?:[^ 	
+\f\r"'\`<>=]|("|')|))|$)`, "g");
+var g = /'/g;
+var $ = /"/g;
+var y2 = /^(?:script|style|textarea|title)$/i;
+var x = (t3) => (i5, ...s4) => ({ _$litType$: t3, strings: i5, values: s4 });
+var b2 = x(1);
+var w = x(2);
+var T = x(3);
+var E = /* @__PURE__ */ Symbol.for("lit-noChange");
+var A = /* @__PURE__ */ Symbol.for("lit-nothing");
+var C = /* @__PURE__ */ new WeakMap();
+var P = l2.createTreeWalker(l2, 129);
+function V(t3, i5) {
+  if (!u2(t3) || !t3.hasOwnProperty("raw")) throw Error("invalid template strings array");
+  return void 0 !== e3 ? e3.createHTML(i5) : i5;
+}
+var N = (t3, i5) => {
+  const s4 = t3.length - 1, e4 = [];
+  let n4, l3 = 2 === i5 ? "<svg>" : 3 === i5 ? "<math>" : "", c4 = v;
+  for (let i6 = 0; i6 < s4; i6++) {
+    const s5 = t3[i6];
+    let a3, u3, d3 = -1, f3 = 0;
+    for (; f3 < s5.length && (c4.lastIndex = f3, u3 = c4.exec(s5), null !== u3); ) f3 = c4.lastIndex, c4 === v ? "!--" === u3[1] ? c4 = _ : void 0 !== u3[1] ? c4 = m : void 0 !== u3[2] ? (y2.test(u3[2]) && (n4 = RegExp("</" + u3[2], "g")), c4 = p2) : void 0 !== u3[3] && (c4 = p2) : c4 === p2 ? ">" === u3[0] ? (c4 = n4 ?? v, d3 = -1) : void 0 === u3[1] ? d3 = -2 : (d3 = c4.lastIndex - u3[2].length, a3 = u3[1], c4 = void 0 === u3[3] ? p2 : '"' === u3[3] ? $ : g) : c4 === $ || c4 === g ? c4 = p2 : c4 === _ || c4 === m ? c4 = v : (c4 = p2, n4 = void 0);
+    const x2 = c4 === p2 && t3[i6 + 1].startsWith("/>") ? " " : "";
+    l3 += c4 === v ? s5 + r3 : d3 >= 0 ? (e4.push(a3), s5.slice(0, d3) + h2 + s5.slice(d3) + o3 + x2) : s5 + o3 + (-2 === d3 ? i6 : x2);
+  }
+  return [V(t3, l3 + (t3[s4] || "<?>") + (2 === i5 ? "</svg>" : 3 === i5 ? "</math>" : "")), e4];
+};
+var S2 = class _S {
+  constructor({ strings: t3, _$litType$: i5 }, e4) {
+    let r4;
+    this.parts = [];
+    let l3 = 0, a3 = 0;
+    const u3 = t3.length - 1, d3 = this.parts, [f3, v2] = N(t3, i5);
+    if (this.el = _S.createElement(f3, e4), P.currentNode = this.el.content, 2 === i5 || 3 === i5) {
+      const t4 = this.el.content.firstChild;
+      t4.replaceWith(...t4.childNodes);
+    }
+    for (; null !== (r4 = P.nextNode()) && d3.length < u3; ) {
+      if (1 === r4.nodeType) {
+        if (r4.hasAttributes()) for (const t4 of r4.getAttributeNames()) if (t4.endsWith(h2)) {
+          const i6 = v2[a3++], s4 = r4.getAttribute(t4).split(o3), e5 = /([.?@])?(.*)/.exec(i6);
+          d3.push({ type: 1, index: l3, name: e5[2], strings: s4, ctor: "." === e5[1] ? I : "?" === e5[1] ? L : "@" === e5[1] ? z : H }), r4.removeAttribute(t4);
+        } else t4.startsWith(o3) && (d3.push({ type: 6, index: l3 }), r4.removeAttribute(t4));
+        if (y2.test(r4.tagName)) {
+          const t4 = r4.textContent.split(o3), i6 = t4.length - 1;
+          if (i6 > 0) {
+            r4.textContent = s2 ? s2.emptyScript : "";
+            for (let s4 = 0; s4 < i6; s4++) r4.append(t4[s4], c3()), P.nextNode(), d3.push({ type: 2, index: ++l3 });
+            r4.append(t4[i6], c3());
+          }
+        }
+      } else if (8 === r4.nodeType) if (r4.data === n3) d3.push({ type: 2, index: l3 });
+      else {
+        let t4 = -1;
+        for (; -1 !== (t4 = r4.data.indexOf(o3, t4 + 1)); ) d3.push({ type: 7, index: l3 }), t4 += o3.length - 1;
+      }
+      l3++;
+    }
+  }
+  static createElement(t3, i5) {
+    const s4 = l2.createElement("template");
+    return s4.innerHTML = t3, s4;
+  }
+};
+function M(t3, i5, s4 = t3, e4) {
+  if (i5 === E) return i5;
+  let h3 = void 0 !== e4 ? s4._$Co?.[e4] : s4._$Cl;
+  const o5 = a2(i5) ? void 0 : i5._$litDirective$;
+  return h3?.constructor !== o5 && (h3?._$AO?.(false), void 0 === o5 ? h3 = void 0 : (h3 = new o5(t3), h3._$AT(t3, s4, e4)), void 0 !== e4 ? (s4._$Co ?? (s4._$Co = []))[e4] = h3 : s4._$Cl = h3), void 0 !== h3 && (i5 = M(t3, h3._$AS(t3, i5.values), h3, e4)), i5;
+}
+var R = class {
+  constructor(t3, i5) {
+    this._$AV = [], this._$AN = void 0, this._$AD = t3, this._$AM = i5;
+  }
+  get parentNode() {
+    return this._$AM.parentNode;
+  }
+  get _$AU() {
+    return this._$AM._$AU;
+  }
+  u(t3) {
+    const { el: { content: i5 }, parts: s4 } = this._$AD, e4 = (t3?.creationScope ?? l2).importNode(i5, true);
+    P.currentNode = e4;
+    let h3 = P.nextNode(), o5 = 0, n4 = 0, r4 = s4[0];
+    for (; void 0 !== r4; ) {
+      if (o5 === r4.index) {
+        let i6;
+        2 === r4.type ? i6 = new k(h3, h3.nextSibling, this, t3) : 1 === r4.type ? i6 = new r4.ctor(h3, r4.name, r4.strings, this, t3) : 6 === r4.type && (i6 = new Z(h3, this, t3)), this._$AV.push(i6), r4 = s4[++n4];
+      }
+      o5 !== r4?.index && (h3 = P.nextNode(), o5++);
+    }
+    return P.currentNode = l2, e4;
+  }
+  p(t3) {
+    let i5 = 0;
+    for (const s4 of this._$AV) void 0 !== s4 && (void 0 !== s4.strings ? (s4._$AI(t3, s4, i5), i5 += s4.strings.length - 2) : s4._$AI(t3[i5])), i5++;
+  }
+};
+var k = class _k {
+  get _$AU() {
+    return this._$AM?._$AU ?? this._$Cv;
+  }
+  constructor(t3, i5, s4, e4) {
+    this.type = 2, this._$AH = A, this._$AN = void 0, this._$AA = t3, this._$AB = i5, this._$AM = s4, this.options = e4, this._$Cv = e4?.isConnected ?? true;
+  }
+  get parentNode() {
+    let t3 = this._$AA.parentNode;
+    const i5 = this._$AM;
+    return void 0 !== i5 && 11 === t3?.nodeType && (t3 = i5.parentNode), t3;
+  }
+  get startNode() {
+    return this._$AA;
+  }
+  get endNode() {
+    return this._$AB;
+  }
+  _$AI(t3, i5 = this) {
+    t3 = M(this, t3, i5), a2(t3) ? t3 === A || null == t3 || "" === t3 ? (this._$AH !== A && this._$AR(), this._$AH = A) : t3 !== this._$AH && t3 !== E && this._(t3) : void 0 !== t3._$litType$ ? this.$(t3) : void 0 !== t3.nodeType ? this.T(t3) : d2(t3) ? this.k(t3) : this._(t3);
+  }
+  O(t3) {
+    return this._$AA.parentNode.insertBefore(t3, this._$AB);
+  }
+  T(t3) {
+    this._$AH !== t3 && (this._$AR(), this._$AH = this.O(t3));
+  }
+  _(t3) {
+    this._$AH !== A && a2(this._$AH) ? this._$AA.nextSibling.data = t3 : this.T(l2.createTextNode(t3)), this._$AH = t3;
+  }
+  $(t3) {
+    const { values: i5, _$litType$: s4 } = t3, e4 = "number" == typeof s4 ? this._$AC(t3) : (void 0 === s4.el && (s4.el = S2.createElement(V(s4.h, s4.h[0]), this.options)), s4);
+    if (this._$AH?._$AD === e4) this._$AH.p(i5);
+    else {
+      const t4 = new R(e4, this), s5 = t4.u(this.options);
+      t4.p(i5), this.T(s5), this._$AH = t4;
+    }
+  }
+  _$AC(t3) {
+    let i5 = C.get(t3.strings);
+    return void 0 === i5 && C.set(t3.strings, i5 = new S2(t3)), i5;
+  }
+  k(t3) {
+    u2(this._$AH) || (this._$AH = [], this._$AR());
+    const i5 = this._$AH;
+    let s4, e4 = 0;
+    for (const h3 of t3) e4 === i5.length ? i5.push(s4 = new _k(this.O(c3()), this.O(c3()), this, this.options)) : s4 = i5[e4], s4._$AI(h3), e4++;
+    e4 < i5.length && (this._$AR(s4 && s4._$AB.nextSibling, e4), i5.length = e4);
+  }
+  _$AR(t3 = this._$AA.nextSibling, s4) {
+    for (this._$AP?.(false, true, s4); t3 !== this._$AB; ) {
+      const s5 = i3(t3).nextSibling;
+      i3(t3).remove(), t3 = s5;
+    }
+  }
+  setConnected(t3) {
+    void 0 === this._$AM && (this._$Cv = t3, this._$AP?.(t3));
+  }
+};
+var H = class {
+  get tagName() {
+    return this.element.tagName;
+  }
+  get _$AU() {
+    return this._$AM._$AU;
+  }
+  constructor(t3, i5, s4, e4, h3) {
+    this.type = 1, this._$AH = A, this._$AN = void 0, this.element = t3, this.name = i5, this._$AM = e4, this.options = h3, s4.length > 2 || "" !== s4[0] || "" !== s4[1] ? (this._$AH = Array(s4.length - 1).fill(new String()), this.strings = s4) : this._$AH = A;
+  }
+  _$AI(t3, i5 = this, s4, e4) {
+    const h3 = this.strings;
+    let o5 = false;
+    if (void 0 === h3) t3 = M(this, t3, i5, 0), o5 = !a2(t3) || t3 !== this._$AH && t3 !== E, o5 && (this._$AH = t3);
+    else {
+      const e5 = t3;
+      let n4, r4;
+      for (t3 = h3[0], n4 = 0; n4 < h3.length - 1; n4++) r4 = M(this, e5[s4 + n4], i5, n4), r4 === E && (r4 = this._$AH[n4]), o5 || (o5 = !a2(r4) || r4 !== this._$AH[n4]), r4 === A ? t3 = A : t3 !== A && (t3 += (r4 ?? "") + h3[n4 + 1]), this._$AH[n4] = r4;
+    }
+    o5 && !e4 && this.j(t3);
+  }
+  j(t3) {
+    t3 === A ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, t3 ?? "");
+  }
+};
+var I = class extends H {
+  constructor() {
+    super(...arguments), this.type = 3;
+  }
+  j(t3) {
+    this.element[this.name] = t3 === A ? void 0 : t3;
+  }
+};
+var L = class extends H {
+  constructor() {
+    super(...arguments), this.type = 4;
+  }
+  j(t3) {
+    this.element.toggleAttribute(this.name, !!t3 && t3 !== A);
+  }
+};
+var z = class extends H {
+  constructor(t3, i5, s4, e4, h3) {
+    super(t3, i5, s4, e4, h3), this.type = 5;
+  }
+  _$AI(t3, i5 = this) {
+    if ((t3 = M(this, t3, i5, 0) ?? A) === E) return;
+    const s4 = this._$AH, e4 = t3 === A && s4 !== A || t3.capture !== s4.capture || t3.once !== s4.once || t3.passive !== s4.passive, h3 = t3 !== A && (s4 === A || e4);
+    e4 && this.element.removeEventListener(this.name, this, s4), h3 && this.element.addEventListener(this.name, this, t3), this._$AH = t3;
+  }
+  handleEvent(t3) {
+    "function" == typeof this._$AH ? this._$AH.call(this.options?.host ?? this.element, t3) : this._$AH.handleEvent(t3);
+  }
+};
+var Z = class {
+  constructor(t3, i5, s4) {
+    this.element = t3, this.type = 6, this._$AN = void 0, this._$AM = i5, this.options = s4;
+  }
+  get _$AU() {
+    return this._$AM._$AU;
+  }
+  _$AI(t3) {
+    M(this, t3);
+  }
+};
+var B = t2.litHtmlPolyfillSupport;
+B?.(S2, k), (t2.litHtmlVersions ?? (t2.litHtmlVersions = [])).push("3.3.3");
+var D = (t3, i5, s4) => {
+  const e4 = s4?.renderBefore ?? i5;
+  let h3 = e4._$litPart$;
+  if (void 0 === h3) {
+    const t4 = s4?.renderBefore ?? null;
+    e4._$litPart$ = h3 = new k(i5.insertBefore(c3(), t4), t4, void 0, s4 ?? {});
+  }
+  return h3._$AI(t3), h3;
+};
+
+// node_modules/lit-element/lit-element.js
+var s3 = globalThis;
+var i4 = class extends y {
+  constructor() {
+    super(...arguments), this.renderOptions = { host: this }, this._$Do = void 0;
+  }
+  createRenderRoot() {
+    var _a;
+    const t3 = super.createRenderRoot();
+    return (_a = this.renderOptions).renderBefore ?? (_a.renderBefore = t3.firstChild), t3;
+  }
+  update(t3) {
+    const r4 = this.render();
+    this.hasUpdated || (this.renderOptions.isConnected = this.isConnected), super.update(t3), this._$Do = D(r4, this.renderRoot, this.renderOptions);
+  }
+  connectedCallback() {
+    super.connectedCallback(), this._$Do?.setConnected(true);
+  }
+  disconnectedCallback() {
+    super.disconnectedCallback(), this._$Do?.setConnected(false);
+  }
+  render() {
+    return E;
+  }
+};
+i4._$litElement$ = true, i4["finalized"] = true, s3.litElementHydrateSupport?.({ LitElement: i4 });
+var o4 = s3.litElementPolyfillSupport;
+o4?.({ LitElement: i4 });
+(s3.litElementVersions ?? (s3.litElementVersions = [])).push("4.2.2");
+
+// src/battery-roi-card.js
+var CARD_VERSION = "1.0.0";
+function _num(v2, decimals = 1) {
+  const n4 = Number(v2);
+  return Number.isFinite(n4) ? n4.toFixed(decimals) : "\u2014";
+}
+function _euro(v2) {
+  const n4 = Number(v2);
+  if (!Number.isFinite(n4)) return "\u2014";
+  const prefix = n4 < 0 ? "\u2212\u20AC" : "\u20AC";
+  return prefix + Math.abs(n4).toLocaleString("nl-NL", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  });
+}
+function _pct(v2) {
+  const n4 = Number(v2);
+  return Number.isFinite(n4) ? `${_num(n4, 1)}%` : "\u2014";
+}
+function _bool(v2) {
+  if (v2 === true || v2 === "true") return "\u2713 Yes";
+  if (v2 === false || v2 === "false") return "\u2717 No";
+  return "\u2014";
+}
+var BatteryRoiCard = class extends i4 {
+  static get properties() {
+    return { hass: {}, config: {} };
+  }
+  static getStubConfig() {
+    return {};
+  }
+  setConfig(config) {
+    this.config = config;
+  }
+  /* ----- convenience entity getters with configurable overrides ---- */
+  get _s() {
+    const prefix = this.config.entity_prefix || "sensor.battery_roi";
+    const e4 = (key, def) => this.config[`${key}_entity`] || `${prefix}_${def}`;
+    return {
+      best_size: e4("best_size", "best_size"),
+      payback: e4("payback", "payback"),
+      annual_saving: e4("annual_saving", "annual_saving"),
+      best_capacity: e4("best_capacity", "best_capacity"),
+      cycles: e4("cycles", "cycles"),
+      self_consumption: e4("self_consumption", "self_consumption"),
+      import_saved: e4("import_saved", "import_saved"),
+      export_saved: e4("export_saved", "export_saved")
+    };
+  }
+  _st(id) {
+    return this.hass?.states?.[id];
+  }
+  /* ----- styles ---------------------------------------------------- */
+  static get styles() {
+    return i`
       :host {
         --br-grid-gap: 12px;
         --br-radius: 12px;
@@ -239,66 +842,113 @@ var T=globalThis,L=T.ShadowRoot&&(T.ShadyCSS===void 0||T.ShadyCSS.nativeShadow)&
         flex-wrap: wrap;
         gap: 8px;
       }
-    `}render(){let t=this._s,e=this._st(t.best_size),s=this._st(t.payback),i=this._st(t.annual_saving),r=e?.attributes?.by_capacity,n=e?.attributes?.monthly_data,l=s?.attributes||{},o=s?.state,d=l.within_lifetime;return _`
+    `;
+  }
+  /* ----- render ---------------------------------------------------- */
+  render() {
+    const s4 = this._s;
+    const bestSizeSt = this._st(s4.best_size);
+    const paybackSt = this._st(s4.payback);
+    const annualSt = this._st(s4.annual_saving);
+    const byCap = bestSizeSt?.attributes?.by_capacity;
+    const monthly = bestSizeSt?.attributes?.monthly_data;
+    const paybackAttrs = paybackSt?.attributes || {};
+    const paybackVal = paybackSt?.state;
+    const withinLifetime = paybackAttrs.within_lifetime;
+    return b2`
       <ha-card class="card">
-        ${this._render_header(e)}
-        ${this._render_stats(o,l,i)}
-        ${this._render_secondary_stats(t)}
-        ${r?this._render_chart(r):""}
-        ${n?this._render_heatmap(n):""}
-        ${this._render_lifecycle(l)}
+        ${this._render_header(bestSizeSt)}
+        ${this._render_stats(paybackVal, paybackAttrs, annualSt)}
+        ${this._render_secondary_stats(s4)}
+        ${byCap ? this._render_chart(byCap) : ""}
+        ${monthly ? this._render_heatmap(monthly) : ""}
+        ${this._render_lifecycle(paybackAttrs)}
       </ha-card>
-    `}_render_header(t){let e=t?.last_updated?new Date(t.last_updated).toLocaleString("nl-NL",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}):"";return _`
+    `;
+  }
+  /* ======================== sub-renderers ========================== */
+  _render_header(bestSizeSt) {
+    const updated = bestSizeSt?.last_updated ? new Date(bestSizeSt.last_updated).toLocaleString("nl-NL", {
+      day: "numeric",
+      month: "short",
+      hour: "2-digit",
+      minute: "2-digit"
+    }) : "";
+    return b2`
       <div class="header">
         <h2>
           <span>⚡ Battery ROI</span>
-          <span class="version">v${Ot}</span>
+          <span class="version">v${CARD_VERSION}</span>
         </h2>
-        <span class="updated">${e}</span>
+        <span class="updated">${updated}</span>
       </div>
-    `}_render_stats(t,e,s){let i=u(t,1),n=e.within_lifetime?"green":"red",l=s?.state??"\u2014",o=Number(e.net_saving_eur)>=0?"green":"red";return _`
+    `;
+  }
+  _render_stats(paybackVal, paybackAttrs, annualSt) {
+    const pb = _num(paybackVal, 1);
+    const withinLifetime = paybackAttrs.within_lifetime;
+    const pbClass = withinLifetime ? "green" : "red";
+    const annual = annualSt?.state ?? "\u2014";
+    const netClass = Number(paybackAttrs.net_saving_eur) >= 0 ? "green" : "red";
+    return b2`
       <div class="grid">
         <div class="stat">
           <div class="value accent">
-            ${u(this._st(this._s.best_size)?.state,1)}
+            ${_num(this._st(this._s.best_size)?.state, 1)}
           </div>
           <div class="label">Best Size (kWh)</div>
         </div>
         <div class="stat">
-          <div class="value ${n}">${i}</div>
+          <div class="value ${pbClass}">${pb}</div>
           <div class="label">Payback (yr)</div>
         </div>
         <div class="stat">
-          <div class="value green">€${u(l,0)}</div>
+          <div class="value green">€${_num(annual, 0)}</div>
           <div class="label">Annual Saving</div>
         </div>
         <div class="stat">
-          <div class="value ${o}">
-            ${mt(e.net_saving_eur)}
+          <div class="value ${netClass}">
+            ${_euro(paybackAttrs.net_saving_eur)}
           </div>
           <div class="label">Net Result (life)</div>
         </div>
       </div>
-    `}_render_secondary_stats(t){return _`
+    `;
+  }
+  _render_secondary_stats(s4) {
+    return b2`
       <div class="grid">
         <div class="stat">
-          <div class="value">${Ut(this._st(t.self_consumption)?.state)}</div>
+          <div class="value">${_pct(this._st(s4.self_consumption)?.state)}</div>
           <div class="label">Self-Consumption</div>
         </div>
         <div class="stat">
-          <div class="value">${u(this._st(t.cycles)?.state,1)}</div>
+          <div class="value">${_num(this._st(s4.cycles)?.state, 1)}</div>
           <div class="label">Cycles / Year</div>
         </div>
         <div class="stat">
-          <div class="value">${u(this._st(t.import_saved)?.state,0)}</div>
+          <div class="value">${_num(this._st(s4.import_saved)?.state, 0)}</div>
           <div class="label">Import Saved (kWh/yr)</div>
         </div>
         <div class="stat">
-          <div class="value">${u(this._st(t.export_saved)?.state,0)}</div>
+          <div class="value">${_num(this._st(s4.export_saved)?.state, 0)}</div>
           <div class="label">Export Saved (kWh/yr)</div>
         </div>
       </div>
-    `}_render_chart(t){let e=Object.entries(t).map(([r,n])=>({cap:r.replace("_","."),...n})).sort((r,n)=>Number(r.cap)-Number(n.cap)),s=Math.max(...e.map(r=>r.payback_years!=null?r.payback_years:0),1),i=Math.max(...e.map(r=>r.annual_saving_eur??0),1);return _`
+    `;
+  }
+  /* ----- capacity comparison bar chart ----------------------------- */
+  _render_chart(byCap) {
+    const caps = Object.entries(byCap).map(([k2, v2]) => ({ cap: k2.replace("_", "."), ...v2 })).sort((a3, b3) => Number(a3.cap) - Number(b3.cap));
+    const maxPayback = Math.max(
+      ...caps.map((c4) => c4.payback_years != null ? c4.payback_years : 0),
+      1
+    );
+    const maxAnnual = Math.max(
+      ...caps.map((c4) => c4.annual_saving_eur ?? 0),
+      1
+    );
+    return b2`
       <div class="section-title">Capacity Comparison</div>
       <div class="chart-wrap">
         <table class="chart-table">
@@ -313,36 +963,41 @@ var T=globalThis,L=T.ShadowRoot&&(T.ShadyCSS===void 0||T.ShadyCSS.nativeShadow)&
             </tr>
           </thead>
           <tbody>
-            ${e.map(r=>_`
+            ${caps.map(
+      (c4) => b2`
                 <tr>
-                  <td class="cap-label">${r.cap}</td>
+                  <td class="cap-label">${c4.cap}</td>
                   <td style="width:35%">
                     <div class="bar-track">
                       <div
                         class="bar-fill annual"
-                        style="width:${(r.annual_saving_eur??0)/i*100}%"
+                        style="width:${(c4.annual_saving_eur ?? 0) / maxAnnual * 100}%"
                       ></div>
                     </div>
                   </td>
                   <td class="bar-val">
-                    €${u(r.annual_saving_eur,0)}
+                    €${_num(c4.annual_saving_eur, 0)}
                   </td>
                   <td style="width:35%">
                     <div class="bar-track">
                       <div
-                        class="bar-fill payback ${r.payback_years!=null&&r.payback_years>20?"overshoot":""}"
-                        style="width:${Math.min((r.payback_years??s)/s*100,100)}%"
+                        class="bar-fill payback ${c4.payback_years != null && c4.payback_years > 20 ? "overshoot" : ""}"
+                        style="width:${Math.min(
+        (c4.payback_years ?? maxPayback) / maxPayback * 100,
+        100
+      )}%"
                       ></div>
                     </div>
                   </td>
                   <td class="bar-val">
-                    ${r.payback_years!=null?`${u(r.payback_years,1)} yr`:"\u221E"}
+                    ${c4.payback_years != null ? `${_num(c4.payback_years, 1)} yr` : "\u221E"}
                   </td>
                   <td class="bar-val">
-                    ${r.roi_pct!=null?`${u(r.roi_pct,1)}%`:"\u2014"}
+                    ${c4.roi_pct != null ? `${_num(c4.roi_pct, 1)}%` : "\u2014"}
                   </td>
                 </tr>
-              `)}
+              `
+    )}
           </tbody>
         </table>
       </div>
@@ -350,38 +1005,61 @@ var T=globalThis,L=T.ShadowRoot&&(T.ShadyCSS===void 0||T.ShadyCSS.nativeShadow)&
         <span><span class="dot" style="background:var(--br-accent)"></span>Annual Saving</span>
         <span><span class="dot" style="background:var(--br-green)"></span>Payback</span>
       </div>
-    `}_render_heatmap(t){let e=Object.entries(t).sort(([r],[n])=>r.localeCompare(n)),s=Math.max(...e.map(([,r])=>Math.max(r.battery_out_kwh??0,r.battery_in_kwh??0)),1),i=r=>Math.min(Math.round((r??0)/s*10),10);return _`
+    `;
+  }
+  /* ----- monthly heatmap ------------------------------------------- */
+  _render_heatmap(monthly) {
+    const months = Object.entries(monthly).sort(([a3], [b3]) => a3.localeCompare(b3));
+    const maxVal = Math.max(
+      ...months.map(([, d3]) => Math.max(d3.battery_out_kwh ?? 0, d3.battery_in_kwh ?? 0)),
+      1
+    );
+    const intensity = (v2) => Math.min(Math.round((v2 ?? 0) / maxVal * 10), 10);
+    return b2`
       <div class="section-title">Monthly Battery Usage (kWh)</div>
       <div class="heatmap">
         <span class="hm-label"></span>
         <span class="hm-label" style="text-align:center">In</span>
         <span class="hm-label" style="text-align:center">Out</span>
-        ${e.map(([r,n])=>_`
-            <span class="hm-label">${r}</span>
+        ${months.map(
+      ([key, d3]) => b2`
+            <span class="hm-label">${key}</span>
             <div
               class="hm-cell"
-              style="background:var(--br-accent);opacity:${.1+i(n.battery_in_kwh)*.08}"
-              data-tooltip="${r} in: ${u(n.battery_in_kwh,0)} kWh"
+              style="background:var(--br-accent);opacity:${0.1 + intensity(d3.battery_in_kwh) * 0.08}"
+              data-tooltip="${key} in: ${_num(d3.battery_in_kwh, 0)} kWh"
             ></div>
             <div
               class="hm-cell"
-              style="background:var(--br-green);opacity:${.1+i(n.battery_out_kwh)*.08}"
-              data-tooltip="${r} out: ${u(n.battery_out_kwh,0)} kWh"
+              style="background:var(--br-green);opacity:${0.1 + intensity(d3.battery_out_kwh) * 0.08}"
+              data-tooltip="${key} out: ${_num(d3.battery_out_kwh, 0)} kWh"
             ></div>
-          `)}
+          `
+    )}
       </div>
       <div class="hm-legend">
         <span class="hm-swatch" style="background:var(--br-accent);opacity:0.8"></span> Charged
         <span class="hm-swatch" style="background:var(--br-green);opacity:0.8"></span> Discharged
         <span style="margin-left:auto">Low ▸ High</span>
       </div>
-    `}_render_lifecycle(t){let e=t.upfront_cost_eur,s=t.within_lifetime;return _`
+    `;
+  }
+  /* ----- lifecycle info -------------------------------------------- */
+  _render_lifecycle(attrs) {
+    const upfront = attrs.upfront_cost_eur;
+    const withinLifetime = attrs.within_lifetime;
+    return b2`
       <div class="lifecycle">
-        <span>Upfront: ${e!=null?mt(e):"\u2014"}</span>
-        <span>Pays back within life: ${Mt(s)}</span>
-        <span>Annual: €${u(t.annual_saving_eur,0)}</span>
+        <span>Upfront: ${upfront != null ? _euro(upfront) : "\u2014"}</span>
+        <span>Pays back within life: ${_bool(withinLifetime)}</span>
+        <span>Annual: €${_num(attrs.annual_saving_eur, 0)}</span>
       </div>
-    `}static async getConfigElement(){let t=document.createElement("div");return t.innerHTML=`
+    `;
+  }
+  /* ----- card metadata (for HA editor) ----------------------------- */
+  static async getConfigElement() {
+    const el = document.createElement("div");
+    el.innerHTML = `
       <style>
         .br-edit { padding: 8px; }
         .br-edit label { display:block; margin:8px 0 4px; font-size:12px; color:var(--secondary-text-color); }
@@ -393,7 +1071,32 @@ var T=globalThis,L=T.ShadowRoot&&(T.ShadyCSS===void 0||T.ShadyCSS.nativeShadow)&
         <label>Entity prefix (default: sensor.battery_roi)</label>
         <input id="prefix" placeholder="sensor.battery_roi" />
       </div>
-    `,t.querySelector("#title").addEventListener("change",()=>{t._config={...t._config,title:t.querySelector("#title").value||void 0},t.dispatchEvent(new Event("config-changed",{bubbles:!0}))}),t.querySelector("#prefix").addEventListener("change",()=>{t._config={...t._config,entity_prefix:t.querySelector("#prefix").value||void 0},t.dispatchEvent(new Event("config-changed",{bubbles:!0}))}),t.setConfig=e=>{t._config=e,t.querySelector("#title").value=e?.title||"",t.querySelector("#prefix").value=e?.entity_prefix||""},t}};customElements.define("battery-roi-card",G);window.customCards=window.customCards||[];window.customCards.push({type:"battery-roi-card",name:"Battery ROI Analyzer",description:"Dashboard card showing battery ROI metrics, capacity comparison, and monthly usage heatmap",preview:!0,documentationURL:"https://github.com/ramonskie/battery-roi-analyzer"});
+    `;
+    el.querySelector("#title").addEventListener("change", () => {
+      el._config = { ...el._config, title: el.querySelector("#title").value || void 0 };
+      el.dispatchEvent(new Event("config-changed", { bubbles: true }));
+    });
+    el.querySelector("#prefix").addEventListener("change", () => {
+      el._config = { ...el._config, entity_prefix: el.querySelector("#prefix").value || void 0 };
+      el.dispatchEvent(new Event("config-changed", { bubbles: true }));
+    });
+    el.setConfig = (cfg) => {
+      el._config = cfg;
+      el.querySelector("#title").value = cfg?.title || "";
+      el.querySelector("#prefix").value = cfg?.entity_prefix || "";
+    };
+    return el;
+  }
+};
+customElements.define("battery-roi-card", BatteryRoiCard);
+window.customCards = window.customCards || [];
+window.customCards.push({
+  type: "battery-roi-card",
+  name: "Battery ROI Analyzer",
+  description: "Dashboard card showing battery ROI metrics, capacity comparison, and monthly usage heatmap",
+  preview: true,
+  documentationURL: "https://github.com/ramonskie/battery-roi-analyzer"
+});
 /*! Bundled license information:
 
 @lit/reactive-element/css-tag.js:
@@ -419,3 +1122,4 @@ lit-html/is-server.js:
    * SPDX-License-Identifier: BSD-3-Clause
    *)
 */
+//# sourceMappingURL=battery-roi-card.js.map
