@@ -100,6 +100,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     entry.async_on_unload(entry.add_update_listener(_async_update_listener))
 
+    # Retry Lovelace resource registration — by now Lovelace resources
+    # are guaranteed loaded (unlike EVENT_HOMEASSISTANT_STARTED where
+    # they may not be ready yet).
+    js_reg = JSModuleRegistration(hass)
+    await js_reg.async_register_lovelace_late()
+
     return True
 
 

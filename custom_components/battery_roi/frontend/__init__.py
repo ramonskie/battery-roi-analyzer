@@ -44,6 +44,15 @@ class JSModuleRegistration:
         await self._async_register_lovelace_resource()
         self._register_extra_js_url()
 
+    async def async_register_lovelace_late(self) -> None:
+        """Retry Lovelace resource registration when system is fully loaded.
+
+        Called from ``async_setup_entry`` where Lovelace is guaranteed to
+        have its resources loaded (unlike ``EVENT_HOMEASSISTANT_STARTED``
+        where they may not be ready yet).
+        """
+        await self._async_register_lovelace_resource()
+
     # ------------------------------------------------------------------
     #  www/ copy — serve via HA's built-in /local/ (ALWAYS works)
     # ------------------------------------------------------------------
