@@ -1,6 +1,6 @@
 # 03 - Self-consumption % (gauge + bar trend)
 #
-# Uses sensor.battery_roi_self_consumption directly — this sensor
+# Uses sensor.battery_roi_analyzer_self_consumption directly — this sensor
 # already exists (sensor.py, _KEY_SELF_CONSUMPTION), no gap here.
 #
 # Requires HACS card: apexcharts-card
@@ -22,14 +22,14 @@ apex_config:
           formatter: |
             EVAL:function(val) { return val.toFixed(1) + "%"; }
 series:
-  - entity: sensor.battery_roi_self_consumption
+  - entity: sensor.battery_roi_analyzer_self_consumption
     name: Self-consumption
     show:
       in_header: false
 ---
 # Alternative: plain gauge card (no custom card needed)
 type: gauge
-entity: sensor.battery_roi_self_consumption
+entity: sensor.battery_roi_analyzer_self_consumption
 name: Self-Consumption
 min: 0
 max: 100

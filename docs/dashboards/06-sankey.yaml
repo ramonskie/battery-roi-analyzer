@@ -1,6 +1,6 @@
 # 06 - Sankey diagram: PV -> Battery -> Self-consumption -> Grid
 #
-# Uses the `monthly_data` attribute on sensor.battery_roi_best_size to
+# Uses the `monthly_data` attribute on sensor.battery_roi_analyzer_best_size to
 # pull the latest month's aggregated flow values for the Sankey links.
 #
 # apexcharts-card (ApexCharts.js) has NO native sankey series type, so
@@ -34,9 +34,9 @@ data:
         - Grid Export
         - Grid Import
     link:
-      # Values pulled from sensor.battery_roi_best_size monthly_data
+      # Values pulled from sensor.battery_roi_analyzer_best_size monthly_data
       # attribute. In the HA frontend these can be substituted with
-      # state_attr('sensor.battery_roi_best_size', 'monthly_data')
+      # state_attr('sensor.battery_roi_analyzer_best_size', 'monthly_data')
       # template sensors, or replaced manually for the latest month.
       # Example structure:
       #   source [0, 0, 1, 0]

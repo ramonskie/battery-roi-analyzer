@@ -1,6 +1,6 @@
 # 05 - Monthly heatmap: PV / battery usage / grid import / export
 #
-# Uses the `monthly_data` attribute on sensor.battery_roi_best_size,
+# Uses the `monthly_data` attribute on sensor.battery_roi_analyzer_best_size,
 # which exposes monthly aggregates (exported_kwh, battery_in_kwh,
 # battery_out_kwh, imported_kwh, pv_kwh) per "YYYY-MM" key.
 #
@@ -30,7 +30,7 @@ apex_config:
             to: 1000
             color: "#FF0000"
 series:
-  - entity: sensor.battery_roi_best_size
+  - entity: sensor.battery_roi_analyzer_best_size
     attribute: monthly_data
     name: PV (kWh)
     type: heatmap
@@ -39,7 +39,7 @@ series:
       return Object.entries(data).map(
         ([month, vals]) => [month + '-01', vals.pv_kwh || 0]
       );
-  - entity: sensor.battery_roi_best_size
+  - entity: sensor.battery_roi_analyzer_best_size
     attribute: monthly_data
     name: Battery in (kWh)
     type: heatmap
@@ -48,7 +48,7 @@ series:
       return Object.entries(data).map(
         ([month, vals]) => [month + '-01', vals.battery_in_kwh || 0]
       );
-  - entity: sensor.battery_roi_best_size
+  - entity: sensor.battery_roi_analyzer_best_size
     attribute: monthly_data
     name: Battery out (kWh)
     type: heatmap
@@ -57,7 +57,7 @@ series:
       return Object.entries(data).map(
         ([month, vals]) => [month + '-01', vals.battery_out_kwh || 0]
       );
-  - entity: sensor.battery_roi_best_size
+  - entity: sensor.battery_roi_analyzer_best_size
     attribute: monthly_data
     name: Grid export (kWh)
     type: heatmap
@@ -66,7 +66,7 @@ series:
       return Object.entries(data).map(
         ([month, vals]) => [month + '-01', vals.exported_kwh || 0]
       );
-  - entity: sensor.battery_roi_best_size
+  - entity: sensor.battery_roi_analyzer_best_size
     attribute: monthly_data
     name: Grid import (kWh)
     type: heatmap

@@ -1,7 +1,7 @@
 # 08 - Provider cost comparison (grouped bar chart)
 #
 # Per-provider annual cost: without battery vs with battery.
-# Uses the `rankings` attribute on sensor.battery_roi_best_overall.
+# Uses the `rankings` attribute on sensor.battery_roi_analyzer_best_overall.
 #
 # Requires HACS card: apexcharts-card
 # https://github.com/RomRider/apexcharts-card
@@ -32,7 +32,7 @@ apex_config:
       horizontal: false
       columnWidth: '60%'
 series:
-  - entity: sensor.battery_roi_best_overall
+  - entity: sensor.battery_roi_analyzer_best_overall
     attribute: rankings
     type: column
     name: Without battery (€/yr)
@@ -41,7 +41,7 @@ series:
         r.provider,
         r.annual_cost_eur
       ]);
-  - entity: sensor.battery_roi_best_overall
+  - entity: sensor.battery_roi_analyzer_best_overall
     attribute: rankings
     type: column
     name: With battery (€/yr)
