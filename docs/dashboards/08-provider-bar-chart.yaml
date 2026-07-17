@@ -47,8 +47,8 @@ series:
     name: With battery (€/yr)
     data_generator: |
       return (entity.attributes.rankings || [])
-        .filter(r => r.type === 'fixed' || r.annual_cost_with_battery_eur != null)
+        .filter(r => r.annual_cost_with_battery_eur != null)
         .map(r => [
           r.provider,
-          r.annual_cost_with_battery_eur ?? null
+          r.annual_cost_with_battery_eur
         ]);

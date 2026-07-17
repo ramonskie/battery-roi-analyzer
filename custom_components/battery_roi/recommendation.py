@@ -158,12 +158,28 @@ def compare_providers(
             annual_cost = _estimate_dynamic_annual_cost(
                 contract, annual_consumption_kwh, annual_production_kwh
             ) + vastrecht * 12
+
+            annual_cost_with_battery: float | None = None
+            if battery_reduced_import_kwh > 0 or battery_extra_export_kwh > 0:
+                adjusted_consumption = max(
+                    annual_consumption_kwh - battery_reduced_import_kwh, 0.0
+                )
+                adjusted_production = annual_production_kwh + battery_extra_export_kwh
+                annual_cost_with_battery = _estimate_dynamic_annual_cost(
+                    contract, adjusted_consumption, adjusted_production
+                ) + vastrecht * 12
+
             recommendations.append(
                 ProviderRecommendation(
                     provider=contract.provider,
                     contract_name=f"Dynamisch {contract.provider}",
                     contract_type="dynamic",
                     estimated_annual_cost_eur=round(annual_cost, 2),
+                    estimated_annual_cost_with_battery_eur=(
+                        round(annual_cost_with_battery, 2)
+                        if annual_cost_with_battery is not None
+                        else None
+                    ),
                     battery_capacity_kwh=battery_capacity_kwh,
                 )
             )
