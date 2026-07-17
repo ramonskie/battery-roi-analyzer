@@ -64,6 +64,7 @@ from .const import (
     DEFAULT_BATTERY_SIZES_KWH,
     DEFAULT_DEPTH_OF_DISCHARGE,
     DEFAULT_DISCOUNT_RATE,
+    DEFAULT_FIXED_PRICES_URL,
     DEFAULT_PHASE_OUT_YEARS,
     DEFAULT_ROUND_TRIP_EFFICIENCY,
     DEFAULT_SIMULATION_PERIOD_DAYS,
@@ -735,7 +736,7 @@ class BatteryRoiCoordinator(DataUpdateCoordinator[BatteryRoiData]):
             "best_fixed": None, "best_dynamic": None, "best_overall": None,
         }
 
-        fixed_prices_url = merged_config.get(CONF_FIXED_PRICES_URL)
+        fixed_prices_url = merged_config.get(CONF_FIXED_PRICES_URL) or DEFAULT_FIXED_PRICES_URL
         enever_token = merged_config.get(CONF_ENEVER_API_TOKEN)
         if fixed_prices_url or enever_token:
             async with httpx.AsyncClient() as client:
