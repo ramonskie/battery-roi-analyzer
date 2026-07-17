@@ -70,25 +70,22 @@ class BatteryRoiCard extends LitElement {
 
     // Scan all states for battery_roi sensor entities
     const states = this.hass?.states || {};
-    const prefix = this.config.entity_prefix || "sensor.battery_roi";
+    const prefix = this.config.entity_prefix || "sensor.battery_roi_analyzer";
     const candidates = Object.entries(states)
       .filter(([eid]) => eid.startsWith(prefix))
       .map(([eid, st]) => ({ eid, ...st.attributes }));
 
-    // Match by friendly_name (translation-based, language-independent within a setup)
-    const byName = (name) => candidates.find(
-      (c) => c.friendly_name === name || c.friendly_name?.toLowerCase().includes(name.toLowerCase())
-    );
+    const byName = (name) => candidates.find((c) => c.friendly_name === name);
 
     return {
-      best_size:      explicit.best_size      || byName("Recommended battery size")?.eid || `${prefix}_best_size`,
-      payback:        explicit.payback        || byName("Payback period")?.eid            || `${prefix}_payback`,
-      annual_saving:  explicit.annual_saving  || byName("Annual saving")?.eid             || `${prefix}_annual_saving`,
-      best_capacity:  explicit.best_capacity  || byName("Best capacity")?.eid             || `${prefix}_best_capacity`,
-      cycles:         explicit.cycles         || byName("Cycles per year")?.eid           || `${prefix}_cycles`,
-      self_consumption: explicit.self_consumption || byName("Self-consumption")?.eid      || `${prefix}_self_consumption`,
-      import_saved:   explicit.import_saved   || byName("Grid import saved")?.eid         || `${prefix}_import_saved`,
-      export_saved:   explicit.export_saved   || byName("Grid export saved")?.eid         || `${prefix}_export_saved`,
+      best_size:      explicit.best_size      || byName("Best size")?.eid              || `${prefix}_best_size`,
+      payback:        explicit.payback        || byName("Payback")?.eid                || `${prefix}_payback`,
+      annual_saving:  explicit.annual_saving  || byName("Annual saving")?.eid          || `${prefix}_annual_saving`,
+      best_capacity:  explicit.best_capacity  || byName("Best capacity (by NPV)")?.eid || `${prefix}_best_capacity`,
+      cycles:         explicit.cycles         || byName("Cycles")?.eid                 || `${prefix}_cycles`,
+      self_consumption: explicit.self_consumption || byName("Self-consumption")?.eid   || `${prefix}_self_consumption`,
+      import_saved:   explicit.import_saved   || byName("Import saved")?.eid           || `${prefix}_import_saved`,
+      export_saved:   explicit.export_saved   || byName("Export saved")?.eid           || `${prefix}_export_saved`,
     };
   }
 

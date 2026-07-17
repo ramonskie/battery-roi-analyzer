@@ -604,25 +604,25 @@
         }
       }
       const states = this.hass?.states || {};
-      const prefix = this.config.entity_prefix || "sensor.battery_roi";
+      const prefix = this.config.entity_prefix || "sensor.battery_roi_analyzer";
       const candidates = Object.entries(states).filter(([eid]) => eid.startsWith(prefix)).map(([eid, st]) => ({ eid, ...st.attributes }));
       const byName = (name) => candidates.find(
         (c4) => c4.friendly_name === name || c4.friendly_name?.toLowerCase().includes(name.toLowerCase())
       );
       return {
-        best_size: explicit.best_size || byName("Recommended battery size")?.eid || `${prefix}_best_size`,
-        payback: explicit.payback || byName("Payback period")?.eid || `${prefix}_payback`,
+        best_size: explicit.best_size || byName("Best size")?.eid || `${prefix}_best_size`,
+        payback: explicit.payback || byName("Payback")?.eid || `${prefix}_payback`,
         annual_saving: explicit.annual_saving || byName("Annual saving")?.eid || `${prefix}_annual_saving`,
-        best_capacity: explicit.best_capacity || byName("Best capacity")?.eid || `${prefix}_best_capacity`,
-        cycles: explicit.cycles || byName("Cycles per year")?.eid || `${prefix}_cycles`,
+        best_capacity: explicit.best_capacity || byName("Best capacity (by NPV)")?.eid || `${prefix}_best_capacity`,
+        cycles: explicit.cycles || byName("Cycles")?.eid || `${prefix}_cycles`,
         self_consumption: explicit.self_consumption || byName("Self-consumption")?.eid || `${prefix}_self_consumption`,
-        import_saved: explicit.import_saved || byName("Grid import saved")?.eid || `${prefix}_import_saved`,
-        export_saved: explicit.export_saved || byName("Grid export saved")?.eid || `${prefix}_export_saved`
+        import_saved: explicit.import_saved || byName("Import saved")?.eid || `${prefix}_import_saved`,
+        export_saved: explicit.export_saved || byName("Export saved")?.eid || `${prefix}_export_saved`
       };
     }
     get _s() {
       const states = this.hass?.states || {};
-      const key = Object.keys(states).filter((k2) => k2.startsWith("sensor.battery_roi")).join(",");
+      const key = Object.keys(states).filter((k2) => k2.startsWith("sensor.battery_roi_analyzer")).join(",");
       if (!this._entityCache || this._entityKey !== key) {
         this._entityKey = key;
         this._entityCache = this._discoverEntities();
@@ -1127,7 +1127,7 @@
         <label>Title (optional)</label>
         <input id="title" placeholder="Battery ROI" />
         <label>Entity prefix (default: sensor.battery_roi)</label>
-        <input id="prefix" placeholder="sensor.battery_roi" />
+        <input id="prefix" placeholder="sensor.battery_roi_analyzer" />
       </div>
     `;
       el.querySelector("#title").addEventListener("change", () => {
