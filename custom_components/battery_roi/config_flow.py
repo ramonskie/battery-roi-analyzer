@@ -100,11 +100,10 @@ def _energy_entity_selector() -> EntitySelector:
 
 
 def _price_entity_selector() -> EntitySelector:
-    """Build an `EntitySelector` scoped to price entities (input_number or monetary sensors)."""
+    """Build an `EntitySelector` scoped to input_number entities or monetary sensors."""
     return EntitySelector(
         EntitySelectorConfig(
             domain=["input_number", "sensor"],
-            device_class=["monetary"],
             multiple=False,
         )
     )
