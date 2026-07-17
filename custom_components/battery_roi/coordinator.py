@@ -410,35 +410,103 @@ async def _fetch_dynamic_prices(
     if not api_token:
         return None
 
-    url = f"https://enever.nl/apiv3/stroomprijs_vandaag.php?token={api_token}&resolution=60"
+    # Provider code → human-readable name
+    _PROVIDER_NAMES: dict[str, str] = {
+        "ANWB": "ANWB Energie",
+        "BE": "Budget Energie",
+        "CB": "Coolblue Energie",
+        "ED": "Energiedirect",
+        "EE": "easyEnergy",
+        "EG": "Greenchoice",
+        "EN": "Eneco",
+        "ES": "Essent",
+        "EVO": "Energie VanOns",
+        "EZ": "EnergyZero",
+        "FR": "Frank Energie",
+        "GSL": "GroeneStroomLokaal",
+        "HE": "HVC Energie",
+        "IN": "Innova Energie",
+        "MDE": "Mijndomein Energie",
+        "NE": "NextEnergy",
+        "PE": "Powerpeers",
+        "QU": "Pure Energie",
+        "SS": "SamSam",
+        "TI": "Tibber",
+        "VDB": "Vandebron",
+        "VF": "Vattenfall",
+        "VON": "Vrijopnaam Energie",
+        "WE": "UnitedConsumers",
+        "ZP": "Zonneplan",
+    }
+
+    url = (
+        "https://enever.nl/apiv3/stroomprijs_vandaag.php"
+        f"?token={api_token}&resolution=60"
+        "&price=prijsANWB,prijsBE,prijsCB,prijsED,prijsEE,prijsEG,prijsEN,"
+        "prijsES,prijsEZ,prijsFR,prijsIN,prijsNE,prijsPE,prijsQU,prijsSS,"
+        "prijsTI,prijsVDB,prijsVF,prijsZP"
+    )
+
     try:
         resp = await client.get(url, timeout=30)
         resp.raise_for_status()
         raw = resp.json()
 
-        # Enever returns an array of {timestamp, prijs, prijsZP, prijsTI, ...}
-        # Keys matching 'prijs*' (excluding the base 'prijs' market price) are providers.
-        provider_codes: dict[str, str] = {}
-        for key in raw[0].keys() if raw else []:
-            if key.startswith("prijs") and len(key) > 5:
-                provider_codes[key.replace("prijs", "")] = key
+        # Enever may wrap response in {status, data} or return raw array
+        if isinstance(raw, dict):
+            if raw.get("status") == "true" and "data" in raw:
+                _LOGGER.debug("Enever response: wrapped dict, extracting .data")
+                raw = raw["data"]
+            else:
+                msg = raw.get("data", raw.get("message", "Unknown error"))
+                _LOGGER.warning("Enever API error: %s", msg)
+                return None
+
+        if not isinstance(raw, list) or not raw:
+            _LOGGER.warning("Enever returned unexpected format: %s", type(raw))
+            return None
+
+        # Find provider price columns. The first row has keys like:
+        # timestamp, prijs, prijsZP, prijsTI, prijsANWB, ...
+        # "prijs" (len=5) is the base market price — skip it.
+        first_row = raw[0]
+        provider_keys = [
+            k for k in first_row
+            if k.startswith("prijs") and len(k) > 5
+        ]
+
+        if not provider_keys:
+            _LOGGER.warning("Enever: no provider price columns found in response")
+            return None
 
         contracts: list[DynamicContract] = []
-        for code, price_key in provider_codes.items():
+        for price_key in provider_keys:
+            code = price_key.replace("prijs", "")
+            name = _PROVIDER_NAMES.get(code, code)
+
             prices = [
-                {"timestamp": row.get("timestamp", ""), "price": float(row.get(price_key, 0.0))}
+                {"timestamp": str(row.get("timestamp", "")),
+                 "price": float(row.get(price_key, 0.0))}
                 for row in raw
-                if price_key in row
+                if price_key in row and row.get(price_key) is not None
             ]
-            contracts.append(
-                DynamicContract(
-                    provider=code,
-                    vastrecht_elek_eur_per_month=0.0,
-                    opslag_per_kwh_eur=0.0,
-                    all_in_prices=prices,
+
+            if prices:
+                contracts.append(
+                    DynamicContract(
+                        provider=name,
+                        vastrecht_elek_eur_per_month=0.0,
+                        opslag_per_kwh_eur=0.0,
+                        all_in_prices=prices,
+                    )
                 )
-            )
+
+        _LOGGER.info(
+            "Fetched %d dynamic contracts from Enever (%d providers)",
+            len(contracts), len(provider_keys),
+        )
         return contracts if contracts else None
+
     except Exception as err:
         _LOGGER.warning("Failed to fetch dynamic prices from Enever: %s", err)
         return None
