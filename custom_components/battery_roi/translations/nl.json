@@ -29,10 +29,10 @@
       },
       "providers": {
         "title": "Energieleveranciers vergelijken (optioneel)",
-        "description": "Configureer optioneel de vergelijking van energieleveranciers. Laat leeg om over te slaan.",
+        "description": "Configureer optioneel de vergelijking van energieleveranciers. Laat leeg om over te slaan.\n\nMaak een gratis Enever token aan op [enever.nl/token-aanmaken](https://enever.nl/token-aanmaken/).",
         "data": {
           "fixed_prices_url": "URL vaste contracten dataset",
-          "enever_api_token": "Enever API token"
+          "enever_api_token": "Enever API token (gratis via enever.nl/token-aanmaken)"
         }
       },
       "battery": {
@@ -108,10 +108,10 @@
       },
       "providers": {
         "title": "Energieleveranciers vergelijken (optioneel)",
-        "description": "Werk de instellingen voor energieleveranciers bij.",
+        "description": "Werk de instellingen voor energieleveranciers bij.\n\nMaak een gratis Enever token aan op [enever.nl/token-aanmaken](https://enever.nl/token-aanmaken/).",
         "data": {
           "fixed_prices_url": "URL vaste contracten dataset",
-          "enever_api_token": "Enever API token"
+          "enever_api_token": "Enever API token (gratis via enever.nl/token-aanmaken)"
         }
       },
       "battery": {

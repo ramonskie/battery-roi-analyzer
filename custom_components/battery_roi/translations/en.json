@@ -29,10 +29,10 @@
       },
       "providers": {
         "title": "Provider comparison (optional)",
-        "description": "Optionally configure energy provider price comparison. Leave empty to skip provider comparison.",
+        "description": "Optionally configure energy provider price comparison. Leave empty to skip provider comparison.\n\nCreate a free Enever token at [enever.nl/token-aanmaken](https://enever.nl/token-aanmaken/).",
         "data": {
           "fixed_prices_url": "Fixed prices dataset URL",
-          "enever_api_token": "Enever API token"
+          "enever_api_token": "Enever API token (free at enever.nl/token-aanmaken)"
         }
       },
       "battery": {
@@ -108,10 +108,10 @@
       },
       "providers": {
         "title": "Provider comparison (optional)",
-        "description": "Update provider price comparison settings.",
+        "description": "Update provider price comparison settings.\n\nCreate a free Enever token at [enever.nl/token-aanmaken](https://enever.nl/token-aanmaken/).",
         "data": {
           "fixed_prices_url": "Fixed prices dataset URL",
-          "enever_api_token": "Enever API token"
+          "enever_api_token": "Enever API token (free at enever.nl/token-aanmaken)"
         }
       },
       "battery": {
