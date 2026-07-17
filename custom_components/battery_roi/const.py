@@ -137,3 +137,26 @@ SENSOR_KEY_EXPORT_SAVED: Final = "export_saved"
 SENSOR_KEY_ROI: Final = "roi"
 SENSOR_KEY_NPV: Final = "npv"
 SENSOR_KEY_IRR: Final = "irr"
+
+# ---------------------------------------------------------------------------
+# Provider comparison config keys
+# ---------------------------------------------------------------------------
+CONF_FIXED_PRICES_URL: Final = "fixed_prices_url"
+CONF_ENEVER_API_TOKEN: Final = "enever_api_token"
+CONF_ANNUAL_CONSUMPTION_KWH: Final = "annual_consumption_kwh"
+CONF_ANNUAL_PRODUCTION_KWH: Final = "annual_production_kwh"
+CONF_HAS_GAS: Final = "has_gas"
+
+DEFAULT_FIXED_PRICES_URL: Final = (
+    "https://raw.githubusercontent.com/ramonskie/battery-roi-analyzer/main/data/fixed_prices.json"
+)
+DEFAULT_ANNUAL_CONSUMPTION_KWH: Final = 2500
+DEFAULT_ANNUAL_PRODUCTION_KWH: Final = 0
+
+# Provider sensor keys
+SENSOR_KEY_BEST_FIXED: Final = "best_fixed"
+SENSOR_KEY_BEST_DYNAMIC: Final = "best_dynamic"
+SENSOR_KEY_BEST_OVERALL: Final = "best_overall"
+SENSOR_KEY_CHEAPEST_IMPORT: Final = "cheapest_import"
+SENSOR_KEY_CHEAPEST_EXPORT: Final = "cheapest_export"
+SENSOR_KEY_FIXED_COUNT: Final = "fixed_count"

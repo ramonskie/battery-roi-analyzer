@@ -1,0 +1,72 @@
+{
+  "generated_at": "2026-07-17T00:00:00+00:00",
+  "source": "sample data (replace with GitHub Action scrape)",
+  "scrape_params": {
+    "postal_code": "1097DN",
+    "house_number": 1,
+    "electricity_kwh": 2500,
+    "gas_m3": 1000
+  },
+  "contracts": [
+    {
+      "provider": "Essent",
+      "contract_name": "Groene Stroom Vast 1 jaar",
+      "contract_duur_months": 12,
+      "vastrecht_elek_eur_per_month": 12.50,
+      "vastrecht_gas_eur_per_month": 9.50,
+      "leveringstarief_normaal_eur_per_kwh": 0.2629,
+      "leveringstarief_dal_eur_per_kwh": 0.2520,
+      "terugleververgoeding_eur_per_kwh": 0.0800,
+      "cashback_eur": 0.0,
+      "groene_stroom": true
+    },
+    {
+      "provider": "Vattenfall",
+      "contract_name": "Vaste Stroom & Gas 1 jaar",
+      "contract_duur_months": 12,
+      "vastrecht_elek_eur_per_month": 13.00,
+      "vastrecht_gas_eur_per_month": 9.00,
+      "leveringstarief_normaal_eur_per_kwh": 0.2712,
+      "leveringstarief_dal_eur_per_kwh": 0.2600,
+      "terugleververgoeding_eur_per_kwh": 0.0850,
+      "cashback_eur": 0.0,
+      "groene_stroom": true
+    },
+    {
+      "provider": "Eneco",
+      "contract_name": "Eneco Vast 1 jaar",
+      "contract_duur_months": 12,
+      "vastrecht_elek_eur_per_month": 14.00,
+      "vastrecht_gas_eur_per_month": 10.00,
+      "leveringstarief_normaal_eur_per_kwh": 0.2891,
+      "leveringstarief_dal_eur_per_kwh": 0.2750,
+      "terugleververgoeding_eur_per_kwh": 0.0750,
+      "cashback_eur": 0.0,
+      "groene_stroom": true
+    },
+    {
+      "provider": "Greenchoice",
+      "contract_name": "NL Groene Stroom Vast 1 jaar",
+      "contract_duur_months": 12,
+      "vastrecht_elek_eur_per_month": 11.50,
+      "vastrecht_gas_eur_per_month": 8.50,
+      "leveringstarief_normaal_eur_per_kwh": 0.2899,
+      "leveringstarief_dal_eur_per_kwh": 0.2780,
+      "terugleververgoeding_eur_per_kwh": 0.0900,
+      "cashback_eur": 0.0,
+      "groene_stroom": true
+    },
+    {
+      "provider": "Budget Energie",
+      "contract_name": "Budget Energie Vast 1 jaar",
+      "contract_duur_months": 12,
+      "vastrecht_elek_eur_per_month": 10.00,
+      "vastrecht_gas_eur_per_month": 8.00,
+      "leveringstarief_normaal_eur_per_kwh": 0.2946,
+      "leveringstarief_dal_eur_per_kwh": 0.2820,
+      "terugleververgoeding_eur_per_kwh": 0.0700,
+      "cashback_eur": 0.0,
+      "groene_stroom": false
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 """Config flow for the Battery ROI Analyzer integration.
 
-Implements a 5-step `ConfigFlow` ("sensors" -> "prices" -> "battery" ->
-"sim_period" -> "results") mirrored by an `OptionsFlow` of the same shape
+Implements a 6-step `ConfigFlow` ("sensors" -> "prices" -> "providers" ->
+"battery" -> "sim_period" -> "results") mirrored by an `OptionsFlow` of the same shape
 for post-setup editing. The options flow does not need to explicitly
 trigger a coordinator recompute — `coordinator.BatteryRoiCoordinator`
 already registers an `add_update_listener` in its `__init__` that calls
@@ -47,10 +47,12 @@ from .const import (
     CONF_CONSUMPTION_SENSOR,
     CONF_DISCOUNT_RATE,
     CONF_DYNAMIC_PRICE_SENSOR,
+    CONF_ENEVER_API_TOKEN,
     CONF_EXPORT_SENSOR,
     CONF_EXPORT_SENSOR_TARIFF_2,
     CONF_EXPORT_PRICE_ENTITY,
     CONF_FIXED_EXPORT_COSTS,
+    CONF_FIXED_PRICES_URL,
     CONF_IMPORT_PRICE_ENTITY,
     CONF_IMPORT_SENSOR,
     CONF_IMPORT_SENSOR_TARIFF_2,
@@ -64,6 +66,7 @@ from .const import (
     DEFAULT_BATTERY_SIZES_KWH,
     DEFAULT_DISCOUNT_RATE,
     DEFAULT_FIXED_EXPORT_COSTS,
+    DEFAULT_FIXED_PRICES_URL,
     DEFAULT_PHASE_OUT_YEARS,
     DEFAULT_ROUND_TRIP_EFFICIENCY,
     DEFAULT_SIMULATION_PERIOD_DAYS,
@@ -81,7 +84,7 @@ from .const import (
 _VALID_ENERGY_UNITS: Final = {"kWh", "Wh", "MWh"}
 _VALID_ENERGY_DEVICE_CLASSES: Final = {"energy"}
 
-_STEP_ORDER: Final = ("sensors", "prices", "battery", "sim_period", "results")
+_STEP_ORDER: Final = ("sensors", "prices", "providers", "battery", "sim_period", "results")
 
 
 def _energy_entity_selector() -> EntitySelector:
@@ -97,10 +100,11 @@ def _energy_entity_selector() -> EntitySelector:
 
 
 def _price_entity_selector() -> EntitySelector:
-    """Build an `EntitySelector` scoped to ``input_number`` entities holding prices."""
+    """Build an `EntitySelector` scoped to price entities (input_number or monetary sensors)."""
     return EntitySelector(
         EntitySelectorConfig(
-            domain="input_number",
+            domain=["input_number", "sensor"],
+            device_class=["monetary"],
             multiple=False,
         )
     )
@@ -293,6 +297,26 @@ class BatteryRoiFlowMixin:
             }
         )
 
+    @staticmethod
+    def _validate_providers_step(user_input: dict[str, Any]) -> dict[str, str]:
+        """Validate the optional "providers" step — always valid (all fields optional)."""
+        return {}
+
+    def _providers_schema(self, defaults: dict[str, Any]) -> vol.Schema:
+        """Build the "providers" step schema (fixed prices URL + Enever token)."""
+        return vol.Schema(
+            {
+                vol.Optional(
+                    CONF_FIXED_PRICES_URL,
+                    default=defaults.get(CONF_FIXED_PRICES_URL, DEFAULT_FIXED_PRICES_URL),
+                ): str,
+                vol.Optional(
+                    CONF_ENEVER_API_TOKEN,
+                    default=defaults.get(CONF_ENEVER_API_TOKEN, ""),
+                ): str,
+            }
+        )
+
     def _battery_schema(self, defaults: dict[str, Any]) -> vol.Schema:
         """Build the "battery" step's data schema."""
         return vol.Schema(
@@ -431,7 +455,7 @@ class BatteryRoiConfigFlow(ConfigFlow, BatteryRoiFlowMixin, domain=DOMAIN):
             errors = self._validate_prices_step(user_input)
             if not errors:
                 self._collected.update(user_input)
-                return await self.async_step_battery()
+                return await self.async_step_providers()
 
         return self.async_show_form(
             step_id="prices",
@@ -439,10 +463,27 @@ class BatteryRoiConfigFlow(ConfigFlow, BatteryRoiFlowMixin, domain=DOMAIN):
             errors=errors,
         )
 
+    async def async_step_providers(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Step 3: optional provider comparison (fixed prices URL + Enever token)."""
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            errors = self._validate_providers_step(user_input)
+            if not errors:
+                self._collected.update(user_input)
+                return await self.async_step_battery()
+
+        return self.async_show_form(
+            step_id="providers",
+            data_schema=self._providers_schema(self._collected),
+            errors=errors,
+        )
+
     async def async_step_battery(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        """Step 3: battery chemistry + physical/cost parameters."""
+        """Step 4: battery chemistry + physical/cost parameters."""
         errors: dict[str, str] = {}
         if user_input is not None:
             errors = self._validate_battery_step(user_input)
@@ -459,7 +500,7 @@ class BatteryRoiConfigFlow(ConfigFlow, BatteryRoiFlowMixin, domain=DOMAIN):
     async def async_step_sim_period(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        """Step 4: simulation lookback period, lifetime, discount rate."""
+        """Step 5: simulation lookback period, lifetime, discount rate."""
         errors: dict[str, str] = {}
         if user_input is not None:
             errors = self._validate_sim_period_step(user_input)
@@ -476,7 +517,7 @@ class BatteryRoiConfigFlow(ConfigFlow, BatteryRoiFlowMixin, domain=DOMAIN):
     async def async_step_results(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        """Step 5: confirm and create the config entry.
+        """Step 6: confirm and create the config entry.
 
         The actual simulation is run afterwards by
         `BatteryRoiCoordinator` (via `async_config_entry_first_refresh`
@@ -555,7 +596,7 @@ class BatteryRoiOptionsFlow(OptionsFlow, BatteryRoiFlowMixin):
             errors = self._validate_prices_step(user_input)
             if not errors:
                 self._collected.update(user_input)
-                return await self.async_step_battery()
+                return await self.async_step_providers()
 
         return self.async_show_form(
             step_id="prices",
@@ -563,10 +604,27 @@ class BatteryRoiOptionsFlow(OptionsFlow, BatteryRoiFlowMixin):
             errors=errors,
         )
 
+    async def async_step_providers(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Step 3: edit provider comparison settings."""
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            errors = self._validate_providers_step(user_input)
+            if not errors:
+                self._collected.update(user_input)
+                return await self.async_step_battery()
+
+        return self.async_show_form(
+            step_id="providers",
+            data_schema=self._providers_schema(self._current_values()),
+            errors=errors,
+        )
+
     async def async_step_battery(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        """Step 3: edit battery chemistry + physical/cost parameters."""
+        """Step 4: edit battery chemistry + physical/cost parameters."""
         errors: dict[str, str] = {}
         if user_input is not None:
             errors = self._validate_battery_step(user_input)
@@ -583,7 +641,7 @@ class BatteryRoiOptionsFlow(OptionsFlow, BatteryRoiFlowMixin):
     async def async_step_sim_period(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        """Step 4: edit simulation lookback period, lifetime, discount rate."""
+        """Step 5: edit simulation lookback period, lifetime, discount rate."""
         errors: dict[str, str] = {}
         if user_input is not None:
             errors = self._validate_sim_period_step(user_input)
@@ -600,7 +658,7 @@ class BatteryRoiOptionsFlow(OptionsFlow, BatteryRoiFlowMixin):
     async def async_step_results(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        """Step 5: confirm and save the updated options.
+        """Step 6: confirm and save the updated options.
 
         Saving triggers `BatteryRoiCoordinator._async_options_updated`
         (registered via `add_update_listener`), which calls

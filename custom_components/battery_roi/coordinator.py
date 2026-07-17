@@ -20,6 +20,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from typing import Any, Final
 
+import httpx
 import numpy as np
 import pandas as pd
 from homeassistant.config_entries import ConfigEntry
@@ -27,6 +28,8 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .const import (
+    CONF_ANNUAL_CONSUMPTION_KWH,
+    CONF_ANNUAL_PRODUCTION_KWH,
     CONF_BATTERY_CAPACITY_KWH,
     CONF_BATTERY_CHEMISTRY,
     CONF_BATTERY_PRICE,
@@ -39,10 +42,13 @@ from .const import (
     CONF_BATTERY_ROUND_TRIP_EFFICIENCY,
     CONF_CONSUMPTION_SENSOR,
     CONF_DISCOUNT_RATE,
+    CONF_ENEVER_API_TOKEN,
     CONF_EXPORT_PRICE,
     CONF_EXPORT_PRICE_ENTITY,
     CONF_EXPORT_SENSOR,
     CONF_EXPORT_SENSOR_TARIFF_2,
+    CONF_FIXED_PRICES_URL,
+    CONF_HAS_GAS,
     CONF_IMPORT_PRICE,
     CONF_IMPORT_PRICE_ENTITY,
     CONF_IMPORT_SENSOR,
@@ -52,6 +58,8 @@ from .const import (
     CONF_SALDERING_PHASE_OUT_SCHEDULE,
     CONF_SALDERING_SCENARIO,
     CONF_SIMULATION_PERIOD_DAYS,
+    DEFAULT_ANNUAL_CONSUMPTION_KWH,
+    DEFAULT_ANNUAL_PRODUCTION_KWH,
     DEFAULT_BATTERY_LIFETIME_YEARS,
     DEFAULT_BATTERY_SIZES_KWH,
     DEFAULT_DEPTH_OF_DISCHARGE,
@@ -72,6 +80,8 @@ from .finance import (
     calculate_finance_result,
     compare_battery_sizes,
 )
+from .provider import FixedPricesDataset, DynamicContract, ProviderRecommendation
+from .recommendation import compare_providers, best_by_type
 from .simulator import (
     BatterySimulationResult,
     resample_energy_series,
@@ -125,6 +135,8 @@ class BatteryRoiData:
     monthly_data: dict[str, dict[str, float]] = field(default_factory=dict)
     by_capacity: dict[str, dict[str, float | None]] = field(default_factory=dict)
     annual_factor: float = 1.0
+    provider_recommendations: list[ProviderRecommendation] = field(default_factory=list)
+    best_providers: dict[str, ProviderRecommendation | None] = field(default_factory=dict)
 
 
 def _build_energy_series(result: StatisticsResult) -> pd.Series:
@@ -375,6 +387,63 @@ def _run_simulation_and_finance(
     return battery_results, scenario_comparison
 
 
+async def _fetch_fixed_prices(client: httpx.AsyncClient, url: str) -> FixedPricesDataset | None:
+    """Fetch and parse the fixed_prices.json from GitHub raw URL."""
+    try:
+        resp = await client.get(url, timeout=30)
+        resp.raise_for_status()
+        data = resp.json()
+        return FixedPricesDataset.from_json(data)
+    except Exception as err:
+        _LOGGER.warning("Failed to fetch fixed prices from %s: %s", url, err)
+        return None
+
+
+async def _fetch_dynamic_prices(
+    client: httpx.AsyncClient,
+    api_token: str,
+) -> list[DynamicContract] | None:
+    """Fetch dynamic contract prices from Enever API.
+
+    Returns a list of DynamicContract instances or None on failure.
+    """
+    if not api_token:
+        return None
+
+    url = f"https://enever.nl/apiv3/stroomprijs_vandaag.php?token={api_token}&resolution=60"
+    try:
+        resp = await client.get(url, timeout=30)
+        resp.raise_for_status()
+        raw = resp.json()
+
+        # Enever returns an array of {timestamp, prijs, prijsZP, prijsTI, ...}
+        # Keys matching 'prijs*' (excluding the base 'prijs' market price) are providers.
+        provider_codes: dict[str, str] = {}
+        for key in raw[0].keys() if raw else []:
+            if key.startswith("prijs") and len(key) > 5:
+                provider_codes[key.replace("prijs", "")] = key
+
+        contracts: list[DynamicContract] = []
+        for code, price_key in provider_codes.items():
+            prices = [
+                {"timestamp": row.get("timestamp", ""), "price": float(row.get(price_key, 0.0))}
+                for row in raw
+                if price_key in row
+            ]
+            contracts.append(
+                DynamicContract(
+                    provider=code,
+                    vastrecht_elek_eur_per_month=0.0,
+                    opslag_per_kwh_eur=0.0,
+                    all_in_prices=prices,
+                )
+            )
+        return contracts if contracts else None
+    except Exception as err:
+        _LOGGER.warning("Failed to fetch dynamic prices from Enever: %s", err)
+        return None
+
+
 class BatteryRoiCoordinator(DataUpdateCoordinator[BatteryRoiData]):
     """Coordinates fetching statistics and running the ROI simulation.
 
@@ -592,6 +661,56 @@ class BatteryRoiCoordinator(DataUpdateCoordinator[BatteryRoiData]):
                         "pv_kwh": float(max(row.get("pv", 0.0), 0.0)),
                     }
 
+        # ---- Provider comparison -------------------------------------------
+        provider_recs: list[ProviderRecommendation] = []
+        best_provs: dict[str, ProviderRecommendation | None] = {
+            "best_fixed": None, "best_dynamic": None, "best_overall": None,
+        }
+
+        fixed_prices_url = merged_config.get(CONF_FIXED_PRICES_URL)
+        enever_token = merged_config.get(CONF_ENEVER_API_TOKEN)
+        if fixed_prices_url or enever_token:
+            async with httpx.AsyncClient() as client:
+                fixed_dataset = None
+                dynamic_contracts = None
+
+                if fixed_prices_url:
+                    fixed_dataset = await _fetch_fixed_prices(client, fixed_prices_url)
+                if enever_token:
+                    dynamic_contracts = await _fetch_dynamic_prices(client, enever_token)
+
+                consumption_kwh = float(
+                    merged_config.get(CONF_ANNUAL_CONSUMPTION_KWH, DEFAULT_ANNUAL_CONSUMPTION_KWH)
+                )
+                production_kwh = float(
+                    merged_config.get(CONF_ANNUAL_PRODUCTION_KWH, DEFAULT_ANNUAL_PRODUCTION_KWH)
+                )
+                has_gas = bool(merged_config.get(CONF_HAS_GAS, False))
+
+                # Factor in battery context from the best-ROI result
+                best_roi_result = scenario_comparison.best_by_roi
+                reduced_import = 0.0
+                extra_export = 0.0
+                best_cap = None
+                if best_roi_result is not None:
+                    best_cap = best_roi_result.battery_capacity_kwh
+                    sim = battery_results.get(best_cap)
+                    if sim is not None:
+                        reduced_import = sim.reduced_grid_import_kwh * annual_factor
+                        extra_export = max(0.0, sim.reduced_export_kwh * annual_factor)
+
+                provider_recs = compare_providers(
+                    fixed_dataset=fixed_dataset,
+                    dynamic_contracts=dynamic_contracts,
+                    annual_consumption_kwh=consumption_kwh,
+                    annual_production_kwh=production_kwh,
+                    has_gas=has_gas,
+                    battery_reduced_import_kwh=reduced_import,
+                    battery_extra_export_kwh=extra_export,
+                    battery_capacity_kwh=best_cap,
+                )
+                best_provs = best_by_type(provider_recs)
+
         return BatteryRoiData(
             battery_results=battery_results,
             scenario_comparison=scenario_comparison,
@@ -599,4 +718,6 @@ class BatteryRoiCoordinator(DataUpdateCoordinator[BatteryRoiData]):
             monthly_data=monthly_dict,
             by_capacity=by_capacity_dict,
             annual_factor=annual_factor,
+            provider_recommendations=provider_recs,
+            best_providers=best_provs,
         )

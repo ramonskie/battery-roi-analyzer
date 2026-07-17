@@ -27,6 +27,14 @@
           "dynamic_price_sensor": "Sensor dynamische prijs (optioneel)"
         }
       },
+      "providers": {
+        "title": "Energieleveranciers vergelijken (optioneel)",
+        "description": "Configureer optioneel de vergelijking van energieleveranciers. Laat leeg om over te slaan.",
+        "data": {
+          "fixed_prices_url": "URL vaste contracten dataset",
+          "enever_api_token": "Enever API token"
+        }
+      },
       "battery": {
         "title": "Batterijparameters",
         "description": "Bepaal het batterijmodel en de capaciteit voor de simulatie.",
@@ -96,6 +104,14 @@
           "phase_out_years": "Afbouwperiode (jaren)",
           "saldering_own_tariff_eur_per_kwh": "Eigen teruglevertarief (\u20ac/kWh)",
           "dynamic_price_sensor": "Sensor dynamische prijs (optioneel)"
+        }
+      },
+      "providers": {
+        "title": "Energieleveranciers vergelijken (optioneel)",
+        "description": "Werk de instellingen voor energieleveranciers bij.",
+        "data": {
+          "fixed_prices_url": "URL vaste contracten dataset",
+          "enever_api_token": "Enever API token"
         }
       },
       "battery": {
@@ -187,6 +203,24 @@
       },
       "last_simulation_run": {
         "name": "Laatste simulatie"
+      },
+      "best_fixed": {
+        "name": "Beste vaste contract"
+      },
+      "best_dynamic": {
+        "name": "Beste dynamische contract"
+      },
+      "best_overall": {
+        "name": "Beste totale contract"
+      },
+      "cheapest_import": {
+        "name": "Goedkoopste jaarkosten"
+      },
+      "cheapest_export": {
+        "name": "Beste leverancier jaarkosten"
+      },
+      "fixed_count": {
+        "name": "Aantal vaste contracten"
       }
     }
   }

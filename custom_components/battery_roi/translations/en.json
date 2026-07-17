@@ -27,6 +27,14 @@
           "dynamic_price_sensor": "Dynamic price sensor (optional)"
         }
       },
+      "providers": {
+        "title": "Provider comparison (optional)",
+        "description": "Optionally configure energy provider price comparison. Leave empty to skip provider comparison.",
+        "data": {
+          "fixed_prices_url": "Fixed prices dataset URL",
+          "enever_api_token": "Enever API token"
+        }
+      },
       "battery": {
         "title": "Battery parameters",
         "description": "Define the battery model and capacity to simulate.",
@@ -96,6 +104,14 @@
           "phase_out_years": "Phase-out duration (years)",
           "saldering_own_tariff_eur_per_kwh": "Own export tariff (\u20ac/kWh)",
           "dynamic_price_sensor": "Dynamic price sensor (optional)"
+        }
+      },
+      "providers": {
+        "title": "Provider comparison (optional)",
+        "description": "Update provider price comparison settings.",
+        "data": {
+          "fixed_prices_url": "Fixed prices dataset URL",
+          "enever_api_token": "Enever API token"
         }
       },
       "battery": {
@@ -187,6 +203,24 @@
       },
       "last_simulation_run": {
         "name": "Last simulation run"
+      },
+      "best_fixed": {
+        "name": "Best fixed contract"
+      },
+      "best_dynamic": {
+        "name": "Best dynamic contract"
+      },
+      "best_overall": {
+        "name": "Best overall contract"
+      },
+      "cheapest_import": {
+        "name": "Cheapest annual cost"
+      },
+      "cheapest_export": {
+        "name": "Best provider annual cost"
+      },
+      "fixed_count": {
+        "name": "Fixed contract count"
       }
     }
   }

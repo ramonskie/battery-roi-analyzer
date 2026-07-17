@@ -48,6 +48,12 @@ _KEY_CYCLES: Final = "cycles"
 _KEY_SELF_CONSUMPTION: Final = "self_consumption"
 _KEY_IMPORT_SAVED: Final = "import_saved"
 _KEY_EXPORT_SAVED: Final = "export_saved"
+_KEY_BEST_FIXED: Final = "best_fixed"
+_KEY_BEST_DYNAMIC: Final = "best_dynamic"
+_KEY_BEST_OVERALL: Final = "best_overall"
+_KEY_CHEAPEST_IMPORT: Final = "cheapest_import"
+_KEY_CHEAPEST_EXPORT: Final = "cheapest_export"
+_KEY_FIXED_COUNT: Final = "fixed_count"
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -167,6 +173,64 @@ def _export_saved_kwh(data: BatteryRoiData) -> float | None:
     return sim.reduced_export_kwh * data.annual_factor
 
 
+def _best_fixed(data: BatteryRoiData) -> str | None:
+    """Return provider name of best fixed contract, or None."""
+    best = data.best_providers.get("best_fixed")
+    return best.provider if best is not None else None
+
+
+def _best_dynamic(data: BatteryRoiData) -> str | None:
+    """Return provider name of best dynamic contract, or None."""
+    best = data.best_providers.get("best_dynamic")
+    return best.provider if best is not None else None
+
+
+def _best_overall(data: BatteryRoiData) -> str | None:
+    """Return provider name of overall cheapest contract, or None."""
+    best = data.best_providers.get("best_overall")
+    return f"{best.provider} ({best.contract_type})" if best is not None else None
+
+
+def _cheapest_annual_cost(data: BatteryRoiData) -> float | None:
+    """Return the annual cost (EUR) of the cheapest contract overall."""
+    recs = data.provider_recommendations
+    if not recs:
+        return None
+    return recs[0].estimated_annual_cost_eur
+
+
+def _best_provider_annual_cost(data: BatteryRoiData) -> float | None:
+    """Return the annual cost (EUR) of the overall best provider."""
+    best = data.best_providers.get("best_overall")
+    return best.estimated_annual_cost_eur if best is not None else None
+
+
+def _fixed_count(data: BatteryRoiData) -> int | None:
+    """Return number of fixed contracts in the dataset."""
+    return len([r for r in data.provider_recommendations if r.contract_type == "fixed"]) or None
+
+
+def _provider_attributes(data: BatteryRoiData) -> dict[str, Any]:
+    """Return extra state attributes with full provider rankings."""
+    recs = data.provider_recommendations
+    if not recs:
+        return {}
+    return {
+        "rankings": [
+            {
+                "rank": r.rank,
+                "provider": r.provider,
+                "contract": r.contract_name,
+                "type": r.contract_type,
+                "annual_cost_eur": r.estimated_annual_cost_eur,
+                "annual_cost_with_battery_eur": r.estimated_annual_cost_with_battery_eur,
+                "battery_capacity_kwh": r.battery_capacity_kwh,
+            }
+            for r in recs
+        ],
+    }
+
+
 SENSOR_DESCRIPTIONS: Final[tuple[BatteryRoiSensorDescription, ...]] = (
     BatteryRoiSensorDescription(
         key=_KEY_BEST_SIZE,
@@ -240,6 +304,49 @@ SENSOR_DESCRIPTIONS: Final[tuple[BatteryRoiSensorDescription, ...]] = (
         state_class=SensorStateClass.TOTAL_INCREASING,
         suggested_display_precision=1,
         value_fn=_export_saved_kwh,
+    ),
+    BatteryRoiSensorDescription(
+        key=_KEY_BEST_FIXED,
+        translation_key=_KEY_BEST_FIXED,
+        name="Best fixed contract",
+        value_fn=_best_fixed,
+    ),
+    BatteryRoiSensorDescription(
+        key=_KEY_BEST_DYNAMIC,
+        translation_key=_KEY_BEST_DYNAMIC,
+        name="Best dynamic contract",
+        value_fn=_best_dynamic,
+    ),
+    BatteryRoiSensorDescription(
+        key=_KEY_BEST_OVERALL,
+        translation_key=_KEY_BEST_OVERALL,
+        name="Best overall contract",
+        value_fn=_best_overall,
+    ),
+    BatteryRoiSensorDescription(
+        key=_KEY_CHEAPEST_IMPORT,
+        translation_key=_KEY_CHEAPEST_IMPORT,
+        name="Cheapest annual cost",
+        device_class=SensorDeviceClass.MONETARY,
+        native_unit_of_measurement=_CURRENCY_EUR,
+        suggested_display_precision=2,
+        value_fn=_cheapest_annual_cost,
+    ),
+    BatteryRoiSensorDescription(
+        key=_KEY_CHEAPEST_EXPORT,
+        translation_key=_KEY_CHEAPEST_EXPORT,
+        name="Best provider annual cost",
+        device_class=SensorDeviceClass.MONETARY,
+        native_unit_of_measurement=_CURRENCY_EUR,
+        suggested_display_precision=2,
+        value_fn=_best_provider_annual_cost,
+    ),
+    BatteryRoiSensorDescription(
+        key=_KEY_FIXED_COUNT,
+        translation_key=_KEY_FIXED_COUNT,
+        name="Fixed contract count",
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=_fixed_count,
     ),
 )
 
@@ -342,4 +449,6 @@ class BatteryRoiSensor(CoordinatorEntity[BatteryRoiCoordinator], SensorEntity):
             if data.monthly_data:
                 attrs["monthly_data"] = data.monthly_data
             return attrs
+        if key in (_KEY_BEST_FIXED, _KEY_BEST_DYNAMIC, _KEY_BEST_OVERALL):
+            return _provider_attributes(data)
         return {}
