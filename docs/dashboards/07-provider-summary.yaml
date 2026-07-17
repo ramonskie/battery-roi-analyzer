@@ -10,14 +10,16 @@ type: markdown
 content: |
   ## ⚡ Energy Provider Comparison
 
-  {% set best_fixed = state_attr('sensor.battery_roi_analyzer_best_overall_contract', 'rankings') | selectattr('type', 'equalto', 'fixed') | first %}
-  {% set best_dynamic = state_attr('sensor.battery_roi_analyzer_best_overall_contract', 'rankings') | selectattr('type', 'equalto', 'dynamic') | first %}
-  {% set best_overall = state_attr('sensor.battery_roi_analyzer_best_overall_contract', 'rankings') | first %}
+  {% set rankings = state_attr('sensor.battery_roi_analyzer_best_overall_contract', 'rankings') or [] %}
+  {% set best_fixed = rankings | selectattr('type', 'equalto', 'fixed') | first %}
+  {% set best_dynamic = rankings | selectattr('type', 'equalto', 'dynamic') | first %}
+  {% set best_overall = rankings | first %}
+  {% set bat_kwh = (best_overall.battery_capacity_kwh | default(0)) %}
 
-  | Contract | Annual cost | With {{ best_overall.battery_capacity_kwh | default('?') }} kWh battery |
+  | Contract | Annual cost | With {{ bat_kwh }} kWh battery |
   |----------|------------|------------|
-  | **{{ best_fixed.provider }}** (vast) | €{{ '%.2f' | format(best_fixed.annual_cost_eur | float) }} | €{{ '%.2f' | format(best_fixed.annual_cost_with_battery_eur | float or best_fixed.annual_cost_eur) }} |
-  | **{{ best_dynamic.provider }}** (dynamisch) | €{{ '%.2f' | format(best_dynamic.annual_cost_eur | float) }} | €{{ '%.2f' | format(best_dynamic.annual_cost_with_battery_eur | float or best_dynamic.annual_cost_eur) }} |
+  | **{{ best_fixed.provider }}** (vast) | €{{ '%.2f' | format(best_fixed.annual_cost_eur | float(0)) }} | €{{ '%.2f' | format(best_fixed.annual_cost_with_battery_eur | float(best_fixed.annual_cost_eur)) }} |
+  | **{{ best_dynamic.provider }}** (dynamisch) | €{{ '%.2f' | format(best_dynamic.annual_cost_eur | float(0)) }} | €{{ '%.2f' | format(best_dynamic.annual_cost_with_battery_eur | float(best_dynamic.annual_cost_eur)) }} |
 
   **Best overall:** {{ states('sensor.battery_roi_analyzer_best_overall_contract') }}
   **Cheapest annual cost:** €{{ states('sensor.battery_roi_analyzer_cheapest_annual_cost') }}
