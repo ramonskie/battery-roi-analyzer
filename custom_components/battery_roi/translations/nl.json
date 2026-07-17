@@ -20,10 +20,10 @@
         "data": {
           "import_price_entity": "Inkoopprijs (input_number entiteit)",
           "export_price_entity": "Teruglevertarief / feed-in tariff (input_number entiteit) — uw werkelijke verkoopprijs. Bij volledig salderen wordt deze niet gebruikt. Bij afbouw / geen saldering bepaalt dit de opbrengst na saldering.",
-          "fixed_export_costs_eur_per_year": "Vaste terugleveringskosten (\u20ac/jaar)",
+          "fixed_export_costs_eur_per_year": "Vaste terugleveringskosten (€/jaar)",
           "saldering_scenario": "Salderingsscenario",
           "phase_out_years": "Afbouwperiode (jaren)",
-          "saldering_own_tariff_eur_per_kwh": "Eigen teruglevertarief (\u20ac/kWh)",
+          "saldering_own_tariff_eur_per_kwh": "Eigen teruglevertarief (€/kWh)",
           "dynamic_price_sensor": "Sensor dynamische prijs (optioneel)"
         }
       },
@@ -44,8 +44,8 @@
           "battery_round_trip_efficiency": "Round-trip rendement (%)",
           "battery_max_charge_kw": "Max. laadvermogen (kW)",
           "battery_max_discharge_kw": "Max. ontlaadvermogen (kW)",
-          "battery_price_eur": "Batterijprijs (\u20ac/kWh)",
-          "battery_install_cost": "Installatiekosten (\u20ac)"
+          "battery_price_eur": "Batterijprijs (€/kWh)",
+          "battery_install_cost": "Installatiekosten (€)"
         }
       },
       "sim_period": {
@@ -99,10 +99,10 @@
         "data": {
           "import_price_entity": "Inkoopprijs (input_number entiteit)",
           "export_price_entity": "Teruglevertarief / feed-in tariff (input_number entiteit) — uw werkelijke verkoopprijs. Bij volledig salderen wordt deze niet gebruikt. Bij afbouw / geen saldering bepaalt dit de opbrengst na saldering.",
-          "fixed_export_costs_eur_per_year": "Vaste terugleveringskosten (\u20ac/jaar)",
+          "fixed_export_costs_eur_per_year": "Vaste terugleveringskosten (€/jaar)",
           "saldering_scenario": "Salderingsscenario",
           "phase_out_years": "Afbouwperiode (jaren)",
-          "saldering_own_tariff_eur_per_kwh": "Eigen teruglevertarief (\u20ac/kWh)",
+          "saldering_own_tariff_eur_per_kwh": "Eigen teruglevertarief (€/kWh)",
           "dynamic_price_sensor": "Sensor dynamische prijs (optioneel)"
         }
       },
@@ -123,8 +123,8 @@
           "battery_round_trip_efficiency": "Round-trip rendement (%)",
           "battery_max_charge_kw": "Max. laadvermogen (kW)",
           "battery_max_discharge_kw": "Max. ontlaadvermogen (kW)",
-          "battery_price_eur": "Batterijprijs (\u20ac/kWh)",
-          "battery_install_cost": "Installatiekosten (\u20ac)"
+          "battery_price_eur": "Batterijprijs (€/kWh)",
+          "battery_install_cost": "Installatiekosten (€)"
         }
       },
       "sim_period": {
@@ -218,9 +218,6 @@
       },
       "cheapest_export": {
         "name": "Beste leverancier jaarkosten"
-      },
-      "fixed_count": {
-        "name": "Aantal vaste contracten"
       }
     }
   }

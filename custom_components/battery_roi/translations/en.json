@@ -20,10 +20,10 @@
         "data": {
           "import_price_entity": "Import price (input_number entity)",
           "export_price_entity": "Feed-in tariff / teruglevertarief (input_number entity) — your actual sell price. For FULL saldering this is unused, but for PHASE_OUT / NONE it determines post-netting revenue.",
-          "fixed_export_costs_eur_per_year": "Fixed export costs (\u20ac/year)",
+          "fixed_export_costs_eur_per_year": "Fixed export costs (€/year)",
           "saldering_scenario": "Net-metering (saldering) scenario",
           "phase_out_years": "Phase-out duration (years)",
-          "saldering_own_tariff_eur_per_kwh": "Own export tariff (\u20ac/kWh)",
+          "saldering_own_tariff_eur_per_kwh": "Own export tariff (€/kWh)",
           "dynamic_price_sensor": "Dynamic price sensor (optional)"
         }
       },
@@ -44,8 +44,8 @@
           "battery_round_trip_efficiency": "Round-trip efficiency (%)",
           "battery_max_charge_kw": "Max charge power (kW)",
           "battery_max_discharge_kw": "Max discharge power (kW)",
-          "battery_price_eur": "Total battery price (\u20ac) — e.g. 1800 for a 15kWh DIY battery",
-          "battery_install_cost": "Installation cost (\u20ac)"
+          "battery_price_eur": "Total battery price (€) — e.g. 1800 for a 15kWh DIY battery",
+          "battery_install_cost": "Installation cost (€)"
         }
       },
       "sim_period": {
@@ -99,10 +99,10 @@
         "data": {
           "import_price_entity": "Import price (input_number entity)",
           "export_price_entity": "Feed-in tariff / teruglevertarief (input_number entity) — your actual sell price. For FULL saldering this is unused, but for PHASE_OUT / NONE it determines post-netting revenue.",
-          "fixed_export_costs_eur_per_year": "Fixed export costs (\u20ac/year)",
+          "fixed_export_costs_eur_per_year": "Fixed export costs (€/year)",
           "saldering_scenario": "Net-metering (saldering) scenario",
           "phase_out_years": "Phase-out duration (years)",
-          "saldering_own_tariff_eur_per_kwh": "Own export tariff (\u20ac/kWh)",
+          "saldering_own_tariff_eur_per_kwh": "Own export tariff (€/kWh)",
           "dynamic_price_sensor": "Dynamic price sensor (optional)"
         }
       },
@@ -123,8 +123,8 @@
           "battery_round_trip_efficiency": "Round-trip efficiency (%)",
           "battery_max_charge_kw": "Max charge power (kW)",
           "battery_max_discharge_kw": "Max discharge power (kW)",
-          "battery_price_eur": "Total battery price (\u20ac) — e.g. 1800 for a 15kWh DIY battery",
-          "battery_install_cost": "Installation cost (\u20ac)"
+          "battery_price_eur": "Total battery price (€) — e.g. 1800 for a 15kWh DIY battery",
+          "battery_install_cost": "Installation cost (€)"
         }
       },
       "sim_period": {
@@ -218,9 +218,6 @@
       },
       "cheapest_export": {
         "name": "Best provider annual cost"
-      },
-      "fixed_count": {
-        "name": "Fixed contract count"
       }
     }
   }

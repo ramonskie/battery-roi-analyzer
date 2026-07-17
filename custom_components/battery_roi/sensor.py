@@ -53,7 +53,6 @@ _KEY_BEST_DYNAMIC: Final = "best_dynamic"
 _KEY_BEST_OVERALL: Final = "best_overall"
 _KEY_CHEAPEST_IMPORT: Final = "cheapest_import"
 _KEY_CHEAPEST_EXPORT: Final = "cheapest_export"
-_KEY_FIXED_COUNT: Final = "fixed_count"
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -205,11 +204,6 @@ def _best_provider_annual_cost(data: BatteryRoiData) -> float | None:
     return best.estimated_annual_cost_eur if best is not None else None
 
 
-def _fixed_count(data: BatteryRoiData) -> int | None:
-    """Return number of fixed contracts in the dataset."""
-    return len([r for r in data.provider_recommendations if r.contract_type == "fixed"]) or None
-
-
 def _provider_attributes(data: BatteryRoiData) -> dict[str, Any]:
     """Return extra state attributes with full provider rankings."""
     recs = data.provider_recommendations
@@ -340,13 +334,6 @@ SENSOR_DESCRIPTIONS: Final[tuple[BatteryRoiSensorDescription, ...]] = (
         native_unit_of_measurement=_CURRENCY_EUR,
         suggested_display_precision=2,
         value_fn=_best_provider_annual_cost,
-    ),
-    BatteryRoiSensorDescription(
-        key=_KEY_FIXED_COUNT,
-        translation_key=_KEY_FIXED_COUNT,
-        name="Fixed contract count",
-        state_class=SensorStateClass.MEASUREMENT,
-        value_fn=_fixed_count,
     ),
 )
 
