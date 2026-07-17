@@ -59,9 +59,16 @@ Cards 07 and 08 read from `sensor.battery_roi_best_overall`'s
 1. Install `apexcharts-card` via HACS (Frontend section), restart/clear
    cache after install.
 2. For `06-sankey.yaml`, also install `plotly-graph` via HACS.
-3. In each YAML file, replace `sensor.battery_roi_*` entity IDs with
-   your actual config-entry-specific entity IDs if you have more than
-   one config entry.
-4. Paste the card block(s) into a dashboard view via the raw YAML
+3. **Find your entity IDs**: HA auto-generates entity IDs from your device
+   name. If the examples use `sensor.battery_roi_best_size`, your actual
+   entity might be `sensor.battery_roi_analyzer_best_size`. Check
+   **Developer Tools → States → filter "battery_roi"** to find the exact
+   IDs for your config entry.
+4. **Replace in YAML**: do a find-and-replace on each file:
+   - `sensor.battery_roi_best_size` → your actual best-size entity ID
+   - `sensor.battery_roi_best_overall` → your actual best-overall entity ID
+   - `sensor.battery_roi_cycles` → your actual cycles entity ID
+   - etc.
+5. Paste the card block(s) into a dashboard view via the raw YAML
    editor, or use "Edit dashboard" → "+ Add card" → "Manual" and paste
    a single card block at a time.
