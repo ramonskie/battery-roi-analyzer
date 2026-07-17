@@ -21,6 +21,7 @@ regardless of the sensor's native unit.
 
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Final, Literal
@@ -33,6 +34,8 @@ from homeassistant.components.recorder.statistics import (
     statistics_during_period,
 )
 from homeassistant.core import HomeAssistant
+
+_LOGGER = logging.getLogger(__name__)
 
 # Resolution preference: ``hour`` first because it preserves the day/night
 # cycle that drives battery charge/discharge behavior.  Daily data smears
@@ -238,16 +241,26 @@ async def _async_fetch_with_unit(
     """Fetch statistics at best resolution AND resolve the unit_of_measurement.
 
     1. Asks the HA API for metadata to learn the sensor's native unit.
-    2. Fetches data via the resolution fallback chain.
-    3. Explicitly converts the ``sum`` column to kWh (if the native unit
+    2. Falls back to the entity's current state unit if metadata is missing.
+    3. Fetches data via the resolution fallback chain.
+    4. Explicitly converts the ``sum`` column to kWh (if the native unit
        is MWh, Wh, etc.), so downstream code always works in kWh.
 
     This explicit conversion is more reliable than relying on the
     ``statistics_during_period *units*`` parameter, which may be silently
     ignored on older HA versions or fail for certain unit pairs.
     """
-    # Resolve native unit FIRST (metadata fetch is async-cached so it's fast).
+    # Resolve native unit from statistics metadata (preferred) or entity state.
     unit = await _async_get_unit_of_measurement(hass, entity_id)
+    if unit is None:
+        state = hass.states.get(entity_id)
+        if state is not None:
+            unit = state.attributes.get("unit_of_measurement")
+            if unit:
+                _LOGGER.debug(
+                    "No statistics metadata unit for %s — using state unit %r",
+                    entity_id, unit,
+                )
 
     last_period: Literal["5minute", "hour", "day"] = _RESOLUTION_FALLBACK_CHAIN[-1]
     for period in _RESOLUTION_FALLBACK_CHAIN:
