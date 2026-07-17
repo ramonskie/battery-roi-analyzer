@@ -64,11 +64,13 @@ def _estimate_dynamic_annual_cost(
     annual_consumption_kwh: float,
     annual_production_kwh: float,
 ) -> float:
-    """Estimate annual cost for a dynamic contract using average price."""
-    cost = contract.vastrecht_elek_eur_per_month * 12
-    cost += annual_consumption_kwh * contract.avg_price_eur_per_kwh
-    # Dynamic export price approximated as 80% of average import price
-    export_price = contract.avg_price_eur_per_kwh * 0.8
+    """Estimate annual cost for a dynamic contract using average all-in price.
+    
+    Vastrecht is handled by the caller (default from fixed contracts).
+    """
+    cost = annual_consumption_kwh * contract.avg_price_eur_per_kwh
+    # Dynamic export price: raw market price (~60% of all-in, energy tax excluded)
+    export_price = contract.avg_price_eur_per_kwh * 0.55
     cost -= annual_production_kwh * export_price
     return max(cost, 0.0)
 
@@ -141,12 +143,24 @@ def compare_providers(
                 )
             )
 
-    # Dynamic contracts
+    # Dynamic contracts — default vastrecht from fixed average, fallback €12/mo
+    if fixed_dataset is not None and fixed_dataset.contracts:
+        default_vastrecht = sum(
+            c.vastrecht_elek_eur_per_month for c in fixed_dataset.contracts
+        ) / len(fixed_dataset.contracts)
+    else:
+        default_vastrecht = 12.0
+
     if dynamic_contracts is not None:
         for contract in dynamic_contracts:
+            vastrecht = (
+                contract.vastrecht_elek_eur_per_month
+                if contract.vastrecht_elek_eur_per_month > 0
+                else default_vastrecht
+            )
             annual_cost = _estimate_dynamic_annual_cost(
                 contract, annual_consumption_kwh, annual_production_kwh
-            )
+            ) + vastrecht * 12
             recommendations.append(
                 ProviderRecommendation(
                     provider=contract.provider,
