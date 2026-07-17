@@ -129,7 +129,6 @@ SIMULATION_UPDATE_INTERVAL_HOURS: Final = 24
 SENSOR_KEY_BEST_SIZE: Final = "best_size"
 SENSOR_KEY_PAYBACK_YEARS: Final = "payback"
 SENSOR_KEY_ANNUAL_SAVING: Final = "annual_saving"
-SENSOR_KEY_BEST_CAPACITY: Final = "best_capacity"
 SENSOR_KEY_CYCLES: Final = "cycles"
 SENSOR_KEY_SELF_CONSUMPTION: Final = "self_consumption"
 SENSOR_KEY_IMPORT_SAVED: Final = "import_saved"

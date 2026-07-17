@@ -43,7 +43,6 @@ _CURRENCY_EUR: Final = "EUR"
 _KEY_BEST_SIZE: Final = "best_size"
 _KEY_PAYBACK: Final = "payback"
 _KEY_ANNUAL_SAVING: Final = "annual_saving"
-_KEY_BEST_CAPACITY: Final = "best_capacity"
 _KEY_CYCLES: Final = "cycles"
 _KEY_SELF_CONSUMPTION: Final = "self_consumption"
 _KEY_IMPORT_SAVED: Final = "import_saved"
@@ -128,12 +127,6 @@ def _annual_saving_eur(data: BatteryRoiData) -> float | None:
     """Return the annual saving (EUR) for the highest-ROI scenario, if any."""
     best = data.scenario_comparison.best_by_roi
     return best.annual_saving_eur if best is not None else None
-
-
-def _best_npv_capacity_kwh(data: BatteryRoiData) -> float | None:
-    """Return the capacity_kwh of the highest-NPV scenario, if any."""
-    best = data.scenario_comparison.best_by_npv
-    return best.battery_capacity_kwh if best is not None else None
 
 
 def _best_roi_simulation(data: BatteryRoiData):  # noqa: ANN202 - internal helper
@@ -236,15 +229,6 @@ SENSOR_DESCRIPTIONS: Final[tuple[BatteryRoiSensorDescription, ...]] = (
         value_fn=_best_roi_capacity_kwh,
     ),
     BatteryRoiSensorDescription(
-        key=_KEY_PAYBACK,
-        translation_key=_KEY_PAYBACK,
-        name="Payback",
-        native_unit_of_measurement=UnitOfTime.YEARS,
-        state_class=SensorStateClass.MEASUREMENT,
-        suggested_display_precision=1,
-        value_fn=_payback_years,
-    ),
-    BatteryRoiSensorDescription(
         key=_KEY_ANNUAL_SAVING,
         translation_key=_KEY_ANNUAL_SAVING,
         name="Annual saving",
@@ -252,15 +236,6 @@ SENSOR_DESCRIPTIONS: Final[tuple[BatteryRoiSensorDescription, ...]] = (
         native_unit_of_measurement=_CURRENCY_EUR,
         suggested_display_precision=2,
         value_fn=_annual_saving_eur,
-    ),
-    BatteryRoiSensorDescription(
-        key=_KEY_BEST_CAPACITY,
-        translation_key=_KEY_BEST_CAPACITY,
-        name="Best capacity",
-        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
-        state_class=SensorStateClass.MEASUREMENT,
-        suggested_display_precision=1,
-        value_fn=_best_npv_capacity_kwh,
     ),
     BatteryRoiSensorDescription(
         key=_KEY_CYCLES,
@@ -412,7 +387,7 @@ class BatteryRoiSensor(CoordinatorEntity[BatteryRoiCoordinator], SensorEntity):
     def extra_state_attributes(self) -> Mapping[str, Any]:
         """Return per-capacity breakdown + monthly data for dashboard charts.
 
-        The ``best_size`` and ``best_capacity`` sensors expose the full
+        The ``best_size`` sensor exposes the full
         ``by_capacity`` (financial + simulation metrics per battery size)
         and ``monthly_data`` (monthly aggregated energy flows for heatmap)
         from the coordinator's cached ``BatteryRoiData``.
@@ -429,7 +404,7 @@ class BatteryRoiSensor(CoordinatorEntity[BatteryRoiCoordinator], SensorEntity):
         key = self.entity_description.key
         if key == _KEY_PAYBACK:
             return _payback_attrs(data)
-        if key in (_KEY_BEST_SIZE, _KEY_BEST_CAPACITY):
+        if key in (_KEY_BEST_SIZE,):
             attrs: dict[str, Any] = {}
             if data.by_capacity:
                 attrs["by_capacity"] = data.by_capacity

@@ -168,9 +168,6 @@
       "annual_saving": {
         "name": "Annual saving"
       },
-      "best_capacity": {
-        "name": "Best capacity (by NPV)"
-      },
       "cycles": {
         "name": "Cycles per year"
       },
