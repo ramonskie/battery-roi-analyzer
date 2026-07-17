@@ -9,15 +9,18 @@
 type: custom:apexcharts-card
 header:
   show: true
-  title: Provider Cost Comparison
+  title: Provider Cost Comparison (top 15)
 graph_span: 1d
 apex_config:
   chart:
     type: bar
+    height: 450
   xaxis:
     type: category
     labels:
       rotate: -45
+      style:
+        fontSize: '10px'
   yaxis:
     - title:
         text: "Annual cost (€)"
@@ -37,7 +40,7 @@ series:
     type: column
     name: Without battery (€/yr)
     data_generator: |
-      return (entity.attributes.rankings || []).map(r => [
+      return (entity.attributes.rankings || []).slice(0, 15).map(r => [
         r.provider,
         r.annual_cost_eur
       ]);
@@ -48,6 +51,7 @@ series:
     data_generator: |
       return (entity.attributes.rankings || [])
         .filter(r => r.annual_cost_with_battery_eur != null)
+        .slice(0, 15)
         .map(r => [
           r.provider,
           r.annual_cost_with_battery_eur
