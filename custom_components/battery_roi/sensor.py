@@ -221,7 +221,6 @@ def _provider_attributes(data: BatteryRoiData) -> dict[str, Any]:
 SENSOR_DESCRIPTIONS: Final[tuple[BatteryRoiSensorDescription, ...]] = (
     BatteryRoiSensorDescription(
         key=_KEY_BEST_SIZE,
-        translation_key=_KEY_BEST_SIZE,
         name="Best size",
         native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
         state_class=SensorStateClass.MEASUREMENT,
@@ -230,7 +229,6 @@ SENSOR_DESCRIPTIONS: Final[tuple[BatteryRoiSensorDescription, ...]] = (
     ),
     BatteryRoiSensorDescription(
         key=_KEY_ANNUAL_SAVING,
-        translation_key=_KEY_ANNUAL_SAVING,
         name="Annual saving",
         device_class=SensorDeviceClass.MONETARY,
         native_unit_of_measurement=_CURRENCY_EUR,
@@ -239,7 +237,6 @@ SENSOR_DESCRIPTIONS: Final[tuple[BatteryRoiSensorDescription, ...]] = (
     ),
     BatteryRoiSensorDescription(
         key=_KEY_CYCLES,
-        translation_key=_KEY_CYCLES,
         name="Cycles",
         state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=1,
@@ -247,7 +244,6 @@ SENSOR_DESCRIPTIONS: Final[tuple[BatteryRoiSensorDescription, ...]] = (
     ),
     BatteryRoiSensorDescription(
         key=_KEY_SELF_CONSUMPTION,
-        translation_key=_KEY_SELF_CONSUMPTION,
         name="Self-consumption",
         native_unit_of_measurement=PERCENTAGE,
         state_class=SensorStateClass.MEASUREMENT,
@@ -256,7 +252,6 @@ SENSOR_DESCRIPTIONS: Final[tuple[BatteryRoiSensorDescription, ...]] = (
     ),
     BatteryRoiSensorDescription(
         key=_KEY_IMPORT_SAVED,
-        translation_key=_KEY_IMPORT_SAVED,
         name="Import saved",
         device_class=SensorDeviceClass.ENERGY,
         native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
@@ -266,7 +261,6 @@ SENSOR_DESCRIPTIONS: Final[tuple[BatteryRoiSensorDescription, ...]] = (
     ),
     BatteryRoiSensorDescription(
         key=_KEY_EXPORT_SAVED,
-        translation_key=_KEY_EXPORT_SAVED,
         name="Export saved",
         device_class=SensorDeviceClass.ENERGY,
         native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
@@ -276,25 +270,21 @@ SENSOR_DESCRIPTIONS: Final[tuple[BatteryRoiSensorDescription, ...]] = (
     ),
     BatteryRoiSensorDescription(
         key=_KEY_BEST_FIXED,
-        translation_key=_KEY_BEST_FIXED,
         name="Best fixed contract",
         value_fn=_best_fixed,
     ),
     BatteryRoiSensorDescription(
         key=_KEY_BEST_DYNAMIC,
-        translation_key=_KEY_BEST_DYNAMIC,
         name="Best dynamic contract",
         value_fn=_best_dynamic,
     ),
     BatteryRoiSensorDescription(
         key=_KEY_BEST_OVERALL,
-        translation_key=_KEY_BEST_OVERALL,
         name="Best overall contract",
         value_fn=_best_overall,
     ),
     BatteryRoiSensorDescription(
         key=_KEY_CHEAPEST_IMPORT,
-        translation_key=_KEY_CHEAPEST_IMPORT,
         name="Cheapest annual cost",
         device_class=SensorDeviceClass.MONETARY,
         native_unit_of_measurement=_CURRENCY_EUR,
@@ -303,7 +293,6 @@ SENSOR_DESCRIPTIONS: Final[tuple[BatteryRoiSensorDescription, ...]] = (
     ),
     BatteryRoiSensorDescription(
         key=_KEY_CHEAPEST_EXPORT,
-        translation_key=_KEY_CHEAPEST_EXPORT,
         name="Best provider annual cost",
         device_class=SensorDeviceClass.MONETARY,
         native_unit_of_measurement=_CURRENCY_EUR,
