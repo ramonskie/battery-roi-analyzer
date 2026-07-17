@@ -30,6 +30,8 @@ via HACS (apexcharts-card has no native sankey series).
 | `04-cycles-per-year.yaml` | Cycles/year (bar) | apexcharts-card |
 | `05-monthly-heatmap.yaml` | Monthly PV/battery/export/import heatmap | apexcharts-card (heatmap series) |
 | `06-sankey.yaml` | Energy flow PV → Battery → Self-consumption → Grid | plotly-graph |
+| `07-provider-summary.yaml` | Best fixed/dynamic contract names + costs | markdown card (built-in) |
+| `08-provider-bar-chart.yaml` | Annual cost per provider (with vs without battery) | apexcharts-card |
 
 ## Data attributes
 
@@ -45,8 +47,12 @@ Cards 01, 02, and 05 read from `sensor.battery_roi_best_size`'s
   `exported_kwh` aggregated from the simulation's per-timestep data
   for the best-by-ROI battery capacity.
 
-No additional sensors or persistence needed for these attributes —
-they are computed fresh each time the coordinator refreshes.
+Cards 07 and 08 read from `sensor.battery_roi_best_overall`'s
+`extra_state_attributes`:
+
+- **`rankings`**: Array of ranked provider recommendations, each with
+  `provider`, `contract`, `type` (fixed/dynamic), `annual_cost_eur`,
+  `annual_cost_with_battery_eur`, `battery_capacity_kwh`.
 
 ## Setup instructions
 
