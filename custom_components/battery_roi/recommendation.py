@@ -143,13 +143,10 @@ def compare_providers(
                 )
             )
 
-    # Dynamic contracts — default vastrecht from fixed average, fallback €12/mo
+    # Dynamic contracts — vastrecht is the same for everyone (netbeheerkosten).
+    # Use the fixed contracts' vastrecht as reference, fallback €12/mo.
     if fixed_dataset is not None and fixed_dataset.contracts:
-        default_vastrecht = sum(
-            c.vastrecht_elek_eur_per_month for c in fixed_dataset.contracts
-        ) / len(fixed_dataset.contracts)
-    else:
-        default_vastrecht = 12.0
+        default_vastrecht = fixed_dataset.contracts[0].vastrecht_elek_eur_per_month
 
     if dynamic_contracts is not None:
         for contract in dynamic_contracts:
